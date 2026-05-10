@@ -9,130 +9,114 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
 button{cursor:pointer;font-family:inherit}
-#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px}
 #hdr h1{font-size:14px;font-weight:700}
-.wrap{max-width:900px;margin:20px auto;padding:0 16px}
+.wrap{max-width:860px;margin:20px auto;padding:0 16px}
 .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:14px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none}
+.lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none;width:100%}
 .inp:focus{border-color:#3b82f6}
-.inp-full{width:100%}
-.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer}
-.pri{background:#2563eb;color:#fff}.pri:hover{background:#1d4ed8}
-.grn{background:#16a34a;color:#fff}.grn:hover{background:#15803d}
-.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.sec:hover{background:#e2e8f0}
-.sm{padding:5px 11px;font-size:11px}
-.lbl{font-size:10px;color:#718096;margin-bottom:4px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
-.t-ok{background:#dcfce7;color:#15803d}
-.t-err{background:#fee2e2;color:#b91c1c}
-.t-warn{background:#fef9c3;color:#854d0e}
-#log{
-  background:#0f172a;color:#4ade80;padding:14px;
-  font-family:'Courier New',monospace;font-size:11px;
-  border-radius:7px;max-height:200px;overflow-y:auto;
-  white-space:pre-wrap;word-break:break-all;
-  line-height:1.7;
-}
-.res-pre{
-  background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;
-  padding:14px;font-size:11px;color:#1a202c;
-  font-family:'Courier New',monospace;
-  max-height:320px;overflow-y:auto;
-  white-space:pre-wrap;word-break:break-all;
-  line-height:1.6;
-}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.status-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f4f8}
-.status-row:last-child{border-bottom:none}
+.inp-sm{width:auto;flex:1}
+.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.pri{background:#2563eb;color:#fff}
+.grn{background:#16a34a;color:#fff}
+.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}
+.sm{padding:5px 12px;font-size:11px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
+.ok{background:#dcfce7;color:#15803d}.err{background:#fee2e2;color:#b91c1c}.warn{background:#fef9c3;color:#854d0e}
+#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
+.res-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:11px;font-family:'Courier New',monospace;max-height:360px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6;color:#1a202c}
 hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
+.alert{background:#fffbeb;border:2px solid #fcd34d;border-radius:8px;padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:#78350f}
+.info{background:#eff6ff;border:2px solid #bfdbfe;border-radius:8px;padding:14px;font-size:12px;line-height:1.8;color:#1e40af}
 </style>
 </head>
 <body>
-
 <div id="hdr">
-  <h1>🧪 BOT API Tester — portal.api.bot.or.th</h1>
-  <span style="font-size:11px;opacity:.8">ไม่มี Login · ทดสอบ API ตรงๆ</span>
+  <h1>🧪 BOT API Tester</h1>
+  <span style="font-size:11px;opacity:.75">ผ่าน Cloudflare Worker proxy — แก้ปัญหา CORS</span>
 </div>
 
 <div class="wrap">
 
-  <!-- Step 1: Token -->
+  <!-- CORS explanation -->
 
-  <div class="card">
-    <div class="title">🔑 Step 1 — ใส่ BOT API Token</div>
-    <div class="lbl">Bearer Token (จาก portal.api.bot.or.th)</div>
-    <div class="row" style="margin-bottom:10px">
-      <input class="inp" id="token" type="password" placeholder="eyJvcm..." style="flex:1">
-      <button class="btn sec sm" onclick="toggleShow()">👁 แสดง/ซ่อน</button>
-      <button class="btn pri"    onclick="testPing()">🔄 ทดสอบ Token</button>
-    </div>
-    <div id="ping-result" style="font-size:12px;color:#718096">กด "ทดสอบ Token" เพื่อตรวจสอบว่าใช้งานได้</div>
-    <hr>
-    <div style="font-size:11px;color:#718096;line-height:1.8">
-      <b style="color:#1e40af">API Base URL:</b> <code>https://apief.bot.or.th/BotDataApi/1.0.0</code><br>
-      <b style="color:#1e40af">Auth Header:</b> <code>Authorization: Bearer {token}</code><br>
-      <b style="color:#1e40af">App ID:</b> 3366 · Statistics data
-    </div>
+  <div class="alert">
+    <b>⚠️ ทำไมต้องผ่าน Worker?</b><br>
+    Browser บล็อก JavaScript ไม่ให้เรียก API ข้าม domain โดยตรง (CORS policy)<br>
+    GitHub Pages → BOT API = ❌ โดนบล็อกทันที<br>
+    GitHub Pages → Cloudflare Worker → BOT API = ✅ ทำงานได้
   </div>
 
-  <!-- Step 2: Endpoints -->
+  <!-- Step 1: Worker token -->
 
   <div class="card">
-    <div class="title">📋 Step 2 — ทดสอบ Endpoints</div>
+    <div class="title">⚙️ Step 1 — ตั้งค่า Cloudflare Worker</div>
+    <div class="info" style="margin-bottom:14px">
+      <b>ต้องทำใน Cloudflare ก่อน:</b><br>
+      1. Workers → iaa-ingest → Settings → Variables and Secrets<br>
+      2. เพิ่ม Secret: <code>BOT_API_KEY</code> = token ใหม่ที่ได้จาก portal.api.bot.or.th<br>
+      3. paste ingest_worker_phase5.js → Save &amp; Deploy<br>
+      (Worker มี /bot/status, /bot/series, /bot/observations แล้ว)
+    </div>
+    <div class="lbl">INGEST_SECRET_TOKEN (ใช้ auth กับ Worker)</div>
+    <div class="row" style="margin-bottom:10px">
+      <input class="inp inp-sm" id="w-token" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
+      <button class="btn sec sm" onclick="toggleTok()">👁</button>
+      <button class="btn pri"    onclick="pingWorker()">🔄 ทดสอบ Worker</button>
+    </div>
+    <div id="ping-res" style="font-size:12px;color:#718096">กด "ทดสอบ Worker" ก่อนครับ</div>
+  </div>
+
+  <!-- Step 2: API calls -->
+
+  <div class="card" id="api-card">
+    <div class="title">📡 Step 2 — ทดสอบ BOT API ผ่าน Worker</div>
+    <div class="g2" style="margin-bottom:14px">
 
 ```
-<div class="grid2">
-  <!-- Categories -->
   <div>
-    <div class="lbl">Category List</div>
-    <div class="row" style="margin-bottom:8px">
-      <code style="font-size:11px;color:#2563eb;flex:1">/DataSeries/category</code>
-      <button class="btn grn sm" onclick="callAPI('categories')">ดึงข้อมูล</button>
+    <div class="lbl">1. ดู Categories ทั้งหมด</div>
+    <button class="btn grn sm" onclick="call('categories')" style="width:100%">ดึง Category List</button>
+  </div>
+
+  <div>
+    <div class="lbl">2. Series ตาม Category</div>
+    <div class="row">
+      <input class="inp inp-sm" id="cat" placeholder="เช่น EC, IR, ER">
+      <button class="btn grn sm" onclick="call('series')">ดึง</button>
     </div>
   </div>
 
-  <!-- Series by category -->
   <div>
-    <div class="lbl">Series List ตาม Category</div>
-    <div class="row" style="margin-bottom:8px">
-      <input class="inp" id="cat-id" placeholder="Category Code เช่น EC" style="flex:1;font-size:11px">
-      <button class="btn grn sm" onclick="callAPI('series')">ดึง Series</button>
+    <div class="lbl">3. Observations (ข้อมูลจริง)</div>
+    <div class="row" style="margin-bottom:5px">
+      <input class="inp inp-sm" id="scode" placeholder="Series Code">
+    </div>
+    <div class="row">
+      <input class="inp inp-sm" id="sstart" type="date" value="2024-01-01">
+      <button class="btn grn sm" onclick="call('obs')">ดึง</button>
     </div>
   </div>
 
-  <!-- Search -->
   <div>
-    <div class="lbl">ค้นหา Series</div>
-    <div class="row" style="margin-bottom:8px">
-      <input class="inp" id="search-q" placeholder="คำค้นหา เช่น CPI, inflation" style="flex:1;font-size:11px">
-      <button class="btn grn sm" onclick="callAPI('search')">ค้นหา</button>
+    <div class="lbl">4. Quick Test — Series รู้จัก</div>
+    <div class="row" style="flex-wrap:wrap">
+      <button class="btn sec sm" onclick="quick('IR_1103500_06')">Policy Rate</button>
+      <button class="btn sec sm" onclick="quick('BORCPI01')">CPI</button>
+      <button class="btn sec sm" onclick="quick('EREF01')">USD/THB</button>
+      <button class="btn sec sm" onclick="quick('BORGDP01')">GDP</button>
     </div>
   </div>
 
-  <!-- Observations -->
-  <div>
-    <div class="lbl">Observations (ข้อมูลจริง)</div>
-    <div class="row" style="margin-bottom:4px">
-      <input class="inp" id="series-code" placeholder="Series Code" style="flex:1;font-size:11px">
-    </div>
-    <div class="row" style="margin-bottom:8px">
-      <input class="inp" id="obs-start" type="date" value="2024-01-01" style="flex:1;font-size:11px">
-      <button class="btn grn sm" onclick="callAPI('observations')">ดึงข้อมูล</button>
-    </div>
-  </div>
 </div>
-
 <hr>
-<!-- Quick test buttons -->
-<div class="lbl">Quick Test — series รู้จัก</div>
-<div class="row" style="margin-top:6px">
-  <button class="btn sec sm" onclick="quickTest('IR_1103500_06')">Policy Rate</button>
-  <button class="btn sec sm" onclick="quickTest('BORCPI01')">CPI</button>
-  <button class="btn sec sm" onclick="quickTest('EREF01')">USD/THB</button>
-  <button class="btn sec sm" onclick="quickTest('BORGDP01')">GDP</button>
-</div>
+<div class="lbl">BOT API Status (ผ่าน Worker)</div>
+<button class="btn sec sm" onclick="call('status')">🌐 ตรวจสอบสถานะ BOT API</button>
 ```
 
   </div>
@@ -141,10 +125,10 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
 
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="title" style="margin:0">📟 Request Log</div>
+      <div class="title" style="margin:0">📟 Log</div>
       <button class="btn sec sm" onclick="clearLog()">🗑 Clear</button>
     </div>
-    <div id="log">รอ...</div>
+    <div id="log">รอใส่ Worker Token แล้วกด ทดสอบ Worker...</div>
   </div>
 
   <!-- Result -->
@@ -157,152 +141,131 @@ hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
     <div class="res-pre" id="res-body"></div>
   </div>
 
+  <!-- Schema hint -->
+
+  <div class="card">
+    <div class="title">💡 Response Schema ที่คาดหวัง</div>
+    <div style="font-size:11px;color:#4a5568;line-height:1.9">
+      <b style="color:#1e40af">Categories:</b><br>
+      <code>{ "result": { "categories": [{ "id": "EC", "name_th": "...", "name_en": "..." }] } }</code><br><br>
+      <b style="color:#1e40af">Series:</b><br>
+      <code>{ "result": { "series": [{ "series_code": "BORCPI01", "series_name_eng": "...", ... }] } }</code><br><br>
+      <b style="color:#1e40af">Observations:</b><br>
+      <code>{ "result": { "series": [{ "observations": [{ "period_start": "2024-01", "value": "1.2" }] }] } }</code>
+    </div>
+  </div>
+
 </div>
 
 <script>
-// ── BOT API endpoints (portal ใหม่) ──────────────────────────
-// portal.api.bot.or.th ใช้ base URL ต่างจาก apiportal เดิม
-// ลอง 3 format เพื่อหาว่า endpoint ไหนถูก
-var BASES = [
-  'https://apief.bot.or.th/BotDataApi/1.0.0',
-  'https://apief.bot.or.th/DataServices/1.0.0',
-  'https://portal.api.bot.or.th/bot/public',
-];
-var BASE = BASES[0]; // เริ่มต้นด้วยตัวแรก
+var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
 
-function getToken(){return document.getElementById('token').value.trim()}
+function tok(){ return document.getElementById('w-token').value.trim(); }
+function toggleTok(){ var i=document.getElementById('w-token'); i.type=i.type==='password'?'text':'password'; }
 
-function toggleShow(){
-  var inp=document.getElementById('token');
-  inp.type = inp.type==='password'?'text':'password';
-}
-
-function addLog(msg,col){
+function log(msg, col){
   var el=document.getElementById('log');
   var t=new Date().toLocaleTimeString('th-TH');
-  var color=col||'#4ade80';
-  if(el.textContent==='รอ...') el.textContent='';
-  el.innerHTML+='\n<span style="color:'+color+'">['+t+'] '+msg+'</span>';
-  el.scrollTop=el.scrollHeight;
+  if(el.textContent.startsWith('รอ')) el.textContent='';
+  el.innerHTML += '\n<span style="color:'+(col||'#4ade80')+'">['+t+'] '+msg+'</span>';
+  el.scrollTop = el.scrollHeight;
 }
+function clearLog(){ document.getElementById('log').textContent='รอ...'; document.getElementById('res-card').style.display='none'; }
 
-function clearLog(){
-  document.getElementById('log').textContent='รอ...';
-  document.getElementById('res-card').style.display='none';
-}
-
-function showResult(data,ms){
+function showRes(data, ms){
   document.getElementById('res-card').style.display='block';
   document.getElementById('res-meta').textContent=ms+'ms';
-  document.getElementById('res-body').textContent=
-    typeof data==='string' ? data : JSON.stringify(data,null,2);
+  document.getElementById('res-body').textContent=typeof data==='string'?data:JSON.stringify(data,null,2);
 }
 
-function showPing(ok,msg){
-  var el=document.getElementById('ping-result');
-  el.innerHTML=ok
-    ?'<span class="tag t-ok">✅ '+msg+'</span>'
-    :'<span class="tag t-err">❌ '+msg+'</span>';
-}
-
-// ── ทดสอบ Token ──────────────────────────────────────────────
-async function testPing(){
-  var tok=getToken();
-  if(!tok){alert('กรุณาใส่ Token ก่อน');return;}
-  addLog('ทดสอบ token...');
-  showPing(false,'กำลังตรวจสอบ...');
-
-  // ลอง endpoint ทีละตัว
-  var endpoints=[
-    {base:'https://apief.bot.or.th/BotDataApi/1.0.0', path:'/DataSeries/category'},
-    {base:'https://apief.bot.or.th/BotDataApi/1.0.0', path:'/Category'},
-    {base:'https://apief.bot.or.th/DataServices/1.0.0',path:'/DataSeries/category'},
-    {base:'https://portal.api.bot.or.th/bot/public',   path:'/categories'},
-    {base:'https://apief.bot.or.th/BotDataApi/1.0.0', path:'/DataSeries'},
-  ];
-
-  for(var i=0;i<endpoints.length;i++){
-    var ep=endpoints[i];
-    var url=ep.base+ep.path;
-    addLog('ลอง: '+url,'#fbbf24');
-    try{
-      var t=Date.now();
-      var r=await fetch(url,{
-        headers:{
-          'Authorization':'Bearer '+tok,
-          'Accept':'application/json',
-        },
-        signal:AbortSignal.timeout(8000)
-      });
-      var ms=Date.now()-t;
-      var body=await r.text();
-      addLog('→ HTTP '+r.status+' ('+ms+'ms) '+(r.ok?'✅':'❌'),'#'+(r.ok?'4ade80':'f87171'));
-      if(r.ok){
-        BASE=ep.base;
-        showPing(true,'Online! Base: '+ep.base+' · '+ms+'ms');
-        try{showResult(JSON.parse(body),ms);}catch{showResult(body,ms);}
-        return;
-      }
-      // แสดง response ถ้า 4xx
-      if(r.status===401||r.status===403){
-        addLog('→ Auth error: '+body.slice(0,100),'#f87171');
-      }
-    }catch(e){
-      addLog('→ Error: '+e.message,'#f87171');
+async function pingWorker(){
+  if(!tok()){ alert('ใส่ INGEST_SECRET_TOKEN ก่อน'); return; }
+  log('ทดสอบ Worker...');
+  var pr = document.getElementById('ping-res');
+  pr.textContent = '⏳ กำลังตรวจสอบ...';
+  var t=Date.now();
+  try{
+    var r=await fetch(WORKER+'/bot/status',{
+      headers:{ Authorization:'Bearer '+tok() },
+      signal: AbortSignal.timeout(8000)
+    });
+    var ms=Date.now()-t;
+    var d=await r.json().catch(()=>({}));
+    log('Worker: HTTP '+r.status+' ('+ms+'ms)', r.ok?'#4ade80':'#f87171');
+    if(r.ok){
+      var botOk = d.ok===true;
+      pr.innerHTML='<span class="tag ok">✅ Worker ตอบสนอง ('+ms+'ms)</span>&nbsp;'+
+        (botOk?'<span class="tag ok">✅ BOT API Online</span>':'<span class="tag warn">⚠️ BOT API: '+JSON.stringify(d)+'</span>');
+      showRes(d,ms);
+    } else {
+      pr.innerHTML='<span class="tag err">❌ Worker ตอบ HTTP '+r.status+'</span>';
+      log('Response: '+JSON.stringify(d),'#f87171');
+      if(r.status===401) log('→ INGEST_SECRET_TOKEN ไม่ถูกต้อง','#f87171');
     }
+  } catch(e){
+    log('Error: '+e.message,'#f87171');
+    pr.innerHTML='<span class="tag err">❌ '+e.message+'</span>';
   }
-  showPing(false,'ไม่พบ endpoint ที่ใช้งานได้ — ดู Log สำหรับรายละเอียด');
 }
 
-// ── เรียก API ─────────────────────────────────────────────────
-async function callAPI(type){
-  var tok=getToken();
-  if(!tok){alert('กรุณาใส่ Token ก่อน');return;}
-
-  var url='';
-  if(type==='categories'){
-    url=BASE+'/DataSeries/category';
+async function call(type){
+  if(!tok()){ alert('ใส่ INGEST_SECRET_TOKEN ก่อน'); return; }
+  var url='', label='';
+  if(type==='status'){
+    url=WORKER+'/bot/status'; label='BOT Status';
+  } else if(type==='categories'){
+    url=WORKER+'/bot/series?category=EC'; label='Categories (ลอง EC ก่อน)';
   } else if(type==='series'){
-    var cat=document.getElementById('cat-id').value.trim()||'EC';
-    url=BASE+'/DataSeries?category='+cat;
-  } else if(type==='search'){
-    var q=document.getElementById('search-q').value.trim()||'CPI';
-    url=BASE+'/DataSeries?search='+encodeURIComponent(q);
-  } else if(type==='observations'){
-    var code=document.getElementById('series-code').value.trim();
-    var start=document.getElementById('obs-start').value;
-    if(!code){alert('กรุณากรอก Series Code');return;}
-    url=BASE+'/DataSeries/'+code+'/data?start_period='+start;
+    var cat=document.getElementById('cat').value.trim()||'EC';
+    url=WORKER+'/bot/series?category='+cat; label='Series ['+cat+']';
+  } else if(type==='obs'){
+    var code=document.getElementById('scode').value.trim();
+    if(!code){ alert('กรุณากรอก Series Code'); return; }
+    var start=document.getElementById('sstart').value;
+    url=WORKER+'/bot/observations?series_code='+code+'&start_period='+start;
+    label='Observations ['+code+']';
   }
 
-  addLog('GET '+url,'#60a5fa');
+  log('GET '+url,'#60a5fa');
   var t=Date.now();
   try{
     var r=await fetch(url,{
-      headers:{
-        'Authorization':'Bearer '+tok,
-        'Accept':'application/json',
-      },
-      signal:AbortSignal.timeout(10000)
+      headers:{ Authorization:'Bearer '+tok() },
+      signal: AbortSignal.timeout(12000)
     });
     var ms=Date.now()-t;
     var body=await r.text();
-    addLog('→ HTTP '+r.status+' ('+ms+'ms)','#'+(r.ok?'4ade80':'f87171'));
-    try{showResult(JSON.parse(body),ms);}
-    catch{showResult(body,ms);}
-  }catch(e){
-    addLog('→ Error: '+e.message,'#f87171');
+    log('→ HTTP '+r.status+' ('+ms+'ms)', r.ok?'#4ade80':'#f87171');
+    var parsed;
+    try{ parsed=JSON.parse(body); } catch{ parsed=body; }
+    showRes(parsed,ms);
+
+    // วิเคราะห์ผล
+    if(r.ok && typeof parsed==='object'){
+      var series = parsed?.result?.series;
+      var cats   = parsed?.result?.categories;
+      var obs    = parsed?.result?.series?.[0]?.observations;
+      if(series&&series.length) log('✅ พบ '+series.length+' series · ตัวอย่าง: '+series[0]?.series_code,'#4ade80');
+      else if(cats&&cats.length) log('✅ พบ '+cats.length+' categories','#4ade80');
+      else if(obs&&obs.length)   log('✅ พบ '+obs.length+' observations','#4ade80');
+      else log('⚠️ response ok แต่ไม่พบข้อมูลตาม schema ที่คาดหวัง — ดู Response ด้านล่าง','#fbbf24');
+    } else if(!r.ok){
+      log('❌ Error response: '+body.slice(0,200),'#f87171');
+      if(r.status===401||r.status===403) log('→ BOT_API_KEY ใน Cloudflare อาจไม่ถูกต้อง','#f87171');
+      if(r.status===404) log('→ endpoint ไม่ถูกต้อง หรือยังไม่ได้ deploy Worker routes','#fbbf24');
+    }
+  } catch(e){
+    log('Error: '+e.message,'#f87171');
   }
 }
 
-// ── Quick test ────────────────────────────────────────────────
-function quickTest(code){
-  document.getElementById('series-code').value=code;
-  callAPI('observations');
+function quick(code){
+  document.getElementById('scode').value=code;
+  call('obs');
 }
 
-addLog('พร้อมใช้งาน — ใส่ Token แล้วกด "ทดสอบ Token" ก่อนครับ');
-addLog('หมายเหตุ: ระบบจะลอง endpoint หลายตัวเพื่อหา format ที่ถูกต้อง','#fbbf24');
+log('พร้อมใช้งาน', '#60a5fa');
+log('ขั้นตอน: ใส่ INGEST_SECRET_TOKEN → กดทดสอบ Worker → ทดสอบ BOT API', '#fbbf24');
 </script>
 
 </body>
