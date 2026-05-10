@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOT API Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%}
+body{background:#07080f;color:#dde4f0;font-family:'IBM Plex Mono',monospace;font-size:13px}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:#07080f}
+::-webkit-scrollbar-thumb{background:#1e2235;border-radius:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadein{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.3}}
+.fadein{animation:fadein 0.2s ease forwards}
+.spinner{width:13px;height:13px;border:2px solid #1e2235;border-top-color:#4a9eff;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle}
+button{cursor:pointer;font-family:inherit}
+input,textarea{font-family:inherit}
+</style>
+<script type="importmap">{"imports":{"react":"https://esm.sh/react@18","react-dom/client":"https://esm.sh/react-dom@18/client"}}</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+import React,{useState,useCallback,useEffect,useRef} from 'react';
+import{createRoot}from'react-dom/client';
+const h=React.createElement;
+
+// ── CONFIG (แก้ตรงนี้) ──────────────────────────────────────
+const WORKER_BASE=‘https://iaa-ingest.9vk92zm5z2.workers.dev’;
+const BOT_OLD_BASE=‘https://apiportal.bot.or.th/bot/public’;
+
+// ── CATEGORIES ───────────────────────────────────────────────
+const CATS=[
+{id:‘EC’, th:‘เศรษฐกิจ’,en:‘Economic’},
+{id:‘IR’, th:‘อัตราดอกเบี้ย’,en:‘Interest Rates’},
+{id:‘ER’, th:‘อัตราแลกเปลี่ยน’,en:‘Exchange Rates’},
+{id:‘FM’, th:‘ตลาดการเงิน’,en:‘Financial Market’},
+{id:‘FI’, th:‘สถาบันการเงิน’,en:‘Financial Institutions’},
+{id:‘PS’, th:‘ระบบการชำระเงิน’,en:‘Payment Systems’},
+{id:‘BOP’,th:‘ดุลการชำระเงิน’,en:‘Balance of Payments’},
+{id:‘GS’, th:‘ภาคการคลัง’,en:‘Government Sector’},
+{id:‘PF’, th:‘ตราสารหนี้’,en:‘Private Finance’},
+{id:‘DB’, th:‘ผลประมูลตราสารหนี้’,en:‘Debt Auction’},
+];
+
+// ── MOCK DATA ────────────────────────────────────────────────
+const MOCK_SERIES={
+EC:[
+{series_code:‘BORCPI01’,series_name_th:‘ดัชนีราคาผู้บริโภค CPI’,series_name_eng:‘Consumer Price Index’,unit_eng:’%’,frequency:‘Monthly’,last_update_date:‘2026-04-30’},
+{series_code:‘BORGDP01’,series_name_th:‘GDP Growth Rate’,series_name_eng:‘GDP Growth Rate’,unit_eng:’%’,frequency:‘Quarterly’,last_update_date:‘2026-03-31’},
+{series_code:‘BORPMI01’,series_name_th:‘ดัชนี PMI ภาคการผลิต’,series_name_eng:‘Manufacturing PMI’,unit_eng:‘Index’,frequency:‘Monthly’,last_update_date:‘2026-04-30’},
+{series_code:‘EIRPPIM00080’,series_name_th:‘ดัชนีราคาที่ดินเปล่า กรุงเทพฯ’,series_name_eng:‘Land Price Index Bangkok’,unit_eng:‘Index’,frequency:‘Monthly’,last_update_date:‘2026-03-31’},
+{series_code:‘BORTRD01’,series_name_th:‘มูลค่าการส่งออก’,series_name_eng:‘Export Value’,unit_eng:‘Million USD’,frequency:‘Monthly’,last_update_date:‘2026-03-31’},
+],
+IR:[
+{series_code:‘IR_1103500_06’,series_name_th:‘อัตราดอกเบี้ยนโยบาย’,series_name_eng:‘Policy Rate’,unit_eng:’%’,frequency:‘Monthly’,last_update_date:‘2026-04-30’},
+{series_code:‘IR_1103500_13’,series_name_th:‘อัตราดอกเบี้ย MLR’,series_name_eng:‘MLR Rate’,unit_eng:’%’,frequency:‘Daily’,last_update_date:‘2026-05-09’},
+{series_code:‘IR_1103500_14’,series_name_th:‘อัตราดอกเบี้ย MRR’,series_name_eng:‘MRR Rate’,unit_eng:’%’,frequency:‘Daily’,last_update_date:‘2026-05-09’},
+],
+ER:[
+{series_code:‘EREF01’,series_name_th:‘USD/THB ถัวเฉลี่ยระหว่างธนาคาร’,series_name_eng:‘USD/THB Interbank Rate’,unit_eng:‘THB/USD’,frequency:‘Daily’,last_update_date:‘2026-05-09’},
+{series_code:‘EREF02’,series_name_th:‘EUR/THB อัตราแลกเปลี่ยน’,series_name_eng:‘EUR/THB Rate’,unit_eng:‘THB/EUR’,frequency:‘Daily’,last_update_date:‘2026-05-09’},
+{series_code:‘EREF03’,series_name_th:‘JPY/THB อัตราแลกเปลี่ยน’,series_name_eng:‘JPY/THB Rate’,unit_eng:‘THB/JPY’,frequency:‘Daily’,last_update_date:‘2026-05-09’},
+],
+FM:[
+{series_code:‘PF00000000Q00232’,series_name_th:‘FSIs ยอดรวมตราสารหนี้’,series_name_eng:‘Government Debt Securities Total’,unit_eng:‘M.Baht’,frequency:‘Quarterly’,last_update_date:‘2026-03-31’},
+],
+};
+for(const c of CATS) if(!MOCK_SERIES[c.id]) MOCK_SERIES[c.id]=[];
+
+const mkObs=(code,n=12)=>{
+const base={BORCPI01:[1.12,0.78,0.55,0.35,0.65,0.72,0.89,0.91,1.05,0.98,0.77,0.60],IR_1103500_06:[2.50,2.50,2.50,2.50,2.25,2.25,2.25,2.25,2.00,2.00,2.00,2.00]};
+const vals=base[code]||Array.from({length:n},()=>+(Math.random()*3+0.5).toFixed(2));
+return vals.map((v,i)=>{
+const d=new Date(2026,3-i,1);
+return{period_start:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,value:String(v)};
+});
+};
+
+// ── STORAGE ──────────────────────────────────────────────────
+function useSaved(){
+const[saved,setSaved]=useState(()=>{try{return JSON.parse(localStorage.getItem(‘bot_saved’)||’[]’)}catch{return[]}});
+const save=useCallback(s=>{
+setSaved(prev=>{if(prev.find(x=>x.series_code===s.series_code))return prev;const n=[…prev,s];localStorage.setItem(‘bot_saved’,JSON.stringify(n));return n;});},[]);
+const remove=useCallback(code=>{setSaved(prev=>{const n=prev.filter(x=>x.series_code!==code);localStorage.setItem(‘bot_saved’,JSON.stringify(n));return n;});},[]);
+const isSaved=useCallback(code=>saved.some(s=>s.series_code===code),[saved]);
+return{saved,save,remove,isSaved};
+}
+
+function useCatalog(){
+const[catalog,setCatalog]=useState(()=>{try{return JSON.parse(localStorage.getItem(‘bot_catalog’)||’{}’)}catch{return{}}});
+const addCat=useCallback((id,list)=>{setCatalog(prev=>{const n={…prev,[id]:list};localStorage.setItem(‘bot_catalog’,JSON.stringify(n));return n;});},[]);
+return{catalog,addCat};
+}
+
+// ── API ───────────────────────────────────────────────────────
+async function apiFetch(mode,apiKey,workerToken,path,params={}){
+await new Promise(r=>setTimeout(r,350));
+if(mode===‘mock’){
+if(path===’/series’){const l=MOCK_SERIES[params.category]||[];return{result:{series:l}};}
+if(path===’/observations’){return{result:{series:[{series_code:params.series_code,observations:mkObs(params.series_code)}]}};}
+if(path===’/status’)return{ok:true,latency_ms:212,checked_at:new Date().toISOString()};
+return{};
+}
+if(mode===‘worker’){
+const q=new URLSearchParams(params);
+const r=await fetch(`${WORKER_BASE}/bot${path}?${q}`,{headers:{Authorization:`Bearer ${workerToken}`}});
+if(!r.ok)throw new Error(`Worker ${r.status}: ${await r.text()}`);
+return r.json();
+}
+// direct
+const q=new URLSearchParams(params);
+const r=await fetch(`${BOT_OLD_BASE}${path}?${q}`,{headers:{‘X-IBM-Client-Id’:apiKey}});
+if(!r.ok)throw new Error(`BOT API ${r.status}`);
+return r.json();
+}
+
+// ── CHART ─────────────────────────────────────────────────────
+function Chart({obs}){
+if(!obs||obs.length<2)return null;
+const vals=obs.map(o=>parseFloat(o.value)).filter(v=>!isNaN(v));
+if(vals.length<2)return null;
+const mn=Math.min(…vals),mx=Math.max(…vals),rng=mx-mn||0.01;
+const W=300,H=60,pad=4;
+const slice=vals.slice(-20);
+const pts=slice.map((v,i)=>[
+pad+(i/(slice.length-1))*(W-pad*2),
+H-pad-((v-mn)/rng)*(H-pad*2)
+]);
+const up=vals[vals.length-1]>=vals[vals.length-2];
+const col=up?’#3ddc84’:’#f06060’;
+const pStr=pts.map(p=>p.join(’,’)).join(’ ‘);
+const aStr=`${pts[0][0]},${H} ${pStr} ${pts[pts.length-1][0]},${H}`;
+return h(‘div’,{style:{marginTop:12}},
+h(‘svg’,{width:W,height:H,style:{display:‘block’,overflow:‘visible’}},
+h(‘defs’,null,
+h(‘linearGradient’,{id:‘cg’,x1:‘0’,y1:‘0’,x2:‘0’,y2:‘1’},
+h(‘stop’,{offset:‘0%’,stopColor:col,stopOpacity:‘0.3’}),
+h(‘stop’,{offset:‘100%’,stopColor:col,stopOpacity:‘0’})
+)
+),
+h(‘polygon’,{points:aStr,fill:‘url(#cg)’}),
+h(‘polyline’,{points:pStr,fill:‘none’,stroke:col,strokeWidth:‘1.8’,strokeLinejoin:‘round’,strokeLinecap:‘round’})
+),
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,fontSize:10,color:’#444’,marginTop:3}},
+h(‘span’,null,obs[Math.max(0,obs.length-20)]?.period_start||’’),
+h(‘span’,{style:{color:col,fontWeight:700}},vals[vals.length-1]),
+h(‘span’,null,obs[obs.length-1]?.period_start||’’)
+)
+);
+}
+
+// ── STATUS BADGE ─────────────────────────────────────────────
+function SBadge({ok,lat}){
+if(ok===null)return h(‘span’,{style:{color:’#333’,fontSize:11}},‘ยังไม่เช็ค’);
+const c=ok?’#3ddc84’:’#f06060’;
+return h(‘span’,{style:{display:‘inline-flex’,alignItems:‘center’,gap:5,padding:‘2px 9px’,borderRadius:20,fontSize:11,fontWeight:600,background:ok?’#0a2518’:’#250a0a’,color:c,border:`1px solid ${ok?'#163d25':'#3d1616'}`}},
+h(‘span’,{style:{width:6,height:6,borderRadius:‘50%’,background:c,display:‘inline-block’,animation:ok?‘pulse-dot 2s infinite’:‘none’}}),
+ok?`Online${lat?` · ${lat}ms`:'`}`:‘Offline’
+);
+}
+
+// ── TAG ───────────────────────────────────────────────────────
+function Tag({children,col=’#1a1d2e’}){
+return h(‘span’,{style:{display:‘inline-block’,padding:‘1px 7px’,borderRadius:4,fontSize:10,fontWeight:600,background:col,color:’#888’,letterSpacing:‘0.4px’}},children);
+}
+
+// ── BTN ───────────────────────────────────────────────────────
+const BTN_STYLES={
+default:{background:’#141626’,color:’#888’,border:‘1px solid #1e2235’},
+primary:{background:’#0d5fbd’,color:’#fff’,border:‘1px solid #1570e0’},
+success:{background:’#0a2518’,color:’#3ddc84’,border:‘1px solid #163d25’},
+danger: {background:’#250a0a’,color:’#f06060’,border:‘1px solid #3d1616’},
+};
+function Btn({children,variant=‘default’,onClick,disabled,style={}}){
+const s=BTN_STYLES[variant]||BTN_STYLES.default;
+return h(‘button’,{
+onClick,disabled,
+style:{…s,padding:‘6px 13px’,borderRadius:6,fontSize:12,fontWeight:600,fontFamily:‘inherit’,cursor:disabled?‘not-allowed’:‘pointer’,opacity:disabled?0.5:1,transition:‘opacity 0.1s’,…style}
+},children);
+}
+
+// ── INPUT ─────────────────────────────────────────────────────
+function Input({value,onChange,placeholder,type=‘text’,style={}}){
+return h(‘input’,{value,onChange,placeholder,type,style:{
+background:’#090a12’,border:‘1px solid #1e2235’,borderRadius:6,
+color:’#dde4f0’,fontFamily:‘inherit’,fontSize:12,padding:‘7px 11px’,
+outline:‘none’,width:‘100%’,…style
+}});
+}
+
+// ── CARD ──────────────────────────────────────────────────────
+function Card({children,style={}}){
+return h(‘div’,{style:{background:’#0c0e1a’,border:‘1px solid #171928’,borderRadius:8,padding:16,marginBottom:12,…style}},children);
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN APP
+// ════════════════════════════════════════════════════════════
+function App(){
+const[tab,setTab]=useState(‘explore’);
+const[mode,setMode]=useState(‘mock’); // mock|direct|worker
+const[apiKey,setApiKey]=useState(’’);
+const[workerToken,setWorkerToken]=useState(’’);
+
+const{saved,save,remove,isSaved}=useSaved();
+const{catalog,addCat}=useCatalog();
+
+// explore
+const[selCat,setSelCat]=useState(null);
+const[series,setSeries]=useState([]);
+const[serLoading,setSerLoading]=useState(false);
+const[search,setSearch]=useState(’’);
+
+// observe
+const[selSeries,setSelSeries]=useState(null);
+const[obs,setObs]=useState(null);
+const[obsLoading,setObsLoading]=useState(false);
+const[startP,setStartP]=useState(‘2023-01-01’);
+const[endP,setEndP]=useState(’’);
+
+// status
+const[botSt,setBotSt]=useState({ok:null,lat:null,at:null});
+const[stLoading,setStLoading]=useState(false);
+
+// copy flash
+const[flash,setFlash]=useState(’’);
+const flashMsg=(k)=>{setFlash(k);setTimeout(()=>setFlash(’’),2000);};
+
+// catalog load
+const[catLoading,setCatLoading]=useState(false);
+
+const call=useCallback((path,params)=>apiFetch(mode,apiKey,workerToken,path,params),[mode,apiKey,workerToken]);
+
+const loadSeries=useCallback(async(cat)=>{
+setSerLoading(true);setSeries([]);setSelSeries(null);setObs(null);
+try{
+const d=await call(’/series’,{category:cat.id});
+const l=d?.result?.series||[];
+setSeries(l);addCat(cat.id,l);
+}catch(e){alert(’Error: ’+e.message);}
+setSerLoading(false);
+},[call,addCat]);
+
+const loadObs=useCallback(async(s)=>{
+setObsLoading(true);setObs(null);
+const p={series_code:s.series_code,start_period:startP};
+if(endP)p.end_period=endP;
+try{
+const d=await call(’/observations’,p);
+const o=d?.result?.series?.[0]?.observations||[];
+setObs({s,observations:o});
+}catch(e){alert(’Error: ’+e.message);}
+setObsLoading(false);
+},[call,startP,endP]);
+
+const checkStatus=useCallback(async()=>{
+setStLoading(true);
+try{const d=await call(’/status’,{});setBotSt({ok:d.ok??true,lat:d.latency_ms,at:d.checked_at});}
+catch{setBotSt({ok:false,lat:null,at:new Date().toISOString()});}
+setStLoading(false);
+},[call]);
+
+const goObs=(s)=>{setSelSeries(s);setTab(‘observe’);loadObs(s);};
+
+const filtered=series.filter(s=>
+!search||
+s.series_code?.toLowerCase().includes(search.toLowerCase())||
+(s.series_name_th||’’).includes(search)||
+(s.series_name_eng||’’).toLowerCase().includes(search.toLowerCase())
+);
+
+const totalCat=Object.values(catalog).reduce((a,b)=>a+b.length,0);
+
+// ── TABS UI ───────────────────────────────────────────────
+const TABS=[
+{k:‘explore’,label:‘🗂 Explore’},
+{k:‘observe’,label:‘📊 Observations’},
+{k:‘catalog’,label:‘📚 Catalog’},
+{k:‘saved’,  label:`⭐ Saved (${saved.length})`},
+{k:‘setup’,  label:‘⚙️ Setup’},
+];
+
+// ── RENDER EXPLORE ────────────────────────────────────────
+function renderExplore(){
+return h(‘div’,{style:{display:‘grid’,gridTemplateColumns:‘210px 1fr’,height:‘calc(100vh - 48px)’}},
+// Sidebar
+h(‘aside’,{style:{background:’#090a12’,borderRight:‘1px solid #171928’,overflowY:‘auto’,padding:‘12px 0’}},
+h(‘div’,{style:{padding:‘4px 14px 8px’,fontSize:10,color:’#333’,letterSpacing:‘2px’,textTransform:‘uppercase’}},‘หมวดหมู่’),
+CATS.map(c=>h(‘button’,{
+key:c.id,
+onClick:()=>{setSelCat(c);loadSeries(c);setSearch(’’);},
+style:{
+display:‘block’,width:‘100%’,textAlign:‘left’,padding:‘9px 14px’,
+border:‘none’,background:selCat?.id===c.id?’#141e38’:‘transparent’,
+color:selCat?.id===c.id?’#7ab4ff’:’#666’,cursor:‘pointer’,
+borderLeft:`2px solid ${selCat?.id===c.id?'#1a6eff':'transparent'}`,
+transition:‘all 0.1s’,
+}
+},
+h(‘div’,{style:{fontWeight:600,fontSize:11}},c.id),
+h(‘div’,{style:{fontSize:10,color:selCat?.id===c.id?’#5588cc’:’#444’,marginTop:2}},c.th)
+)),
+saved.length>0&&h(‘div’,null,
+h(‘div’,{style:{padding:‘12px 14px 4px’,fontSize:10,color:’#333’,letterSpacing:‘2px’,textTransform:‘uppercase’}},‘Saved’),
+h(‘div’,{style:{padding:‘4px 14px’,fontSize:11,color:’#3ddc84’}},`${saved.length} series`)
+),
+totalCat>0&&h(‘div’,null,
+h(‘div’,{style:{padding:‘12px 14px 4px’,fontSize:10,color:’#333’,letterSpacing:‘2px’,textTransform:‘uppercase’}},‘Catalog’),
+h(‘div’,{style:{padding:‘4px 14px’,fontSize:11,color:’#555’}},`${totalCat} series`)
+)
+),
+// Main
+h(‘main’,{style:{overflowY:‘auto’,padding:18}},
+!selCat
+? h(‘div’,{className:‘fadein’},
+Card2(‘🏦 BOT API Explorer — ธนาคารแห่งประเทศไทย’,
+h(‘div’,{style:{color:’#555’,lineHeight:1.8,marginBottom:16}},
+‘เลือกหมวดหมู่ทางซ้าย เพื่อสำรวจ series สถิติของ BOT’,h(‘br’),
+‘มีข้อมูลกว่า 500+ series ครอบคลุม เศรษฐกิจ การเงิน ตลาดเงิน’
+),
+h(‘div’,{style:{display:‘grid’,gridTemplateColumns:‘repeat(3,1fr)’,gap:10}},
+[{l:‘หมวดหมู่’,v:CATS.length,c:’#0d1a38’},{l:‘Series ใน Catalog’,v:totalCat,c:’#0a1f12’},{l:‘Saved’,v:saved.length,c:’#1a1000’}]
+.map(s=>h(‘div’,{key:s.l,style:{background:s.c,border:‘1px solid #171928’,borderRadius:6,padding:14,textAlign:‘center’}},
+h(‘div’,{style:{fontSize:26,fontWeight:700,color:’#dde4f0’,marginBottom:4}},s.v),
+h(‘div’,{style:{fontSize:11,color:’#555’}},s.l)
+))
+)
+)
+)
+: h(‘div’,{className:‘fadein’},
+h(‘div’,{style:{marginBottom:14}},
+h(‘div’,{style:{fontSize:14,fontWeight:700,color:’#9abfff’,marginBottom:2}},`${selCat.id} — ${selCat.th}`),
+h(‘div’,{style:{fontSize:11,color:’#444’}},`${selCat.en} · ${series.length} series`)
+),
+h(Input,{value:search,onChange:e=>setSearch(e.target.value),placeholder:‘🔍 ค้นหา series code, ชื่อไทย, English…’}),
+h(‘div’,{style:{height:10}}),
+serLoading
+? h(‘div’,{style:{color:’#444’,padding:30,textAlign:‘center’}},h(‘div’,{className:‘spinner’}))
+: filtered.length===0
+? h(‘div’,{style:{color:’#444’,padding:20,textAlign:‘center’}},‘ไม่พบ series ที่ค้นหา’)
+: filtered.map(s=>SeriesRow(s,selCat,isSaved,save,goObs,flash,flashMsg))
+)
+)
+);
+}
+
+function Card2(title,content){
+return h(Card,null,h(‘div’,{style:{fontSize:13,fontWeight:700,color:’#9abfff’,marginBottom:12}},title),content);
+}
+
+function SeriesRow(s,cat,isSv,saveFn,goFn,fl,flFn){
+const sv=isSv(s.series_code);
+return h(‘div’,{key:s.series_code,style:{
+background:sv?’#0a1628’:’#0c0e1a’,border:`1px solid ${sv?'#1a3a6a':'#171928'}`,
+borderRadius:6,padding:12,marginBottom:8,transition:‘border-color 0.1s’
+}},
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘flex-start’,gap:8}},
+h(‘div’,{style:{flex:1}},
+h(‘span’,{style:{color:’#7ab4ff’,fontWeight:700,fontSize:12}},s.series_code),
+h(‘span’,{style:{marginLeft:8}},h(Tag,null,s.frequency||’-’)),
+sv&&h(‘span’,{style:{marginLeft:6}},h(Tag,{col:’#0a2518’},‘⭐’))
+),
+h(‘div’,{style:{display:‘flex’,gap:6,flexShrink:0}},
+h(Btn,{variant:sv?‘success’:‘default’,onClick:()=>sv?null:saveFn({…s,category:cat.id})},
+fl===s.series_code+’_s’?‘✓’:‘☆’
+),
+h(Btn,{variant:‘primary’,onClick:()=>goFn(s)},‘ดูข้อมูล →’)
+)
+),
+h(‘div’,{style:{color:’#aaa’,fontSize:11,marginTop:6}},s.series_name_eng||’’),
+h(‘div’,{style:{color:’#444’,fontSize:10,marginTop:2}},s.series_name_th||’’),
+h(‘div’,{style:{fontSize:10,color:’#333’,marginTop:4}},`อัปเดต: ${s.last_update_date||'-'} · ${s.unit_eng||'-'}`)
+);
+}
+
+// ── RENDER OBSERVE ────────────────────────────────────────
+function renderObserve(){
+return h(‘div’,{style:{padding:18}},
+h(Card,null,
+h(‘div’,{style:{fontSize:13,fontWeight:700,color:’#9abfff’,marginBottom:14}},‘🔍 ดึงข้อมูล Observations’),
+h(‘div’,{style:{display:‘grid’,gridTemplateColumns:‘1fr 1fr 1fr’,gap:10,marginBottom:12}},
+h(‘div’,null,
+h(‘div’,{style:{fontSize:10,color:’#444’,marginBottom:4,letterSpacing:1,textTransform:‘uppercase’}},‘Series Code’),
+h(Input,{
+value:selSeries?.series_code||’’,
+onChange:e=>setSelSeries({series_code:e.target.value}),
+placeholder:‘เช่น BORCPI01, IR_1103500_06’
+})
+),
+h(‘div’,null,
+h(‘div’,{style:{fontSize:10,color:’#444’,marginBottom:4,letterSpacing:1,textTransform:‘uppercase’}},‘Start Period’),
+h(Input,{type:‘date’,value:startP,onChange:e=>setStartP(e.target.value)})
+),
+h(‘div’,null,
+h(‘div’,{style:{fontSize:10,color:’#444’,marginBottom:4,letterSpacing:1,textTransform:‘uppercase’}},‘End Period (optional)’),
+h(Input,{type:‘date’,value:endP,onChange:e=>setEndP(e.target.value)})
+)
+),
+h(‘div’,{style:{display:‘flex’,gap:8}},
+h(Btn,{variant:‘primary’,onClick:()=>selSeries&&loadObs(selSeries),disabled:!selSeries||obsLoading},
+obsLoading?h(‘span’,null,h(‘span’,{className:‘spinner’}),’ กำลังดึงข้อมูล…’):‘▶ ดึงข้อมูล’
+),
+selSeries&&!isSaved(selSeries.series_code)&&h(Btn,{onClick:()=>save({…selSeries})},‘☆ บันทึก series’)
+),
+
+```
+    // Saved shortcuts
+    saved.length>0&&h('div',{style:{marginTop:14}},
+      h('div',{style:{fontSize:10,color:'#333',marginBottom:8,letterSpacing:1}},'SAVED SERIES — คลิกเพื่อดูข้อมูล'),
+      h('div',{style:{display:'flex',flexWrap:'wrap',gap:6}},
+        saved.map(s=>h('button',{key:s.series_code,
+          onClick:()=>{setSelSeries(s);loadObs(s);},
+          style:{
+            background:selSeries?.series_code===s.series_code?'#142040':'#0c0e1a',
+            border:`1px solid ${selSeries?.series_code===s.series_code?'#1a5eff':'#1e2235'}`,
+            borderRadius:5,padding:'4px 10px',color:'#7ab4ff',fontSize:11,
+            cursor:'pointer',fontFamily:'inherit'
+          }
+        },s.series_code))
+      )
+    )
+  ),
+
+  obs&&h('div',{className:'fadein'},
+    h(Card,null,
+      h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}},
+        h('div',null,
+          h('div',{style:{color:'#7ab4ff',fontWeight:700,fontSize:14}},obs.s.series_code),
+          h('div',{style:{color:'#aaa',fontSize:11,marginTop:3}},obs.s.series_name_eng||''),
+          h('div',{style:{color:'#444',fontSize:10,marginTop:2}},obs.s.series_name_th||'')
+        ),
+        h('div',{style:{textAlign:'right'}},
+          h('div',{style:{fontSize:11,color:'#444'}},`${obs.observations.length} รายการ`),
+          h(Tag,{style:{marginTop:4}},obs.s.unit_eng||'')
+        )
+      ),
+      h(Chart,{obs:obs.observations}),
+      h('div',{style:{marginTop:16}},
+        h('div',{style:{display:'flex',justifyContent:'space-between',marginBottom:8}},
+          h('div',{style:{fontSize:10,color:'#444'}},'ข้อมูลล่าสุด'),
+          h('div',{style:{display:'flex',gap:6}},
+            h(Btn,{onClick:()=>{
+              const txt=obs.observations.map(o=>`${o.period_start}\t${o.value}`).join('\n');
+              navigator.clipboard.writeText(txt);flashMsg('obs_copy');
+            }},flash==='obs_copy'?'✓ copied':'copy TSV'),
+            h(Btn,{onClick:()=>{
+              const csv=['period_start,value',...obs.observations.map(o=>`${o.period_start},${o.value}`)].join('\n');
+              const a=document.createElement('a');
+              a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+              a.download=`${obs.s.series_code}.csv`;a.click();
+            }},'⬇ CSV')
+          )
+        ),
+        h('div',{style:{
+          background:'#050508',border:'1px solid #171928',borderRadius:6,
+          padding:12,fontSize:11,lineHeight:1.8,color:'#6f9fbf',
+          maxHeight:240,overflowY:'auto',whiteSpace:'pre'
+        }},obs.observations.slice().map(o=>`${(o.period_start||'').padEnd(12)}  ${o.value}`).join('\n'))
+      )
+    )
+  )
+);
+```
+
+}
+
+// ── RENDER CATALOG ────────────────────────────────────────
+function renderCatalog(){
+return h(‘div’,{style:{padding:18}},
+h(Card,null,
+h(‘div’,{style:{fontSize:13,fontWeight:700,color:’#9abfff’,marginBottom:10}},‘📚 Catalog — series ทั้งหมดที่โหลดแล้ว’),
+h(‘div’,{style:{color:’#444’,fontSize:11,marginBottom:14}},
+`โหลดแล้ว ${Object.keys(catalog).length} / ${CATS.length} หมวด · รวม ${totalCat} series`
+),
+h(‘div’,{style:{display:‘flex’,gap:8}},
+h(Btn,{variant:‘primary’,disabled:catLoading,onClick:async()=>{
+setCatLoading(true);
+for(const c of CATS){
+if(!catalog[c.id]){
+try{const d=await call(’/series’,{category:c.id});addCat(c.id,d?.result?.series||[]);}
+catch{}
+}
+}
+setCatLoading(false);
+}},catLoading?h(‘span’,null,h(‘span’,{className:‘spinner’}),’ Loading…’):‘⬇ Load ทุกหมวด’),
+h(Btn,{onClick:()=>{localStorage.removeItem(‘bot_catalog’);location.reload();}},
+‘🗑 Clear Cache’)
+)
+),
+Object.entries(catalog).map(([id,list])=>{
+const cat=CATS.find(c=>c.id===id);
+return h(‘div’,{key:id},
+h(Card,null,
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:8,marginBottom:10}},
+h(‘span’,{style:{fontWeight:700,color:’#7ab4ff’}},’[’+id+’]’),
+h(‘span’,{style:{color:’#666’,fontSize:12}},cat?.th||id),
+h(Tag,null,`${list.length} series`)
+),
+list.map(s=>h(‘div’,{key:s.series_code,style:{
+display:‘flex’,alignItems:‘center’,gap:8,padding:‘5px 0’,
+borderBottom:‘1px solid #0f1020’
+}},
+h(‘span’,{style:{color:’#5a8fc8’,fontSize:11,minWidth:160,flexShrink:0}},s.series_code),
+h(‘span’,{style:{color:’#666’,fontSize:11,flex:1,overflow:‘hidden’,textOverflow:‘ellipsis’,whiteSpace:‘nowrap’}},s.series_name_eng||’’),
+h(Tag,null,s.frequency||’-’),
+h(‘div’,{style:{display:‘flex’,gap:4,flexShrink:0}},
+h(Btn,{style:{padding:‘2px 8px’,fontSize:10},onClick:()=>goObs(s)},‘ดูข้อมูล’),
+h(Btn,{variant:isSaved(s.series_code)?‘success’:‘default’,style:{padding:‘2px 8px’,fontSize:10},
+onClick:()=>isSaved(s.series_code)?remove(s.series_code):save({…s,category:id})},
+isSaved(s.series_code)?‘⭐’:‘☆’)
+)
+))
+)
+);
+})
+);
+}
+
+// ── RENDER SAVED ─────────────────────────────────────────
+function renderSaved(){
+return h(‘div’,{style:{padding:18}},
+h(Card,null,
+h(‘div’,{style:{fontSize:13,fontWeight:700,color:’#9abfff’,marginBottom:4}},‘⭐ Series ที่บันทึกไว้’),
+h(‘div’,{style:{color:’#444’,fontSize:11}},`${saved.length} series · เก็บใน localStorage`)
+),
+saved.length===0
+? h(Card,null,h(‘div’,{style:{color:’#444’,textAlign:‘center’,padding:20}},
+‘ยังไม่มี series ที่บันทึก’,h(‘br’),‘กด ☆ ใน Explore หรือ Catalog เพื่อบันทึก’
+))
+: h(‘div’,null,
+// Group by category
+[…new Set(saved.map(s=>s.category||‘Other’))].map(cat=>
+h(‘div’,{key:cat},
+h(‘div’,{style:{fontSize:10,color:’#333’,letterSpacing:2,textTransform:‘uppercase’,padding:‘8px 0 6px’}},cat),
+saved.filter(s=>(s.category||‘Other’)===cat).map(s=>
+h(Card,{key:s.series_code,style:{marginBottom:8}},
+h(‘div’,{style:{display:‘flex’,justifyContent:‘space-between’,alignItems:‘flex-start’}},
+h(‘div’,null,
+h(‘div’,{style:{color:’#7ab4ff’,fontWeight:700}},s.series_code),
+h(‘div’,{style:{color:’#aaa’,fontSize:11,marginTop:4}},s.series_name_eng||’’),
+h(‘div’,{style:{color:’#444’,fontSize:10,marginTop:2}},`${s.series_name_th||''} · ${s.unit_eng||''} · ${s.frequency||''}`)
+),
+h(‘div’,{style:{display:‘flex’,gap:6,flexShrink:0}},
+h(Btn,{variant:‘primary’,onClick:()=>goObs(s)},‘📊 ดูข้อมูล’),
+h(Btn,{variant:‘danger’,onClick:()=>remove(s.series_code)},‘✕’)
+)
+)
+)
+)
+)
+)
+)
+);
+}
+
+// ── RENDER SETUP ─────────────────────────────────────────
+function renderSetup(){
+const SCHEMA=`CREATE TABLE IF NOT EXISTS bot_series_saved ( id              INTEGER PRIMARY KEY AUTOINCREMENT, series_code     TEXT    NOT NULL UNIQUE, series_name_th  TEXT, series_name_eng TEXT, category        TEXT, frequency       TEXT, unit_eng        TEXT, saved_at        TEXT    NOT NULL );`;
+return h(‘div’,{style:{padding:18}},
+
+```
+  // BOT API Status
+  h(Card,null,
+    h('div',{style:{display:'flex',alignItems:'center',gap:10,marginBottom:12}},
+      h('div',{style:{fontSize:13,fontWeight:700,color:'#9abfff'}},'🌐 BOT API Status'),
+      h(SBadge,{ok:botSt.ok,lat:botSt.lat})
+    ),
+    botSt.at&&h('div',{style:{fontSize:10,color:'#444',marginBottom:10}},
+      `ตรวจสอบล่าสุด: ${new Date(botSt.at).toLocaleString('th-TH')}`
+    ),
+    h(Btn,{variant:'primary',onClick:checkStatus,disabled:stLoading},
+      stLoading?h('span',null,h('span',{className:'spinner'}),' กำลังตรวจสอบ...'):'🔄 ตรวจสอบ BOT API')
+  ),
+
+  // Mode selector
+  h(Card,null,
+    h('div',{style:{fontSize:13,fontWeight:700,color:'#9abfff',marginBottom:12}},'⚙️ API Mode'),
+    h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:16}},
+      [{k:'mock',label:'🎭 Mock Data',desc:'ทดสอบโดยไม่ต้อง API key'},
+       {k:'direct',label:'🔑 Direct BOT API',desc:'เรียก BOT API โดยตรง'},
+       {k:'worker',label:'☁️ CF Worker',desc:'ผ่าน Cloudflare Worker'},
+      ].map(m=>h('button',{key:m.k,onClick:()=>setMode(m.k),style:{
+        background:mode===m.k?'#0d2040':'#0c0e1a',
+        border:`1px solid ${mode===m.k?'#1a5eff':'#1e2235'}`,
+        borderRadius:6,padding:10,textAlign:'left',cursor:'pointer',fontFamily:'inherit'
+      }},
+        h('div',{style:{fontWeight:600,fontSize:12,color:mode===m.k?'#7ab4ff':'#888',marginBottom:3}},m.label),
+        h('div',{style:{fontSize:10,color:'#444'}},m.desc)
+      ))
+    ),
+
+    mode==='direct'&&h('div',null,
+      h('div',{style:{fontSize:10,color:'#444',marginBottom:4,letterSpacing:1,textTransform:'uppercase'}},'BOT API Client ID (X-IBM-Client-Id)'),
+      h(Input,{type:'password',value:apiKey,onChange:e=>setApiKey(e.target.value),placeholder:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'}),
+      h('div',{style:{fontSize:10,color:'#333',marginTop:6}},
+        'สมัครที่ ',
+        h('a',{href:'https://apiportal.bot.or.th/bot/public/',target:'_blank',style:{color:'#7ab4ff'}},'apiportal.bot.or.th'),
+        ' (ระบบเก่า ใช้ได้ถึง 31 ธ.ค. 2568) หรือ ',
+        h('a',{href:'https://portal.api.bot.or.th/',target:'_blank',style:{color:'#7ab4ff'}},'portal.api.bot.or.th'),
+        ' (ระบบใหม่)'
+      )
+    ),
+
+    mode==='worker'&&h('div',null,
+      h('div',{style:{fontSize:10,color:'#444',marginBottom:4,letterSpacing:1,textTransform:'uppercase'}},'Worker Token (INGEST_SECRET_TOKEN)'),
+      h(Input,{type:'password',value:workerToken,onChange:e=>setWorkerToken(e.target.value),placeholder:'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'})
+    )
+  ),
+
+  // Deploy steps
+  h(Card,null,
+    h('div',{style:{fontSize:13,fontWeight:700,color:'#9abfff',marginBottom:14}},'🚀 วิธี Deploy (ทีละขั้น)'),
+    [
+      {n:1,title:'ขอ BOT API Key',body:h('div',null,'ไปที่ ',h('a',{href:'https://apiportal.bot.or.th/bot/public/',target:'_blank',style:{color:'#7ab4ff'}},'apiportal.bot.or.th'),' → สมัคร Account → Subscribe API → ได้ Client ID')},
+      {n:2,title:'รัน D1 Schema',body:h('div',null,'Cloudflare Dashboard → D1 → iaa-consensus-db → Console → paste SQL แล้ว Execute',h('div',{style:{background:'#050508',border:'1px solid #1e2235',borderRadius:5,padding:10,marginTop:8,fontSize:11,color:'#6f9fbf',whiteSpace:'pre'}},SCHEMA))},
+      {n:3,title:'เพิ่ม BOT_API_KEY Secret',body:'Workers → iaa-ingest → Settings → Variables and Secrets → Add Secret: BOT_API_KEY = {Client ID}'},
+      {n:4,title:'เพิ่ม /bot/* routes ใน Worker',body:'เพิ่ม code จาก bot_worker_routes.js ใน ingest-worker.js แล้ว Deploy'},
+      {n:5,title:'ใช้งาน Frontend',body:h('div',null,'เปลี่ยน Mode เป็น "CF Worker" → ใส่ Worker Token → ทุกอย่างพร้อมใช้งาน')},
+    ].map(s=>h('div',{key:s.n,style:{display:'flex',gap:14,marginBottom:16}},
+      h('div',{style:{width:28,height:28,borderRadius:'50%',background:'#0d2040',border:'1px solid #1a5eff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700,color:'#7ab4ff',flexShrink:0}},s.n),
+      h('div',null,
+        h('div',{style:{fontWeight:600,fontSize:12,color:'#ccc',marginBottom:4}},s.title),
+        h('div',{style:{color:'#555',fontSize:11,lineHeight:1.7}},s.body)
+      )
+    ))
+  ),
+
+  // KV + ENV
+  h(Card,null,
+    h('div',{style:{fontSize:13,fontWeight:700,color:'#9abfff',marginBottom:12}},'🔑 Environment Variables'),
+    [
+      {name:'BOT_API_KEY',desc:'BOT API Client ID จาก apiportal.bot.or.th',type:'Secret'},
+      {name:'INGEST_SECRET_TOKEN',desc:'Token ที่ใช้ auth กับ Worker (มีอยู่แล้ว)',type:'Secret'},
+    ].map(v=>h('div',{key:v.name,style:{
+      background:'#090a12',border:'1px solid #171928',borderRadius:6,padding:10,marginBottom:8,
+      display:'flex',justifyContent:'space-between',alignItems:'center'
+    }},
+      h('div',null,
+        h('code',{style:{color:'#7ab4ff',fontSize:12}},v.name),
+        h('div',{style:{fontSize:11,color:'#444',marginTop:3}},v.desc)
+      ),
+      h(Tag,{col:'#1a1000'},v.type)
+    ))
+  )
+);
+```
+
+}
+
+// ── MAIN LAYOUT ───────────────────────────────────────────
+return h(‘div’,{style:{minHeight:‘100vh’,background:’#07080f’}},
+// Header
+h(‘header’,{style:{
+background:’#090a12’,borderBottom:‘1px solid #171928’,
+padding:‘0 20px’,height:48,display:‘flex’,alignItems:‘center’,
+justifyContent:‘space-between’,position:‘sticky’,top:0,zIndex:100
+}},
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:10}},
+h(‘div’,{style:{
+width:30,height:30,borderRadius:6,
+background:‘linear-gradient(135deg,#0d3a80,#0d6efd)’,
+display:‘flex’,alignItems:‘center’,justifyContent:‘center’,
+fontSize:13,fontWeight:700,color:’#fff’
+}},‘B’),
+h(‘div’,null,
+h(‘div’,{style:{fontWeight:700,fontSize:13,color:’#7ab4ff’,letterSpacing:‘0.5px’}},‘BOT API Explorer’),
+h(‘div’,{style:{fontSize:9,color:’#333’}},‘Bank of Thailand Statistics’)
+)
+),
+h(‘div’,{style:{display:‘flex’,gap:2}},
+TABS.map(t=>h(‘button’,{key:t.k,onClick:()=>setTab(t.k),style:{
+padding:‘5px 13px’,border:‘none’,borderRadius:5,
+background:tab===t.k?’#141e38’:‘transparent’,
+color:tab===t.k?’#7ab4ff’:’#555’,cursor:‘pointer’,fontSize:11,
+fontFamily:‘inherit’,fontWeight:tab===t.k?600:400
+}},t.label))
+),
+h(‘div’,{style:{display:‘flex’,alignItems:‘center’,gap:8}},
+h(‘span’,{style:{fontSize:10,color:’#333’}},mode===‘mock’?‘🎭 Mock’:mode===‘worker’?‘☁️ Worker’:‘🔑 Direct’),
+h(SBadge,{ok:mode===‘mock’?true:botSt.ok,lat:botSt.lat})
+)
+),
+// Body
+tab===‘explore’  ? renderExplore()  :
+tab===‘observe’  ? renderObserve()  :
+tab===‘catalog’  ? renderCatalog()  :
+tab===‘saved’    ? renderSaved()    :
+tab===‘setup’    ? renderSetup()    : null
+);
+}
+
+createRoot(document.getElementById(‘root’)).render(h(App,null));
+</script>
+
+</body>
+</html>
