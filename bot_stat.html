@@ -3,856 +3,300 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT API Explorer</title>
+<title>BOT Test — No Auth</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#f0f4f8}
-body{font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
 button{cursor:pointer;font-family:inherit}
-input{font-family:inherit}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:10px}
-
-/* HEADER */
-#hdr{
-  background:#1e40af;color:#fff;
-  padding:0 20px;height:52px;
-  display:flex;align-items:center;justify-content:space-between;
-  position:sticky;top:0;z-index:99;
-  box-shadow:0 2px 8px rgba(0,0,0,.2);
-}
-#logo-wrap{display:flex;align-items:center;gap:10px}
-#logo-box{
-  width:32px;height:32px;border-radius:8px;
-  background:#fff;color:#1e40af;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:16px;
-}
-#logo-title{font-weight:700;font-size:14px}
-#logo-sub{font-size:9px;opacity:.7;margin-top:1px}
-#nav{display:flex;gap:4px}
-.nb{
-  padding:6px 14px;border-radius:6px;border:none;
-  background:rgba(255,255,255,.15);color:#fff;
-  font-size:11px;font-weight:600;transition:background .15s;
-}
-.nb:hover{background:rgba(255,255,255,.25)}
-.nb.on{background:#fff;color:#1e40af}
-#hdr-right{display:flex;align-items:center;gap:10px}
-#hdr-user{font-size:11px;opacity:.8}
-#hdr-mode{
-  background:rgba(255,255,255,.2);
-  padding:2px 8px;border-radius:12px;font-size:10px;
-}
-#btn-logout{
-  background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);
-  border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;
-}
-
-/* LAYOUT */
-#wrap{display:flex;height:calc(100vh - 52px)}
-
-/* SIDEBAR */
-#sb{
-  width:196px;background:#fff;border-right:2px solid #e2e8f0;
-  overflow-y:auto;flex-shrink:0;
-}
-.sb-hd{
-  padding:12px 14px 6px;
-  font-size:9px;color:#718096;letter-spacing:1.5px;text-transform:uppercase;
-  border-bottom:1px solid #f0f4f8;
-}
-.cb{
-  display:block;width:100%;text-align:left;
-  padding:10px 14px;border:none;border-left:3px solid transparent;
-  background:#fff;color:#4a5568;
-  transition:all .12s;
-}
-.cb:hover{background:#ebf4ff;color:#2b6cb0}
-.cb.on{background:#ebf4ff;border-left-color:#2563eb;color:#1e40af;font-weight:700}
-.cb-id{font-size:11px;font-weight:700;display:flex;justify-content:space-between}
-.cb-cnt{background:#e2e8f0;color:#718096;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:400}
-.cb.on .cb-cnt{background:#dbeafe;color:#1d4ed8}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:48px;display:flex;align-items:center;justify-content:space-between}
+#hdr h1{font-size:14px;font-weight:700}
+.badge{background:#fef9c3;color:#854d0e;border-radius:12px;padding:3px 10px;font-size:11px;font-weight:700}
+#body{display:flex;height:calc(100vh - 48px)}
+#sb{width:190px;background:#fff;border-right:2px solid #e2e8f0;overflow-y:auto;padding:10px 0}
+.cb{display:block;width:100%;text-align:left;padding:10px 14px;border:none;border-left:3px solid transparent;background:#fff;color:#4a5568;cursor:pointer}
+.cb:hover{background:#eff6ff}
+.cb.on{background:#eff6ff;border-left-color:#2563eb;color:#1e40af;font-weight:700}
+.cb-id{font-size:11px;font-weight:700}
 .cb-th{font-size:10px;color:#a0aec0;margin-top:2px}
 .cb.on .cb-th{color:#3b82f6}
-
-/* MAIN */
-#main{flex:1;overflow-y:auto;padding:20px;background:#f0f4f8}
-.tab{display:none}
-.tab.on{display:block}
-
-/* CARDS */
-.card{
-  background:#fff;border:1px solid #e2e8f0;
-  border-radius:10px;padding:20px;margin-bottom:14px;
-  box-shadow:0 1px 4px rgba(0,0,0,.06);
-}
-.ctitle{font-size:15px;font-weight:700;color:#1e40af;margin-bottom:14px}
-
-/* SERIES CARDS */
-.sc{
-  background:#fff;border:1px solid #e2e8f0;
-  border-radius:8px;padding:14px;margin-bottom:8px;
-  transition:all .15s;
-}
-.sc:hover{border-color:#93c5fd;box-shadow:0 2px 8px rgba(37,99,235,.1)}
-.sc.sv{border-color:#3b82f6;background:#eff6ff}
-
-/* TAGS */
-.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:9px;font-weight:700}
-.t-blue{background:#dbeafe;color:#1d4ed8}
-.t-green{background:#dcfce7;color:#15803d}
-.t-orange{background:#fef3c7;color:#b45309}
-.t-gray{background:#f1f5f9;color:#64748b}
-.t-saved{background:#dcfce7;color:#15803d}
-
-/* BUTTONS */
-.btn{border-radius:6px;font-weight:600;border:1px solid #e2e8f0;background:#f8fafc;color:#374151;padding:7px 14px;font-size:12px}
-.btn:hover{background:#f1f5f9}
-.sm{padding:4px 10px;font-size:10px}
+#main{flex:1;overflow-y:auto;padding:20px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.sc{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:13px;margin-bottom:8px;transition:border-color .15s}
+.sc:hover{border-color:#93c5fd}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:700}
+.tb{background:#dbeafe;color:#1d4ed8}.tg{background:#dcfce7;color:#15803d}.to{background:#fef3c7;color:#b45309}
+.btn{border-radius:6px;font-weight:700;border:1px solid #e2e8f0;background:#f8fafc;color:#374151;padding:6px 13px;font-size:12px;cursor:pointer}
+.btn:hover{background:#e2e8f0}
 .pri{background:#2563eb;color:#fff;border-color:#1d4ed8}
 .pri:hover{background:#1d4ed8}
-.ok{background:#dcfce7;color:#15803d;border-color:#86efac}
-.red{background:#fee2e2;color:#b91c1c;border-color:#fca5a5}
-.btn:disabled{opacity:.4;cursor:not-allowed}
-
-/* INPUT */
-.inp{
-  background:#fff;border:2px solid #e2e8f0;border-radius:7px;
-  color:#1a202c;font-size:13px;padding:9px 13px;outline:none;width:100%;
-  transition:border-color .15s;
-}
-.inp:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-.inp::placeholder{color:#a0aec0}
-
-/* STAT BOXES */
-.sg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px}
-.sb2{
-  background:#f8fafc;border:2px solid #e2e8f0;
-  border-radius:8px;padding:16px;text-align:center;
-}
-.sn{font-size:30px;font-weight:800;color:#1e40af;margin-bottom:4px}
-.sl{font-size:11px;color:#718096}
-
-/* CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.chip{
-  background:#eff6ff;border:1px solid #bfdbfe;
-  border-radius:5px;padding:4px 10px;color:#1d4ed8;font-size:10px;font-weight:600;
-}
-.chip:hover{background:#dbeafe}
-.chip.on{background:#2563eb;color:#fff;border-color:#1d4ed8}
-
-/* STEPS */
-.step{display:flex;gap:12px;margin-bottom:14px}
-.sn2{
-  width:28px;height:28px;border-radius:50%;flex-shrink:0;
-  background:#2563eb;color:#fff;
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:700;
-}
-.st{font-weight:700;font-size:12px;color:#1a202c;margin-bottom:3px}
-.sd{font-size:11px;color:#718096;line-height:1.7}
-
-/* OBS */
-.obs-pre{
-  background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;
-  padding:14px;font-size:12px;color:#1a202c;font-family:'Courier New',monospace;
-  max-height:280px;overflow-y:auto;line-height:2;white-space:pre;
-}
-canvas{display:block;margin-top:12px}
-#spark-lbl{display:flex;justify-content:space-between;font-size:10px;color:#718096;margin-top:4px}
-
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-
-/* STATUS */
-.online{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:11px;font-weight:600;border:1px solid #86efac}
-.offline{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:12px;background:#fee2e2;color:#b91c1c;font-size:11px;font-weight:600;border:1px solid #fca5a5}
-.dot{width:7px;height:7px;border-radius:50%;display:inline-block}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.dg{background:#4ade80;animation:pulse 2s infinite}
-.dr{background:#f87171}
-
-/* MODE BTNS */
-.mb{
-  background:#f8fafc;border:2px solid #e2e8f0;
-  border-radius:7px;padding:10px 12px;text-align:left;width:100%;
-  transition:all .15s;
-}
-.mb:hover{border-color:#93c5fd;background:#eff6ff}
-.mb.on{background:#eff6ff;border-color:#2563eb}
-.ml{font-weight:700;font-size:11px;color:#64748b;margin-bottom:3px}
-.mb.on .ml{color:#1d4ed8}
-.md2{font-size:9px;color:#a0aec0}
+.sm{padding:3px 9px;font-size:10px}
+.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:13px;padding:9px 13px;outline:none;width:100%}
+.inp:focus{border-color:#3b82f6}
+canvas{display:block;margin-top:10px}
+.obs-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:12px;color:#1a202c;font-family:'Courier New',monospace;max-height:260px;overflow-y:auto;line-height:2;white-space:pre}
+#log{background:#1a202c;color:#4ade80;padding:12px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:120px;overflow-y:auto;margin-bottom:14px;white-space:pre-wrap}
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div id="hdr">
-  <div id="logo-wrap">
-    <div id="logo-box">B</div>
-    <div>
-      <div id="logo-title">BOT API Explorer</div>
-      <div id="logo-sub">Bank of Thailand Statistics</div>
-    </div>
-  </div>
-  <nav id="nav">
-    <button class="nb on" onclick="go('explore')">🗂 Explore</button>
-    <button class="nb"    onclick="go('obs')">📊 Observations</button>
-    <button class="nb"    onclick="go('catalog')">📚 Catalog</button>
-    <button class="nb"    onclick="go('setup')">⚙️ Setup</button>
-  </nav>
-  <div id="hdr-right">
-    <span id="hdr-user"></span>
-    <span id="hdr-mode">🎭 Mock</span>
-    <button id="btn-logout" onclick="logout()">ออกจากระบบ</button>
-  </div>
+  <h1>🧪 BOT API Explorer — Test Mode (ไม่มี Login)</h1>
+  <span class="badge">🎭 Mock Data Only</span>
 </div>
 
-<!-- TAB EXPLORE -->
-<div id="tab-explore" class="tab on">
-  <div id="wrap">
+<div id="body">
+  <aside id="sb">
+    <div style="padding:8px 14px 6px;font-size:9px;color:#718096;letter-spacing:1.5px;text-transform:uppercase">หมวดหมู่</div>
+    <div id="cat-list"></div>
+  </aside>
 
-    <!-- Sidebar -->
-    <aside id="sb">
-      <div class="sb-hd">หมวดหมู่ (10)</div>
-      <div id="cat-list"></div>
-      <div id="saved-sb"></div>
-    </aside>
+  <div id="main">
 
-    <!-- Main -->
-    <div id="main">
+    <!-- Debug log -->
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;color:#1e40af;margin-bottom:8px">🔍 Debug Log</div>
+      <div id="log">รอกดหมวด...</div>
+    </div>
 
-      <!-- Welcome -->
-      <div id="v-welcome">
-        <div class="card">
-          <div class="ctitle">🏦 BOT API Explorer</div>
-          <p style="color:#4a5568;line-height:1.9;margin-bottom:18px">
-            สำรวจข้อมูลสถิติ <strong style="color:#1e40af">ธนาคารแห่งประเทศไทย (BOT)</strong><br>
-            ตอนนี้ใช้ <strong style="color:#16a34a">🎭 Mock Mode</strong> — กดหมวดซ้าย เห็นข้อมูลได้ทันที<br>
-            <span style="color:#718096">เลือกหมวด → ดู series → กด "ดึงข้อมูล"</span>
-          </p>
-          <div class="sg">
-            <div class="sb2"><div class="sn">10</div><div class="sl">หมวดหมู่</div></div>
-            <div class="sb2" style="border-color:#86efac"><div class="sn" id="st-cat">0</div><div class="sl">Series ใน Catalog</div></div>
-            <div class="sb2" style="border-color:#93c5fd"><div class="sn" id="st-sv">0</div><div class="sl">Saved</div></div>
-          </div>
-        </div>
-        <div class="card" id="sv-panel" style="display:none">
-          <div class="ctitle">⭐ Saved Series</div>
-          <div id="sv-list"></div>
-        </div>
-      </div>
-
-      <!-- Series -->
-      <div id="v-series" style="display:none">
-        <div style="margin-bottom:14px">
-          <div id="ser-title" style="font-size:16px;font-weight:700;color:#1e40af"></div>
-          <div id="ser-sub"   style="font-size:11px;color:#718096;margin-top:3px"></div>
-        </div>
-        <input class="inp" id="q" placeholder="🔍 ค้นหา code / ชื่อไทย / English" oninput="filter()" style="margin-bottom:12px">
-        <div id="ser-list"></div>
-      </div>
-
-    </div><!-- /main -->
-  </div><!-- /wrap -->
-</div>
-
-<!-- TAB OBS -->
-<div id="tab-obs" class="tab" style="padding:20px;overflow-y:auto;height:calc(100vh - 52px);background:#f0f4f8">
-  <div class="card">
-    <div class="ctitle">📊 ดึงข้อมูล Observations</div>
-    <div class="g3" style="margin-bottom:12px">
-      <div>
-        <div style="font-size:9px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase">Series Code</div>
-        <input class="inp" id="ob-code" placeholder="เช่น BORCPI01">
-      </div>
-      <div>
-        <div style="font-size:9px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase">Start Period</div>
-        <input class="inp" type="date" id="ob-start" value="2023-01-01">
-      </div>
-      <div>
-        <div style="font-size:9px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase">End (optional)</div>
-        <input class="inp" type="date" id="ob-end">
+    <!-- Welcome / Series -->
+    <div id="v-welcome" class="card">
+      <div style="font-size:15px;font-weight:700;color:#1e40af;margin-bottom:10px">👈 กดหมวดซ้ายเพื่อดู series</div>
+      <div style="color:#4a5568;line-height:1.8">
+        หมวด <b>EC</b> = เศรษฐกิจ (CPI, GDP, PMI...)<br>
+        หมวด <b>IR</b> = อัตราดอกเบี้ย<br>
+        หมวด <b>ER</b> = อัตราแลกเปลี่ยน<br>
+        กด "ดึงข้อมูล" → เห็น chart + ตาราง
       </div>
     </div>
-    <div class="row">
-      <button class="btn pri" onclick="fetchObs()">▶ ดึงข้อมูล</button>
-      <button class="btn ok"  id="ob-sv-btn" onclick="saveCode()" style="display:none">☆ บันทึก series</button>
-    </div>
-    <div id="ob-chips-wrap" style="display:none;margin-top:14px">
-      <div style="font-size:9px;color:#718096;margin-bottom:7px;letter-spacing:1px;text-transform:uppercase">Saved — คลิกดูข้อมูล</div>
-      <div class="chips" id="ob-chips"></div>
-    </div>
-  </div>
 
-  <div id="ob-load" style="display:none" class="card">
-    <p style="text-align:center;color:#718096;padding:10px">⏳ กำลังดึงข้อมูล...</p>
-  </div>
-
-  <div id="ob-res" style="display:none" class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-      <div>
-        <div id="r-code" style="font-weight:800;font-size:16px;color:#1e40af"></div>
-        <div id="r-en"   style="font-size:12px;color:#374151;margin-top:5px"></div>
-        <div id="r-th"   style="font-size:11px;color:#718096;margin-top:2px"></div>
+    <div id="v-series" style="display:none">
+      <div style="margin-bottom:12px">
+        <div id="ser-title" style="font-size:15px;font-weight:700;color:#1e40af"></div>
+        <div id="ser-count" style="font-size:11px;color:#718096;margin-top:3px"></div>
       </div>
-      <div style="text-align:right">
-        <div id="r-count" style="font-size:11px;color:#718096"></div>
-        <span id="r-unit" class="tag t-blue" style="margin-top:6px;display:inline-block"></span>
-      </div>
+      <div id="ser-list"></div>
     </div>
-    <canvas id="spark" width="340" height="70"></canvas>
-    <div id="spark-lbl"></div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px">
-      <span style="font-size:11px;color:#718096">ข้อมูลทั้งหมด</span>
-      <button class="btn sm" onclick="dlCSV()">⬇ Export CSV</button>
-    </div>
-    <div class="obs-pre" id="ob-table"></div>
-  </div>
-</div>
 
-<!-- TAB CATALOG -->
-<div id="tab-catalog" class="tab" style="padding:20px;overflow-y:auto;height:calc(100vh - 52px);background:#f0f4f8">
-  <div class="card">
-    <div class="ctitle">📚 Catalog</div>
-    <p id="cat-stat" style="font-size:11px;color:#718096;margin-bottom:14px">โหลดแล้ว 0/10 หมวด</p>
-    <div class="row">
-      <button class="btn pri" id="la-btn" onclick="loadAll()">⬇ Load ทุกหมวด</button>
-      <button class="btn"     onclick="clearCat()">🗑 Clear</button>
+    <!-- Obs result -->
+    <div id="obs-card" style="display:none" class="card">
+      <div id="r-code" style="font-size:15px;font-weight:800;color:#1e40af;margin-bottom:4px"></div>
+      <div id="r-en"   style="font-size:12px;color:#374151;margin-bottom:2px"></div>
+      <div id="r-th"   style="font-size:11px;color:#718096;margin-bottom:12px"></div>
+      <canvas id="spark" width="360" height="70"></canvas>
+      <div id="spark-lbl" style="display:flex;justify-content:space-between;font-size:10px;color:#718096;margin-top:4px;margin-bottom:14px"></div>
+      <div class="obs-pre" id="obs-table"></div>
     </div>
-  </div>
-  <div id="cat-content"></div>
-</div>
 
-<!-- TAB SETUP -->
-<div id="tab-setup" class="tab" style="padding:20px;overflow-y:auto;height:calc(100vh - 52px);background:#f0f4f8">
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-      <div class="ctitle" style="margin:0">🌐 BOT API Status</div>
-      <div id="st-badge" style="font-size:11px;color:#718096">ยังไม่เช็ค</div>
-    </div>
-    <p id="st-desc" style="font-size:11px;color:#718096;margin-bottom:12px">Mock mode — เห็นข้อมูล demo ทันที ไม่ต้อง API key</p>
-    <button class="btn pri" onclick="chkSt()">🔄 ตรวจสอบ BOT API</button>
-  </div>
-
-  <div class="card">
-    <div class="ctitle">⚙️ API Mode</div>
-    <div class="g3" style="margin-bottom:14px">
-      <button class="mb on" id="m-mock"   onclick="setMode('mock')">  <div class="ml">🎭 Mock</div>  <div class="md2">ทดสอบ ไม่ต้อง key</div></button>
-      <button class="mb"    id="m-worker" onclick="setMode('worker')"><div class="ml">☁️ CF Worker</div><div class="md2">ผ่าน Cloudflare</div></button>
-      <button class="mb"    id="m-direct" onclick="setMode('direct')"><div class="ml">🔑 Direct BOT</div><div class="md2">เรียก BOT ตรงๆ</div></button>
-    </div>
-    <div id="m-fields"></div>
-  </div>
-
-  <div class="card">
-    <div class="ctitle">🚀 ขั้นตอน connect จริง</div>
-    <div class="step"><div class="sn2">1</div><div><div class="st">ขอ BOT API Key</div><div class="sd"><a href="https://apiportal.bot.or.th/bot/public/" target="_blank" style="color:#2563eb">apiportal.bot.or.th</a> → สมัคร → Subscribe Statistics API → ได้ Client ID</div></div></div>
-    <div class="step"><div class="sn2">2</div><div><div class="st">รัน D1 Schema</div><div class="sd">Cloudflare → D1 → iaa-consensus-db → Console → paste schema_bot.sql</div></div></div>
-    <div class="step"><div class="sn2">3</div><div><div class="st">เพิ่ม Secret ใน Worker</div><div class="sd">CF Workers → iaa-ingest → Settings → BOT_API_KEY = Client ID</div></div></div>
-    <div class="step"><div class="sn2">4</div><div><div class="st">เปลี่ยน Mode</div><div class="sd">เลือก CF Worker ด้านบน → ใส่ INGEST_SECRET_TOKEN → กดตรวจสอบ</div></div></div>
-  </div>
-
-  <div class="card">
-    <div class="ctitle">🔑 Secrets ที่ต้องตั้งใน Cloudflare</div>
-    <div style="background:#f8fafc;border:2px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:8px">
-      <code style="color:#1d4ed8;font-size:12px">BOT_API_KEY</code>
-      <div style="font-size:10px;color:#718096;margin-top:4px">BOT Client ID จาก apiportal.bot.or.th</div>
-    </div>
-    <div style="background:#f8fafc;border:2px solid #e2e8f0;border-radius:6px;padding:12px">
-      <code style="color:#1d4ed8;font-size:12px">INGEST_SECRET_TOKEN</code>
-      <div style="font-size:10px;color:#718096;margin-top:4px">มีอยู่แล้ว — ใช้ auth frontend กับ Worker</div>
-    </div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════════
-// DATA
-// ════════════════════════════════════════════
-const CATS=[
-  {id:'EC', th:'เศรษฐกิจ',en:'Economic'},
-  {id:'IR', th:'อัตราดอกเบี้ย',en:'Interest Rates'},
-  {id:'ER', th:'อัตราแลกเปลี่ยน',en:'Exchange Rates'},
-  {id:'FM', th:'ตลาดการเงิน',en:'Financial Market'},
-  {id:'FI', th:'สถาบันการเงิน',en:'Financial Institutions'},
-  {id:'PS', th:'ระบบการชำระเงิน',en:'Payment Systems'},
-  {id:'BOP',th:'ดุลการชำระเงิน',en:'Balance of Payments'},
-  {id:'GS', th:'ภาคการคลัง',en:'Government Sector'},
-  {id:'PF', th:'ตราสารหนี้ภาคเอกชน',en:'Private Finance'},
-  {id:'DB', th:'ผลประมูลตราสารหนี้',en:'Debt Auction'},
+// ── DATA ─────────────────────────────────────────────────────
+var CATS = [
+  {id:'EC',th:'เศรษฐกิจ'},
+  {id:'IR',th:'อัตราดอกเบี้ย'},
+  {id:'ER',th:'อัตราแลกเปลี่ยน'},
+  {id:'FM',th:'ตลาดการเงิน'},
+  {id:'FI',th:'สถาบันการเงิน'},
+  {id:'PS',th:'ระบบการชำระเงิน'},
+  {id:'BOP',th:'ดุลการชำระเงิน'},
+  {id:'GS',th:'ภาคการคลัง'},
+  {id:'PF',th:'ตราสารหนี้'},
+  {id:'DB',th:'ผลประมูลตราสารหนี้'},
 ];
 
-// Mock series — shorthand keys: c=code, th=ชื่อไทย, en=english, u=unit, f=frequency
-const MS={
+var SERIES = {
   EC:[
-    {c:'BORCPI01',    th:'ดัชนีราคาผู้บริโภค CPI',     en:'Consumer Price Index',          u:'%',      f:'Monthly'},
-    {c:'BORGDP01',    th:'อัตราเติบโต GDP',             en:'GDP Growth Rate',                u:'%',      f:'Quarterly'},
-    {c:'BORPMI01',    th:'ดัชนี PMI ภาคการผลิต',      en:'Manufacturing PMI',              u:'Index',  f:'Monthly'},
-    {c:'BORTRD01',    th:'มูลค่าการส่งออก',            en:'Export Value',                   u:'M.USD',  f:'Monthly'},
-    {c:'BORIMP01',    th:'มูลค่าการนำเข้า',            en:'Import Value',                   u:'M.USD',  f:'Monthly'},
-    {c:'BORTOU01',    th:'จำนวนนักท่องเที่ยวต่างชาติ', en:'International Tourist Arrivals', u:'Person', f:'Monthly'},
+    {c:'BORCPI01',    en:'Consumer Price Index',          th:'ดัชนีราคาผู้บริโภค CPI',     u:'%',     f:'Monthly'},
+    {c:'BORGDP01',    en:'GDP Growth Rate',                th:'อัตราเติบโต GDP',             u:'%',     f:'Quarterly'},
+    {c:'BORPMI01',    en:'Manufacturing PMI',              th:'ดัชนี PMI ภาคการผลิต',      u:'Index', f:'Monthly'},
+    {c:'BORTRD01',    en:'Export Value',                   th:'มูลค่าการส่งออก',            u:'M.USD', f:'Monthly'},
+    {c:'BORIMP01',    en:'Import Value',                   th:'มูลค่าการนำเข้า',            u:'M.USD', f:'Monthly'},
   ],
   IR:[
-    {c:'IR_1103500_06',th:'อัตราดอกเบี้ยนโยบาย',en:'Policy Rate',               u:'%',f:'Monthly'},
-    {c:'IR_1103500_13',th:'อัตราดอกเบี้ย MLR',   en:'MLR (Minimum Loan Rate)',   u:'%',f:'Daily'},
-    {c:'IR_1103500_14',th:'อัตราดอกเบี้ย MRR',   en:'MRR (Minimum Retail Rate)', u:'%',f:'Daily'},
-    {c:'IR_1103500_15',th:'อัตราดอกเบี้ย MSR',   en:'MSR (Minimum Saving Rate)', u:'%',f:'Daily'},
+    {c:'IR_1103500_06',en:'Policy Rate',      th:'อัตราดอกเบี้ยนโยบาย',u:'%',f:'Monthly'},
+    {c:'IR_1103500_13',en:'MLR Rate',         th:'อัตราดอกเบี้ย MLR',   u:'%',f:'Daily'},
+    {c:'IR_1103500_14',en:'MRR Rate',         th:'อัตราดอกเบี้ย MRR',   u:'%',f:'Daily'},
   ],
   ER:[
-    {c:'EREF01',th:'USD/THB ถัวเฉลี่ยระหว่างธนาคาร',en:'USD/THB Interbank Rate',u:'THB/USD',   f:'Daily'},
-    {c:'EREF02',th:'EUR/THB',                          en:'EUR/THB Rate',          u:'THB/EUR',   f:'Daily'},
-    {c:'EREF03',th:'JPY/THB',                          en:'JPY/THB Rate',          u:'THB/100JPY',f:'Daily'},
-    {c:'EREF04',th:'CNY/THB',                          en:'CNY/THB Rate',          u:'THB/CNY',   f:'Daily'},
-  ],
-  FM:[
-    {c:'PF00000000Q00232',th:'FSIs ยอดรวมตราสารหนี้ภาครัฐ',en:'Govt Debt Securities Total',u:'M.Baht',f:'Quarterly'},
-    {c:'FM_SETIDX_01',    th:'ดัชนีหุ้น SET',             en:'SET Index',                u:'Index',  f:'Daily'},
+    {c:'EREF01',en:'USD/THB Interbank', th:'USD/THB ถัวเฉลี่ย',u:'THB/USD',f:'Daily'},
+    {c:'EREF02',en:'EUR/THB Rate',      th:'EUR/THB',          u:'THB/EUR',f:'Daily'},
+    {c:'EREF03',en:'JPY/THB Rate',      th:'JPY/THB',          u:'THB/100JPY',f:'Daily'},
   ],
 };
-for(const c of CATS) if(!MS[c.id]) MS[c.id]=[];
+for(var i=0;i<CATS.length;i++) if(!SERIES[CATS[i].id]) SERIES[CATS[i].id]=[];
 
-// Mock observations
-const MO={
-  BORCPI01:      [{p:'2026-04',v:'1.12'},{p:'2026-03',v:'0.78'},{p:'2026-02',v:'0.55'},{p:'2026-01',v:'0.35'},{p:'2025-12',v:'0.65'},{p:'2025-11',v:'0.72'},{p:'2025-10',v:'0.89'},{p:'2025-09',v:'0.91'},{p:'2025-08',v:'0.78'},{p:'2025-07',v:'0.62'},{p:'2025-06',v:'0.45'},{p:'2025-05',v:'0.41'}],
-  IR_1103500_06: [{p:'2026-04',v:'2.50'},{p:'2026-03',v:'2.50'},{p:'2026-02',v:'2.50'},{p:'2026-01',v:'2.50'},{p:'2025-12',v:'2.25'},{p:'2025-11',v:'2.25'},{p:'2025-10',v:'2.25'},{p:'2025-09',v:'2.25'},{p:'2025-08',v:'2.50'},{p:'2025-07',v:'2.50'}],
-  EREF01:        [{p:'2026-04',v:'33.25'},{p:'2026-03',v:'33.52'},{p:'2026-02',v:'33.80'},{p:'2026-01',v:'34.12'},{p:'2025-12',v:'33.95'},{p:'2025-11',v:'33.62'},{p:'2025-10',v:'33.41'},{p:'2025-09',v:'33.08'},{p:'2025-08',v:'34.22'},{p:'2025-07',v:'35.10'}],
+var OBS = {
+  BORCPI01:      [{p:'2026-04',v:'1.12'},{p:'2026-03',v:'0.78'},{p:'2026-02',v:'0.55'},{p:'2026-01',v:'0.35'},{p:'2025-12',v:'0.65'},{p:'2025-11',v:'0.72'},{p:'2025-10',v:'0.89'},{p:'2025-09',v:'0.91'},{p:'2025-08',v:'0.78'},{p:'2025-07',v:'0.62'}],
+  IR_1103500_06: [{p:'2026-04',v:'2.50'},{p:'2026-03',v:'2.50'},{p:'2026-02',v:'2.50'},{p:'2026-01',v:'2.50'},{p:'2025-12',v:'2.25'},{p:'2025-11',v:'2.25'},{p:'2025-10',v:'2.25'},{p:'2025-09',v:'2.25'}],
+  EREF01:        [{p:'2026-04',v:'33.25'},{p:'2026-03',v:'33.52'},{p:'2026-02',v:'33.80'},{p:'2026-01',v:'34.12'},{p:'2025-12',v:'33.95'},{p:'2025-11',v:'33.62'},{p:'2025-10',v:'33.41'}],
 };
-function genObs(code){
-  if(MO[code]) return MO[code];
-  const base=code.includes('IR')?2.5:code.includes('ER')?33.5:code.includes('GDP')?3.2:code.includes('PMI')?51:100;
-  return Array.from({length:12},(_,i)=>{
-    const d=new Date(2026,3-i,1);
-    return {p:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`, v:(base*(1+(Math.random()-.5)*.1)).toFixed(2)};
-  });
+function genObs(code) {
+  if(OBS[code]) return OBS[code];
+  var base = code.indexOf('IR')>=0 ? 2.5 : code.indexOf('ER')>=0 ? 33.5 : code.indexOf('GDP')>=0 ? 3.2 : 51;
+  var result = [];
+  for(var i=0;i<10;i++){
+    var d = new Date(2026, 3-i, 1);
+    var yr = d.getFullYear();
+    var mo = String(d.getMonth()+1).padStart(2,'0');
+    result.push({p: yr+'-'+mo, v: (base*(1+(Math.random()-.5)*.1)).toFixed(2)});
+  }
+  return result;
 }
 
-// ════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════
-let mode='mock', wToken='', botKey='';
-let curCat=null, allSer=[], catalog={};
-let curObs=null, curMeta={code:'',en:'',th:'',unit:''};
-let saved=[];
-try{saved=JSON.parse(localStorage.getItem('bot_saved')||'[]')}catch{}
-const WORKER='https://iaa-ingest.9vk92zm5z2.workers.dev';
+// ── STATE ────────────────────────────────────────────────────
+var curCat = null;
+var curSeries = [];
 
-// ════════════════════════════════════════════
-// INIT — auth guard
-// ════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',function(){
-  var tok=localStorage.getItem('bot_auth_token');
-  var exp=localStorage.getItem('bot_auth_expiry');
-  if(!tok||!exp||Date.now()>=parseInt(exp)){
-    // ไม่มี token → redirect login
-    // comment บรรทัดนี้ออกถ้าต้องการทดสอบโดยไม่ login
-    window.location.href='index.html';
+// ── LOG ──────────────────────────────────────────────────────
+function log(msg) {
+  var el = document.getElementById('log');
+  var now = new Date().toLocaleTimeString('th-TH');
+  el.textContent += '\n[' + now + '] ' + msg;
+  el.scrollTop = el.scrollHeight;
+}
+
+// ── BUILD SIDEBAR ────────────────────────────────────────────
+function buildSidebar() {
+  var html = '';
+  for(var i=0;i<CATS.length;i++){
+    var c = CATS[i];
+    var on = curCat && curCat.id === c.id;
+    html += '<button class="cb'+(on?' on':'')+'" onclick="selCat(\''+c.id+'\')">' +
+      '<div class="cb-id">'+c.id+'</div>' +
+      '<div class="cb-th">'+c.th+'</div>' +
+    '</button>';
+  }
+  document.getElementById('cat-list').innerHTML = html;
+}
+
+// ── SELECT CATEGORY ──────────────────────────────────────────
+function selCat(id) {
+  log('กดหมวด: ' + id);
+  curCat = null;
+  for(var i=0;i<CATS.length;i++) if(CATS[i].id===id){curCat=CATS[i];break;}
+  buildSidebar();
+
+  var list = SERIES[id] || [];
+  curSeries = list;
+  log('พบ series: ' + list.length + ' รายการ');
+
+  document.getElementById('v-welcome').style.display = 'none';
+  document.getElementById('v-series').style.display = 'block';
+  document.getElementById('ser-title').textContent = id + ' — ' + (curCat?curCat.th:'');
+  document.getElementById('ser-count').textContent = list.length + ' series';
+
+  if(list.length === 0) {
+    document.getElementById('ser-list').innerHTML = '<div class="card" style="color:#718096">ยังไม่มีข้อมูล mock สำหรับหมวดนี้</div>';
     return;
   }
-  var user=localStorage.getItem('bot_username')||'';
-  if(user) document.getElementById('hdr-user').textContent=user;
-  init();
-});
 
-function init(){
-  buildCatList();
-  buildSavedSb();
-  updateStats();
-  updateChips();
-}
-
-function logout(){
-  localStorage.removeItem('bot_auth_token');
-  localStorage.removeItem('bot_auth_expiry');
-  window.location.href='index.html';
-}
-
-// ════════════════════════════════════════════
-// NAV
-// ════════════════════════════════════════════
-function go(t){
-  document.querySelectorAll('.tab').forEach(function(el){el.classList.remove('on')});
-  document.querySelectorAll('.nb').forEach(function(el){el.classList.remove('on')});
-  document.getElementById('tab-'+t).classList.add('on');
-  var btns=document.querySelectorAll('.nb');
-  var idx=['explore','obs','catalog','setup'].indexOf(t);
-  if(btns[idx]) btns[idx].classList.add('on');
-  // restore wrap for explore
-  if(t==='explore'){
-    document.getElementById('wrap').style.display='flex';
-  }
-}
-
-// ════════════════════════════════════════════
-// SIDEBAR
-// ════════════════════════════════════════════
-function buildCatList(){
-  document.getElementById('cat-list').innerHTML=CATS.map(function(c){
-    var on=curCat&&curCat.id===c.id;
-    var cnt=catalog[c.id]?'<span class="cb-cnt">'+catalog[c.id].length+'</span>':'';
-    return '<button class="cb'+(on?' on':'')+'" onclick="selCat(\''+c.id+'\')">'+
-      '<div class="cb-id"><span>'+c.id+'</span>'+cnt+'</div>'+
-      '<div class="cb-th">'+c.th+'</div></button>';
-  }).join('');
-}
-
-function buildSavedSb(){
-  var el=document.getElementById('saved-sb');
-  if(!saved.length){el.innerHTML='';return;}
-  el.innerHTML='<div class="sb-hd" style="margin-top:8px">Saved ('+saved.length+')</div>'+
-    saved.map(function(s){
-      return '<div style="padding:5px 14px;display:flex;justify-content:space-between;align-items:center">'+
-        '<span style="color:#2563eb;font-size:10px;font-weight:600;cursor:pointer" onclick="quickObs(\''+s.code+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.unit||'')+'\')">→ '+s.code+'</span>'+
-        '<span style="color:#b91c1c;cursor:pointer;font-size:12px" onclick="rmSv(\''+s.code+'\')">✕</span>'+
-      '</div>';
-    }).join('');
-}
-
-function updateStats(){
-  var tot=Object.values(catalog).reduce(function(a,b){return a+b.length},0);
-  document.getElementById('st-cat').textContent=tot;
-  document.getElementById('st-sv').textContent=saved.length;
-  var panel=document.getElementById('sv-panel');
-  if(saved.length){
-    panel.style.display='block';
-    document.getElementById('sv-list').innerHTML=saved.map(function(s){
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #e2e8f0">'+
-        '<div>'+
-          '<span style="color:#1e40af;font-weight:700;font-size:12px">'+s.code+'</span>'+
-          '<span style="color:#4a5568;font-size:11px;margin-left:8px">'+s.en+'</span>'+
-        '</div>'+
-        '<div class="row">'+
-          '<button class="btn pri sm" onclick="quickObs(\''+s.code+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.unit||'')+'\')">ดูข้อมูล →</button>'+
-          '<button class="btn red sm" onclick="rmSv(\''+s.code+'\')">✕</button>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-  } else {
-    panel.style.display='none';
-  }
-}
-
-function updateChips(){
-  var wrap=document.getElementById('ob-chips-wrap');
-  var chips=document.getElementById('ob-chips');
-  if(!saved.length){wrap.style.display='none';return;}
-  wrap.style.display='block';
-  var cur=document.getElementById('ob-code').value;
-  chips.innerHTML=saved.map(function(s){
-    return '<button class="chip'+(s.code===cur?' on':'')+'" onclick="quickObs(\''+s.code+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.unit||'\')+'\')">'+s.code+'</button>';
-  }).join('');
-}
-
-function xe(s){return (s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
-
-// ════════════════════════════════════════════
-// SERIES
-// ════════════════════════════════════════════
-function selCat(id){
-  curCat=CATS.find(function(c){return c.id===id});
-  document.getElementById('v-welcome').style.display='none';
-  document.getElementById('v-series').style.display='block';
-  document.getElementById('ser-title').textContent=curCat.id+' — '+curCat.th;
-  document.getElementById('ser-list').innerHTML='<div style="text-align:center;color:#718096;padding:30px">⏳ กำลังโหลด...</div>';
-  document.getElementById('q').value='';
-  buildCatList();
-  // load ทันที (synchronous กับ mock)
-  loadSeries(id);
-}
-
-function loadSeries(id){
-  getSeries(id,function(list){
-    allSer=list;
-    catalog[id]=list;
-    buildCatList();
-    updateStats();
-    document.getElementById('ser-sub').textContent=curCat.en+' · '+list.length+' series';
-    showSeries(list);
-  },function(err){
-    document.getElementById('ser-list').innerHTML='<div style="color:#b91c1c;padding:20px">❌ '+err+'</div>';
-  });
-}
-
-function filter(){
-  var q=document.getElementById('q').value.toLowerCase();
-  var r=q?allSer.filter(function(s){
-    return s.c.toLowerCase().includes(q)||s.th.includes(q)||s.en.toLowerCase().includes(q);
-  }):allSer;
-  showSeries(r);
-}
-
-function showSeries(list){
-  if(!list.length){
-    document.getElementById('ser-list').innerHTML='<div style="text-align:center;color:#718096;padding:30px">ไม่พบ series</div>';
-    return;
-  }
-  var html=list.map(function(s){
-    var sv=saved.some(function(x){return x.code===s.c});
-    var fc=s.f==='Daily'?'t-blue':s.f==='Monthly'?'t-green':s.f==='Quarterly'?'t-orange':'t-gray';
-    return '<div class="sc'+(sv?' sv':'')+'">'+
-      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'+
-        '<div style="flex:1;min-width:0">'+
-          '<div class="row" style="margin-bottom:6px">'+
-            '<span style="color:#1e40af;font-weight:700;font-size:12px">'+s.c+'</span>'+
-            '<span class="tag '+fc+'">'+s.f+'</span>'+
-            (sv?'<span class="tag t-saved">⭐ saved</span>':'')+
-          '</div>'+
-          '<div style="color:#374151;font-size:12px">'+s.en+'</div>'+
-          '<div style="color:#718096;font-size:11px;margin-top:2px">'+s.th+'</div>'+
-          '<div style="color:#a0aec0;font-size:10px;margin-top:4px">unit: '+s.u+'</div>'+
-        '</div>'+
-        '<div class="row" style="flex-shrink:0">'+
-          '<button class="btn sm'+(sv?' ok':'')+'" onclick="togSv(\''+s.c+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.u||'')+'\',\''+xe(s.f||'')+'\',\''+xe(curCat?curCat.id:'')+'\')">'+
-            (sv?'⭐':'☆')+
-          '</button>'+
-          '<button class="btn pri sm" onclick="quickObs(\''+s.c+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.u||'')+'\')">ดึงข้อมูล →</button>'+
-        '</div>'+
-      '</div>'+
+  var html = '';
+  for(var j=0;j<list.length;j++){
+    var s = list[j];
+    var fc = s.f==='Daily'?'tb':s.f==='Monthly'?'tg':s.f==='Quarterly'?'to':'';
+    html += '<div class="sc">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+        '<div style="flex:1">' +
+          '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px">' +
+            '<span style="color:#1e40af;font-weight:700;font-size:12px">'+s.c+'</span>' +
+            '<span class="tag '+fc+'">'+s.f+'</span>' +
+          '</div>' +
+          '<div style="color:#374151;font-size:12px">'+s.en+'</div>' +
+          '<div style="color:#718096;font-size:11px;margin-top:2px">'+s.th+'</div>' +
+          '<div style="color:#a0aec0;font-size:10px;margin-top:3px">unit: '+s.u+'</div>' +
+        '</div>' +
+        '<button class="btn pri sm" onclick="showObs(\''+s.c+'\',\''+s.en+'\',\''+s.th+'\',\''+s.u+'\')">ดึงข้อมูล →</button>' +
+      '</div>' +
     '</div>';
-  }).join('');
-  document.getElementById('ser-list').innerHTML=html;
+  }
+  document.getElementById('ser-list').innerHTML = html;
+  log('แสดง series เรียบร้อย');
 }
 
-// ════════════════════════════════════════════
-// SAVED
-// ════════════════════════════════════════════
-function togSv(code,en,th,unit,freq,cat){
-  if(saved.some(function(s){return s.code===code})){rmSv(code);return;}
-  saved.push({code:code,en:en,th:th,unit:unit,freq:freq,cat:cat});
-  persist();
-  if(allSer.length) showSeries(allSer);
-}
-function rmSv(code){
-  saved=saved.filter(function(s){return s.code!==code});
-  persist();
-  if(allSer.length) showSeries(allSer);
-}
-function saveCode(){
-  var code=document.getElementById('ob-code').value.trim();
-  if(!code||saved.some(function(s){return s.code===code})) return;
-  saved.push(Object.assign({code:code},curMeta));
-  persist();
-  document.getElementById('ob-sv-btn').style.display='none';
-}
-function persist(){
-  try{localStorage.setItem('bot_saved',JSON.stringify(saved))}catch{}
-  buildSavedSb(); updateStats(); updateChips();
+// ── SHOW OBSERVATIONS ────────────────────────────────────────
+function showObs(code, en, th, unit) {
+  log('ดึงข้อมูล: ' + code);
+  var data = genObs(code);
+  log('ได้ข้อมูล: ' + data.length + ' จุด');
+
+  document.getElementById('r-code').textContent = code;
+  document.getElementById('r-en').textContent = en;
+  document.getElementById('r-th').textContent = th + (unit?' · '+unit:'');
+  document.getElementById('obs-card').style.display = 'block';
+
+  // table
+  var rows = '';
+  for(var i=0;i<data.length;i++){
+    rows += data[i].p.padEnd(12) + '  ' + data[i].v + '\n';
+  }
+  document.getElementById('obs-table').textContent = rows;
+
+  // chart
+  drawChart(data);
+  log('แสดงข้อมูลเรียบร้อย ✅');
 }
 
-// ════════════════════════════════════════════
-// OBSERVATIONS
-// ════════════════════════════════════════════
-function quickObs(code,en,th,unit){
-  curMeta={code:code,en:en,th:th,unit:unit};
-  document.getElementById('ob-code').value=code;
-  go('obs');
-  updateChips();
-  fetchObs();
-}
+// ── DRAW CHART ───────────────────────────────────────────────
+function drawChart(data) {
+  var canvas = document.getElementById('spark');
+  var ctx = canvas.getContext('2d');
+  var vals = [];
+  for(var i=0;i<data.length;i++) vals.push(parseFloat(data[i].v));
+  if(vals.length < 2) return;
 
-function fetchObs(){
-  var code=document.getElementById('ob-code').value.trim();
-  if(!code){alert('กรุณากรอก Series Code');return;}
-  var start=document.getElementById('ob-start').value;
-  var end=document.getElementById('ob-end').value;
-  if(curMeta.code!==code) curMeta={code:code,en:'',th:'',unit:''};
+  var W=canvas.width, H=canvas.height, p=8;
+  var mn=vals[0], mx=vals[0];
+  for(var i=1;i<vals.length;i++){if(vals[i]<mn)mn=vals[i];if(vals[i]>mx)mx=vals[i];}
+  var rng = mx-mn || 0.01;
 
-  document.getElementById('ob-load').style.display='block';
-  document.getElementById('ob-res').style.display='none';
-  document.getElementById('ob-sv-btn').style.display='none';
+  var pts = [];
+  for(var i=0;i<vals.length;i++){
+    pts.push([p+(i/(vals.length-1))*(W-p*2), H-p-((vals[i]-mn)/rng)*(H-p*2)]);
+  }
 
-  getObs(code,start,end,function(data){
-    curObs=data;
-    showObs(data,curMeta);
-    if(!saved.some(function(s){return s.code===code})){
-      document.getElementById('ob-sv-btn').style.display='inline-block';
-    }
-  },function(err){
-    document.getElementById('ob-load').innerHTML='<div style="color:#b91c1c;text-align:center;padding:20px">❌ '+err+'</div>';
-  });
-}
+  var up = vals[vals.length-1] >= vals[vals.length-2];
+  var col = up ? '#16a34a' : '#dc2626';
 
-function showObs(data,meta){
-  document.getElementById('ob-load').style.display='none';
-  document.getElementById('ob-res').style.display='block';
-  document.getElementById('r-code').textContent=meta.code||'';
-  document.getElementById('r-en').textContent=meta.en||'';
-  document.getElementById('r-th').textContent=(meta.th||'')+(meta.unit?' · '+meta.unit:'');
-  document.getElementById('r-count').textContent=data.length+' จุดข้อมูล';
-  document.getElementById('r-unit').textContent=meta.unit||'';
-  document.getElementById('ob-table').textContent=data.map(function(o){
-    return (o.p||o.period_start||'').padEnd(12)+'  '+(o.v||o.value);
-  }).join('\n');
-  drawSpark(data);
-}
-
-function drawSpark(data){
-  var canvas=document.getElementById('spark');
-  var ctx=canvas.getContext('2d');
-  var vals=data.map(function(o){return parseFloat(o.v||o.value)}).filter(function(v){return !isNaN(v)});
-  if(vals.length<2){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
-  var W=canvas.width,H=canvas.height,p=8;
-  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=mx-mn||.01;
-  var pts=vals.map(function(v,i){
-    return [p+(i/(vals.length-1))*(W-p*2), H-p-((v-mn)/rng)*(H-p*2)];
-  });
-  var up=vals[vals.length-1]>=vals[vals.length-2];
-  var col=up?'#16a34a':'#dc2626';
   ctx.clearRect(0,0,W,H);
-  // fill
-  ctx.beginPath(); ctx.moveTo(pts[0][0],H);
-  pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1])});
-  ctx.lineTo(pts[pts.length-1][0],H); ctx.closePath();
-  var g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,col+'40'); g.addColorStop(1,col+'05');
-  ctx.fillStyle=g; ctx.fill();
+
+  // fill area
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], H);
+  for(var i=0;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.lineTo(pts[pts.length-1][0], H);
+  ctx.closePath();
+  var g = ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0, col+'55');
+  g.addColorStop(1, col+'05');
+  ctx.fillStyle = g;
+  ctx.fill();
+
   // line
-  ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]);
-  pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1])});
-  ctx.strokeStyle=col; ctx.lineWidth=2.5; ctx.lineJoin='round'; ctx.stroke();
-  // dot
-  ctx.beginPath(); ctx.arc(pts[pts.length-1][0],pts[pts.length-1][1],5,0,Math.PI*2);
-  ctx.fillStyle=col; ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for(var i=1;i<pts.length;i++) ctx.lineTo(pts[i][0], pts[i][1]);
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // end dot
+  var last = pts[pts.length-1];
+  ctx.beginPath();
+  ctx.arc(last[0], last[1], 5, 0, Math.PI*2);
+  ctx.fillStyle = col;
+  ctx.fill();
+
   // labels
-  document.getElementById('spark-lbl').innerHTML=
-    '<span>'+data[0]?.p+'</span>'+
+  document.getElementById('spark-lbl').innerHTML =
+    '<span>'+data[0].p+'</span>'+
     '<span style="color:'+col+';font-weight:700;font-size:13px">'+vals[vals.length-1]+'</span>'+
-    '<span>'+data[data.length-1]?.p+'</span>';
+    '<span>'+data[data.length-1].p+'</span>';
 }
 
-function dlCSV(){
-  if(!curObs) return;
-  var rows=[['period','value']].concat(curObs.map(function(o){return [o.p||o.period_start, o.v||o.value]})).map(function(r){return r.join(',')}).join('\n');
-  var a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));
-  a.download=(curMeta.code||'data')+'.csv'; a.click();
-}
-
-// ════════════════════════════════════════════
-// CATALOG
-// ════════════════════════════════════════════
-function loadAll(){
-  var btn=document.getElementById('la-btn');
-  btn.disabled=true; btn.textContent='⏳ Loading...';
-  var i=0;
-  function next(){
-    if(i>=CATS.length){btn.disabled=false;btn.textContent='⬇ Load ทุกหมวด';showCatalog();buildCatList();updateStats();return;}
-    var c=CATS[i++];
-    if(catalog[c.id]){next();return;}
-    getSeries(c.id,function(list){catalog[c.id]=list;next();},function(){next();});
-  }
-  next();
-}
-function clearCat(){catalog={};showCatalog();buildCatList();updateStats();}
-function showCatalog(){
-  var tot=Object.values(catalog).reduce(function(a,b){return a+b.length},0);
-  document.getElementById('cat-stat').textContent='โหลดแล้ว '+Object.keys(catalog).length+'/10 หมวด · รวม '+tot+' series';
-  document.getElementById('cat-content').innerHTML=Object.entries(catalog).map(function(e){
-    var id=e[0],list=e[1];
-    var cat=CATS.find(function(c){return c.id===id});
-    return '<div class="card">'+
-      '<div class="row" style="margin-bottom:12px">'+
-        '<span style="color:#1e40af;font-weight:700">['+id+']</span>'+
-        '<span style="color:#718096;font-size:12px">'+cat?.th+'</span>'+
-        '<span class="tag t-gray">'+list.length+' series</span>'+
-      '</div>'+
-      list.map(function(s){
-        var sv=saved.some(function(x){return x.code===s.c});
-        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f0f4f8">'+
-          '<span style="color:#2563eb;font-size:10px;min-width:160px;flex-shrink:0;font-weight:600">'+s.c+'</span>'+
-          '<span style="color:#718096;font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+s.en+'</span>'+
-          '<button class="btn sm" onclick="quickObs(\''+s.c+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.u||'')+'\')">ดูข้อมูล</button>'+
-          '<button class="btn sm'+(sv?' ok':'')+'" onclick="togSv(\''+s.c+'\',\''+xe(s.en)+'\',\''+xe(s.th)+'\',\''+xe(s.u||'')+'\',\''+xe(s.f||'')+'\',\''+id+'\')">'+(sv?'⭐':'☆')+'</button>'+
-        '</div>';
-      }).join('')+
-    '</div>';
-  }).join('');
-}
-
-// ════════════════════════════════════════════
-// API LAYER
-// ════════════════════════════════════════════
-function getSeries(catId,ok,fail){
-  if(mode==='mock'){
-    setTimeout(function(){ok(MS[catId]||[])},200);
-    return;
-  }
-  var url=mode==='worker'
-    ?WORKER+'/bot/series?category='+catId
-    :'https://apiportal.bot.or.th/bot/public/series?category='+catId;
-  var h=mode==='worker'?{'Authorization':'Bearer '+wToken}:{'X-IBM-Client-Id':botKey};
-  fetch(url,{headers:h})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(function(d){
-      ok((d&&d.result&&d.result.series||[]).map(function(s){
-        return {c:s.series_code,en:s.series_name_eng||'',th:s.series_name_th||'',u:s.unit_eng||'',f:s.frequency||''};
-      }));
-    })
-    .catch(function(e){fail(e.message)});
-}
-
-function getObs(code,start,end,ok,fail){
-  if(mode==='mock'){
-    setTimeout(function(){ok(genObs(code))},250);
-    return;
-  }
-  var url=mode==='worker'
-    ?WORKER+'/bot/observations?series_code='+code+'&start_period='+start
-    :'https://apiportal.bot.or.th/bot/public/observations?series_code='+code+'&start_period='+start;
-  if(end) url+='&end_period='+end;
-  var h=mode==='worker'?{'Authorization':'Bearer '+wToken}:{'X-IBM-Client-Id':botKey};
-  fetch(url,{headers:h})
-    .then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json()})
-    .then(function(d){
-      ok((d&&d.result&&d.result.series&&d.result.series[0]&&d.result.series[0].observations||[]).map(function(o){
-        return {p:o.period_start,v:o.value};
-      }));
-    })
-    .catch(function(e){fail(e.message)});
-}
-
-// ════════════════════════════════════════════
-// SETUP
-// ════════════════════════════════════════════
-function setMode(m){
-  mode=m;
-  ['mock','worker','direct'].forEach(function(k){
-    document.getElementById('m-'+k).classList.toggle('on',k===m);
-  });
-  var fields=document.getElementById('m-fields');
-  if(m==='worker'){
-    fields.innerHTML='<div style="font-size:9px;color:#718096;margin-bottom:5px;letter-spacing:1px">INGEST_SECRET_TOKEN</div><input class="inp" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="wToken=this.value">';
-  } else if(m==='direct'){
-    fields.innerHTML='<div style="font-size:9px;color:#718096;margin-bottom:5px;letter-spacing:1px">BOT CLIENT ID</div><input class="inp" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="botKey=this.value">';
-  } else {fields.innerHTML='';}
-  document.getElementById('hdr-mode').textContent=m==='mock'?'🎭 Mock':m==='worker'?'☁️ Worker':'🔑 Direct';
-}
-
-function chkSt(){
-  var badge=document.getElementById('st-badge');
-  badge.textContent='⏳ กำลังตรวจสอบ...';
-  if(mode==='mock'){
-    setTimeout(function(){
-      badge.innerHTML='<span class="online"><span class="dot dg"></span>Online (Mock) · 180ms</span>';
-    },500);
-    return;
-  }
-  var t=Date.now();
-  fetch(WORKER+'/bot/status',{headers:{'Authorization':'Bearer '+wToken},signal:AbortSignal.timeout(8000)})
-    .then(function(r){return r.json().then(function(d){return {ok:d.ok!=null?d.ok:r.ok,ms:d.latency_ms||(Date.now()-t)}})})
-    .then(function(d){
-      badge.innerHTML=d.ok
-        ?'<span class="online"><span class="dot dg"></span>Online · '+d.ms+'ms</span>'
-        :'<span class="offline"><span class="dot dr"></span>Error</span>';
-    })
-    .catch(function(e){
-      badge.innerHTML='<span class="offline"><span class="dot dr"></span>'+e.message+'</span>';
-    });
-}
+// ── START ────────────────────────────────────────────────────
+buildSidebar();
+log('หน้าโหลดสำเร็จ — กดหมวดซ้ายได้เลย');
 </script>
 </body>
 </html>
