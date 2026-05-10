@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOT API Explorer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#07080f;color:#c8d0e8;font-family:'Courier New',monospace;font-size:13px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#07080f}::-webkit-scrollbar-thumb{background:#1e2235;border-radius:10px}
+a{color:#60a5fa}
+button{cursor:pointer;font-family:inherit;transition:opacity .12s}button:hover{opacity:.8}
+input{font-family:inherit;color:#c8d0e8}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* layout */
+#header{position:sticky;top:0;z-index:99;background:#09090f;border-bottom:1px solid #161826;padding:0 18px;height:48px;display:flex;align-items:center;justify-content:space-between}
+#logo{display:flex;align-items:center;gap:9px}
+#logo-icon{width:28px;height:28px;border-radius:5px;background:linear-gradient(135deg,#1a3a7a,#2563eb);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:14px}
+#logo-text{font-weight:700;font-size:12px;color:#93c5fd}
+#logo-sub{font-size:8px;color:#1e2235}
+#nav{display:flex;gap:2px}
+.nav-btn{padding:4px 12px;border:none;border-radius:4px;background:transparent;color:#3a4060;font-size:11px;font-weight:400}
+.nav-btn.active{background:#111428;color:#93c5fd;font-weight:600}
+#status-dot{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+
+/* body layout */
+#body{display:flex;height:calc(100vh - 48px)}
+#sidebar{width:195px;background:#09090f;border-right:1px solid #161826;overflow-y:auto;flex-shrink:0;padding:10px 0}
+#main{flex:1;overflow-y:auto;padding:16px}
+.sidebar-label{padding:4px 13px 7px;font-size:9px;color:#1e2235;letter-spacing:2px;text-transform:uppercase}
+.cat-btn{display:block;width:100%;text-align:left;padding:9px 13px;border:none;border-left:2px solid transparent;background:transparent;color:#444;font-family:inherit}
+.cat-btn.active{border-left-color:#3b82f6;background:#111428;color:#93c5fd}
+.cat-id{font-weight:700;font-size:11px;display:flex;justify-content:space-between}
+.cat-th{font-size:9px;color:#2a2d42;margin-top:2px}
+.cat-btn.active .cat-th{color:#4a6080}
+
+/* cards */
+.card{background:#0c0e1c;border:1px solid #161826;border-radius:8px;padding:16px;margin-bottom:10px}
+.series-card{background:#0c0e1c;border:1px solid #161826;border-radius:7px;padding:13px;margin-bottom:8px;transition:border-color .1s}
+.series-card.saved{border-color:#1a3050}
+
+/* tags */
+.tag{display:inline-block;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:700;background:#12141f;color:#4a5070}
+.tag-blue{background:#0a1428;color:#60a5fa}
+.tag-green{background:#0a2018;color:#34d399}
+.tag-orange{background:#1e1200;color:#fb923c}
+
+/* buttons */
+.btn{border-radius:5px;font-weight:600;border:1px solid #1e2235;background:#12141f;color:#6b7280;padding:6px 13px;font-size:12px}
+.btn-sm{padding:3px 8px;font-size:10px}
+.btn-pri{background:#1d4ed8;color:#fff;border-color:#2563eb}
+.btn-ok{background:#0a2018;color:#34d399;border-color:#14402e}
+.btn-red{background:#220a0a;color:#f87171;border-color:#401414}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* input */
+.inp{background:#080910;border:1px solid #1a1d2e;border-radius:5px;padding:7px 11px;font-size:12px;outline:none;width:100%}
+
+/* stats grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.stat-box{background:#0a1028;border:1px solid #161826;border-radius:6px;padding:14px;text-align:center}
+.stat-n{font-size:28px;font-weight:700;color:#c8d0e8;margin-bottom:4px}
+.stat-l{font-size:10px;color:#3a4060}
+
+/* tabs content */
+.tab-content{display:none}.tab-content.active{display:block}
+
+/* steps */
+.step{display:flex;gap:10px;margin-bottom:12px}
+.step-n{width:24px;height:24px;border-radius:50%;background:#0a1428;border:1px solid #2563eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#60a5fa;flex-shrink:0}
+.step-t{font-weight:600;font-size:11px;color:#c0c8e0;margin-bottom:2px}
+.step-d{font-size:10px;color:#3a4060;line-height:1.6}
+
+/* obs table */
+.obs-pre{background:#060710;border:1px solid #161826;border-radius:5px;padding:11px;font-size:11px;color:#5a7090;max-height:260px;overflow-y:auto;line-height:1.9;white-space:pre}
+
+/* sparkline */
+.spark-wrap{margin-top:10px}
+.spark-labels{display:flex;justify-content:space-between;font-size:9px;color:#2a3050;margin-top:3px}
+
+/* saved chips */
+.saved-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.saved-chip{background:#0c0e1c;border:1px solid #1e2235;border-radius:4px;padding:3px 9px;color:#60a5fa;font-size:10px;cursor:pointer;font-family:inherit}
+.saved-chip.active{background:#111830;border-color:#2563eb}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<div id="header">
+  <div id="logo">
+    <div id="logo-icon">B</div>
+    <div>
+      <div id="logo-text">BOT API Explorer</div>
+      <div id="logo-sub">Bank of Thailand Statistics</div>
+    </div>
+  </div>
+  <nav id="nav">
+    <button class="nav-btn active" onclick="switchTab('explore')">🗂 Explore</button>
+    <button class="nav-btn"        onclick="switchTab('obs')">📊 Observations</button>
+    <button class="nav-btn"        onclick="switchTab('catalog')">📚 Catalog</button>
+    <button class="nav-btn"        onclick="switchTab('setup')">⚙️ Setup</button>
+  </nav>
+  <div id="header-status" style="display:flex;align-items:center;gap:10px"><span id="header-username" style="font-size:10px;color:#3a4060"></span><button onclick="logout()" style="background:#220a0a;color:#f87171;border:1px solid #401414;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit">ออกจากระบบ</button><div style="display:none">
+    <span id="status-dot" style="background:#0a2018;color:#34d399;border:1px solid #14402e">
+      <span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;animation:pulse 2s infinite"></span>
+      Mock Mode
+    </span>
+  </div></div>
+
+<!-- TAB: EXPLORE -->
+
+<div id="tab-explore" class="tab-content active">
+  <div id="body">
+    <aside id="sidebar">
+      <div class="sidebar-label">หมวดหมู่ (10)</div>
+      <div id="cat-list"></div>
+      <div id="saved-sidebar"></div>
+    </aside>
+    <main id="main">
+      <div id="explore-welcome">
+        <div class="card">
+          <div style="font-size:15px;font-weight:700;color:#93c5fd;margin-bottom:8px">🏦 BOT API Explorer</div>
+          <div style="color:#3a4060;line-height:1.9;margin-bottom:16px">
+            สำรวจข้อมูลสถิติ ธนาคารแห่งประเทศไทย (BOT)<br>
+            ตอนนี้ใช้ <b style="color:#34d399">Mock Mode</b> — เห็นข้อมูลได้ทันที ไม่ต้อง API key<br>
+            เลือกหมวดหมู่ทางซ้าย เพื่อดู series ทั้งหมด
+          </div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-n">10</div><div class="stat-l">หมวดหมู่</div></div>
+            <div class="stat-box" style="background:#0a1a10"><div class="stat-n" id="stat-catalog">0</div><div class="stat-l">Series ใน Catalog</div></div>
+            <div class="stat-box" style="background:#1a1000"><div class="stat-n" id="stat-saved">0</div><div class="stat-l">Saved</div></div>
+          </div>
+        </div>
+        <div class="card" id="saved-panel" style="display:none">
+          <div style="font-size:12px;font-weight:700;color:#93c5fd;margin-bottom:10px">⭐ Saved Series</div>
+          <div id="saved-list-welcome"></div>
+        </div>
+      </div>
+      <div id="explore-series" style="display:none">
+        <div style="margin-bottom:12px">
+          <div id="series-title" style="font-size:14px;font-weight:700;color:#93c5fd"></div>
+          <div id="series-sub" style="font-size:11px;color:#3a4060;margin-top:2px"></div>
+        </div>
+        <input class="inp" id="search-inp" placeholder="🔍 ค้นหา code / ชื่อไทย / English" oninput="filterSeries()" style="margin-bottom:10px">
+        <div id="series-list"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- TAB: OBS -->
+
+<div id="tab-obs" class="tab-content" style="padding:16px;overflow-y:auto;height:calc(100vh - 48px)">
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:#93c5fd;margin-bottom:12px">📊 ดึงข้อมูล Observations</div>
+    <div style="display:grid;grid-template-columns:1fr 160px 160px;gap:8px;margin-bottom:12px">
+      <div>
+        <div style="font-size:9px;color:#3a4060;margin-bottom:3px;letter-spacing:1px;text-transform:uppercase">Series Code</div>
+        <input class="inp" id="obs-code" placeholder="เช่น BORCPI01, IR_1103500_06">
+      </div>
+      <div>
+        <div style="font-size:9px;color:#3a4060;margin-bottom:3px;letter-spacing:1px;text-transform:uppercase">Start Period</div>
+        <input class="inp" type="date" id="obs-start" value="2023-01-01">
+      </div>
+      <div>
+        <div style="font-size:9px;color:#3a4060;margin-bottom:3px;letter-spacing:1px;text-transform:uppercase">End (optional)</div>
+        <input class="inp" type="date" id="obs-end">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button class="btn btn-pri" onclick="doFetchObs()">▶ ดึงข้อมูล</button>
+      <button class="btn" id="obs-save-btn" onclick="saveCurrentObs()" style="display:none">☆ บันทึก</button>
+    </div>
+    <div id="obs-saved-chips" style="margin-top:12px;display:none">
+      <div style="font-size:9px;color:#1e2235;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px">SAVED — คลิกดูข้อมูล</div>
+      <div class="saved-chips" id="obs-chips"></div>
+    </div>
+  </div>
+  <div id="obs-loading" style="display:none" class="card">
+    <div style="text-align:center;color:#3a4060">⏳ กำลังดึงข้อมูล...</div>
+  </div>
+  <div id="obs-result" style="display:none" class="card">
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+      <div>
+        <div id="obs-res-code" style="color:#60a5fa;font-weight:700;font-size:14px"></div>
+        <div id="obs-res-en" style="color:#a0a8c0;font-size:11px;margin-top:3px"></div>
+        <div id="obs-res-th" style="color:#3a4060;font-size:10px;margin-top:2px"></div>
+      </div>
+      <div id="obs-res-count" style="font-size:10px;color:#3a4060;text-align:right"></div>
+    </div>
+    <canvas id="spark-canvas" width="300" height="56"></canvas>
+    <div id="spark-labels" class="spark-labels"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;margin-bottom:8px">
+      <div style="font-size:9px;color:#3a4060">ข้อมูล (ใหม่สุดก่อน)</div>
+      <button class="btn btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div class="obs-pre" id="obs-table"></div>
+  </div>
+</div>
+
+<!-- TAB: CATALOG -->
+
+<div id="tab-catalog" class="tab-content" style="padding:16px;overflow-y:auto;height:calc(100vh - 48px)">
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:#93c5fd;margin-bottom:6px">📚 Catalog</div>
+    <div id="catalog-stat" style="color:#3a4060;font-size:11px;margin-bottom:12px">โหลดแล้ว 0/10 หมวด</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-pri" id="load-all-btn" onclick="loadAllCats()">⬇ Load ทุกหมวด</button>
+      <button class="btn" onclick="clearCatalog()">🗑 Clear</button>
+    </div>
+  </div>
+  <div id="catalog-content"></div>
+</div>
+
+<!-- TAB: SETUP -->
+
+<div id="tab-setup" class="tab-content" style="padding:16px;overflow-y:auto;height:calc(100vh - 48px)">
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:#93c5fd">🌐 BOT API Status</div>
+      <div id="setup-status-dot" style="font-size:11px;color:#3a4060">ยังไม่เช็ค</div>
+    </div>
+    <div style="color:#3a4060;font-size:11px;margin-bottom:10px" id="mode-desc">Mock mode — เห็นข้อมูล demo ได้ทันที</div>
+    <button class="btn btn-pri" onclick="checkStatus()">🔄 ตรวจสอบ BOT API</button>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:#93c5fd;margin-bottom:10px">⚙️ API Mode</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px" id="mode-grid">
+      <button onclick="setMode('mock')"   id="mode-mock"   style="background:#0d1830;border:1px solid #2563eb;border-radius:5px;padding:10px;text-align:left;font-family:inherit"><div style="font-weight:600;font-size:11px;color:#93c5fd;margin-bottom:2px">🎭 Mock</div><div style="font-size:9px;color:#2a3050">ทดสอบ ไม่ต้อง key</div></button>
+      <button onclick="setMode('worker')" id="mode-worker" style="background:#0c0e1c;border:1px solid #161826;border-radius:5px;padding:10px;text-align:left;font-family:inherit"><div style="font-weight:600;font-size:11px;color:#4a5070;margin-bottom:2px">☁️ CF Worker</div><div style="font-size:9px;color:#2a3050">ผ่าน Cloudflare</div></button>
+      <button onclick="setMode('direct')" id="mode-direct" style="background:#0c0e1c;border:1px solid #161826;border-radius:5px;padding:10px;text-align:left;font-family:inherit"><div style="font-weight:600;font-size:11px;color:#4a5070;margin-bottom:2px">🔑 Direct BOT</div><div style="font-size:9px;color:#2a3050">เรียก BOT ตรงๆ</div></button>
+    </div>
+    <div id="mode-fields"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:#93c5fd;margin-bottom:12px">🚀 ขั้นตอน connect จริง</div>
+    <div class="step"><div class="step-n">1</div><div><div class="step-t">ขอ BOT API Key</div><div class="step-d"><a href="https://apiportal.bot.or.th/bot/public/" target="_blank">apiportal.bot.or.th</a> → สมัคร Account → Subscribe Statistics API → ได้ Client ID</div></div></div>
+    <div class="step"><div class="step-n">2</div><div><div class="step-t">รัน D1 Schema</div><div class="step-d">Cloudflare → D1 → iaa-consensus-db → Console → paste schema_bot.sql</div></div></div>
+    <div class="step"><div class="step-n">3</div><div><div class="step-t">เพิ่ม Secret ใน Worker</div><div class="step-d">CF Workers → iaa-ingest → Settings → Variables → BOT_API_KEY = Client ID</div></div></div>
+    <div class="step"><div class="step-n">4</div><div><div class="step-t">Deploy Worker routes</div><div class="step-d">paste bot_worker_routes.js ใน ingest-worker.js → Save & Deploy</div></div></div>
+    <div class="step"><div class="step-n">5</div><div><div class="step-t">เลือก Mode ด้านบน</div><div class="step-d">เลือก CF Worker → ใส่ INGEST_SECRET_TOKEN → กดตรวจสอบ Status</div></div></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:13px;font-weight:700;color:#93c5fd;margin-bottom:10px">🔑 Environment Variables</div>
+    <div style="background:#080910;border:1px solid #161826;border-radius:5px;padding:10px;margin-bottom:8px">
+      <code style="color:#60a5fa;font-size:12px">BOT_API_KEY</code>
+      <div style="font-size:10px;color:#2a3050;margin-top:3px">BOT Client ID จาก apiportal.bot.or.th — เก็บเป็น Secret</div>
+    </div>
+    <div style="background:#080910;border:1px solid #161826;border-radius:5px;padding:10px">
+      <code style="color:#60a5fa;font-size:12px">INGEST_SECRET_TOKEN</code>
+      <div style="font-size:10px;color:#2a3050;margin-top:3px">มีอยู่แล้ว — ใช้ auth frontend กับ Worker</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════ */
+const CATS=[
+  {id:'EC', th:'เศรษฐกิจ',              en:'Economic'},
+  {id:'IR', th:'อัตราดอกเบี้ย',          en:'Interest Rates'},
+  {id:'ER', th:'อัตราแลกเปลี่ยน',        en:'Exchange Rates'},
+  {id:'FM', th:'ตลาดการเงิน',            en:'Financial Market'},
+  {id:'FI', th:'สถาบันการเงิน',          en:'Financial Institutions'},
+  {id:'PS', th:'ระบบการชำระเงิน',        en:'Payment Systems'},
+  {id:'BOP',th:'ดุลการชำระเงิน',         en:'Balance of Payments'},
+  {id:'GS', th:'ภาคการคลัง',             en:'Government Sector'},
+  {id:'PF', th:'ตราสารหนี้ภาคเอกชน',    en:'Private Finance'},
+  {id:'DB', th:'ผลประมูลตราสารหนี้',    en:'Debt Auction'},
+];
+const MOCK_S={
+  EC:[
+    {series_code:'BORCPI01',   series_name_th:'ดัชนีราคาผู้บริโภค CPI',     series_name_eng:'Consumer Price Index',   unit_eng:'%',     frequency:'Monthly',   last_update_date:'2026-04-30'},
+    {series_code:'BORGDP01',   series_name_th:'อัตราเติบโต GDP',             series_name_eng:'GDP Growth Rate',         unit_eng:'%',     frequency:'Quarterly', last_update_date:'2026-03-31'},
+    {series_code:'BORPMI01',   series_name_th:'ดัชนี PMI ภาคการผลิต',      series_name_eng:'Manufacturing PMI',       unit_eng:'Index', frequency:'Monthly',   last_update_date:'2026-04-30'},
+    {series_code:'BORTRD01',   series_name_th:'มูลค่าการส่งออก',            series_name_eng:'Export Value',            unit_eng:'M.USD', frequency:'Monthly',   last_update_date:'2026-03-31'},
+    {series_code:'BORIMP01',   series_name_th:'มูลค่าการนำเข้า',            series_name_eng:'Import Value',            unit_eng:'M.USD', frequency:'Monthly',   last_update_date:'2026-03-31'},
+  ],
+  IR:[
+    {series_code:'IR_1103500_06',series_name_th:'อัตราดอกเบี้ยนโยบาย',   series_name_eng:'Policy Rate',  unit_eng:'%',frequency:'Monthly',last_update_date:'2026-04-30'},
+    {series_code:'IR_1103500_13',series_name_th:'อัตราดอกเบี้ย MLR',      series_name_eng:'MLR Rate',     unit_eng:'%',frequency:'Daily',  last_update_date:'2026-05-09'},
+    {series_code:'IR_1103500_14',series_name_th:'อัตราดอกเบี้ย MRR',      series_name_eng:'MRR Rate',     unit_eng:'%',frequency:'Daily',  last_update_date:'2026-05-09'},
+  ],
+  ER:[
+    {series_code:'EREF01',series_name_th:'USD/THB ถัวเฉลี่ยระหว่างธนาคาร',series_name_eng:'USD/THB Interbank',unit_eng:'THB/USD',frequency:'Daily',last_update_date:'2026-05-09'},
+    {series_code:'EREF02',series_name_th:'EUR/THB',                          series_name_eng:'EUR/THB Rate',     unit_eng:'THB/EUR',frequency:'Daily',last_update_date:'2026-05-09'},
+  ],
+};
+for(const c of CATS)if(!MOCK_S[c.id])MOCK_S[c.id]=[];
+
+const MOCK_OBS={
+  BORCPI01:      [{p:'2026-04',v:'1.12'},{p:'2026-03',v:'0.78'},{p:'2026-02',v:'0.55'},{p:'2026-01',v:'0.35'},{p:'2025-12',v:'0.65'},{p:'2025-11',v:'0.72'},{p:'2025-10',v:'0.89'},{p:'2025-09',v:'0.91'}],
+  IR_1103500_06: [{p:'2026-04',v:'2.50'},{p:'2026-03',v:'2.50'},{p:'2026-02',v:'2.50'},{p:'2026-01',v:'2.50'},{p:'2025-12',v:'2.25'},{p:'2025-11',v:'2.25'}],
+  EREF01:        [{p:'2026-04',v:'33.2'},{p:'2026-03',v:'33.5'},{p:'2026-02',v:'33.8'},{p:'2026-01',v:'34.1'},{p:'2025-12',v:'33.9'}],
+};
+function mockObs(code){
+  if(MOCK_OBS[code])return MOCK_OBS[code];
+  return Array.from({length:10},(_,i)=>{
+    const d=new Date(2026,3-i,1);
+    return{p:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,v:(Math.random()*3+1).toFixed(2)};
+  });
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════════ */
+let mode='mock', wToken='', botKey='', currentCat=null, allSeries=[], catalog={};
+let currentObs=null, currentObsMeta=null;
+let saved=[];
+try{saved=JSON.parse(localStorage.getItem('bot_saved')||'[]')}catch{}
+
+const WORKER='https://iaa-ingest.9vk92zm5z2.workers.dev';
+
+/* ═══════════════════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════════════════ */
+window.onload=function(){
+  renderCatList();
+  renderSavedSidebar();
+  updateStats();
+  updateObsChips();
+};
+
+/* ═══════════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════════ */
+function switchTab(t){
+  document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  const btns=document.querySelectorAll('#nav .nav-btn');
+  const order=['explore','obs','catalog','setup'];
+  btns[order.indexOf(t)]?.classList.add('active');
+  if(t==='explore'){document.getElementById('body').style.display='flex';}
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SIDEBAR & WELCOME
+═══════════════════════════════════════════════════════════ */
+function renderCatList(){
+  const el=document.getElementById('cat-list');
+  el.innerHTML=CATS.map(c=>`
+    <button class="cat-btn${currentCat?.id===c.id?' active':''}" onclick="selectCat('${c.id}')">
+      <div class="cat-id"><span>${c.id}</span>${catalog[c.id]?`<span>${catalog[c.id].length}</span>`:''}</div>
+      <div class="cat-th">${c.th}</div>
+    </button>`).join('');
+}
+function renderSavedSidebar(){
+  const el=document.getElementById('saved-sidebar');
+  if(saved.length===0){el.innerHTML='';return;}
+  el.innerHTML=`<div class="sidebar-label">Saved (${saved.length})</div>`+
+    saved.map(s=>`<div style="padding:4px 13px;font-size:10px;color:#34d399;display:flex;justify-content:space-between;align-items:center">
+      <span style="cursor:pointer" onclick="quickObs('${s.code}','${s.en||''}','${s.th||''}','${s.unit||''}')">→ ${s.code}</span>
+      <span style="color:#401414;cursor:pointer;font-size:11px" onclick="removeSaved('${s.code}')">✕</span>
+    </div>`).join('');
+}
+function updateStats(){
+  document.getElementById('stat-catalog').textContent=Object.values(catalog).reduce((a,b)=>a+b.length,0);
+  document.getElementById('stat-saved').textContent=saved.length;
+  const sp=document.getElementById('saved-panel');
+  if(saved.length>0){
+    sp.style.display='block';
+    document.getElementById('saved-list-welcome').innerHTML=saved.map(s=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #0f1020">
+        <div>
+          <span style="color:#60a5fa;font-weight:700;font-size:12px">${s.code}</span>
+          <span style="color:#3a4060;font-size:11px;margin-left:8px">${s.en||''}</span>
+        </div>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-pri btn-sm" onclick="quickObs('${s.code}','${s.en||''}','${s.th||''}','${s.unit||''}')">ดูข้อมูล →</button>
+          <button class="btn btn-red btn-sm" onclick="removeSaved('${s.code}')">✕</button>
+        </div>
+      </div>`).join('');
+  }else{sp.style.display='none';}
+}
+function updateObsChips(){
+  const wrap=document.getElementById('obs-saved-chips');
+  const chips=document.getElementById('obs-chips');
+  if(saved.length===0){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  chips.innerHTML=saved.map(s=>`
+    <button class="saved-chip${document.getElementById('obs-code').value===s.code?' active':''}" onclick="quickObs('${s.code}','${s.en||''}','${s.th||''}','${s.unit||''}')">${s.code}</button>`).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SERIES
+═══════════════════════════════════════════════════════════ */
+async function selectCat(id){
+  currentCat=CATS.find(c=>c.id===id);
+  document.getElementById('explore-welcome').style.display='none';
+  document.getElementById('explore-series').style.display='block';
+  document.getElementById('series-title').textContent=`${currentCat.id} — ${currentCat.th}`;
+  document.getElementById('series-list').innerHTML='<div style="color:#3a4060;text-align:center;padding:30px">⏳ กำลังโหลด...</div>';
+  renderCatList();
+
+  try{
+    allSeries=await apiSeries(id);
+    catalog[id]=allSeries;
+    renderCatList();
+    updateStats();
+    renderSeriesList(allSeries);
+  }catch(err){
+    document.getElementById('series-list').innerHTML=`<div style="color:#f87171;padding:20px">❌ โหลดไม่สำเร็จ: ${err.message}</div>`;
+  }
+}
+function filterSeries(){
+  const q=document.getElementById('search-inp').value.toLowerCase();
+  const filtered=q?allSeries.filter(s=>(s.series_code||'').toLowerCase().includes(q)||(s.series_name_th||'').includes(q)||(s.series_name_eng||'').toLowerCase().includes(q)):allSeries;
+  renderSeriesList(filtered);
+}
+function renderSeriesList(list){
+  if(list.length===0){document.getElementById('series-list').innerHTML='<div style="color:#3a4060;text-align:center;padding:30px">ไม่พบ series</div>';return;}
+  document.getElementById('series-sub').textContent=`${currentCat.en} · ${allSeries.length} series`;
+  document.getElementById('series-list').innerHTML=list.map(s=>{
+    const sv=saved.some(x=>x.code===s.series_code);
+    const f=s.frequency||'';
+    const ftag=f==='Daily'?'tag-blue':f==='Monthly'?'tag-green':'tag-orange';
+    return`<div class="series-card${sv?' saved':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:5px">
+            <span style="color:#60a5fa;font-weight:700;font-size:12px">${s.series_code}</span>
+            <span class="tag ${ftag}">${f||'-'}</span>
+            ${sv?'<span class="tag tag-green">⭐</span>':''}
+          </div>
+          <div style="color:#a0a8c0;font-size:11px">${s.series_name_eng||''}</div>
+          <div style="color:#3a4060;font-size:10px;margin-top:2px">${s.series_name_th||''} · ${s.unit_eng||'-'}</div>
+          <div style="color:#1e2235;font-size:9px;margin-top:3px">อัปเดต: ${s.last_update_date||'-'}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-shrink:0">
+          <button class="btn btn-sm${sv?' btn-ok':''}" onclick="toggleSave('${s.series_code}','${(s.series_name_eng||'').replace(/'/g,"\\'")}','${(s.series_name_th||'').replace(/'/g,"\\'")}','${s.unit_eng||''}','${s.frequency||''}','${currentCat?.id||''}')">${sv?'⭐':'☆'}</button>
+          <button class="btn btn-pri btn-sm" onclick="quickObs('${s.series_code}','${(s.series_name_eng||'').replace(/'/g,"\\'")}','${(s.series_name_th||'').replace(/'/g,"\\'")}','${s.unit_eng||''}')">ดึงข้อมูล →</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SAVED
+═══════════════════════════════════════════════════════════ */
+function toggleSave(code,en,th,unit,freq,cat){
+  if(saved.some(s=>s.code===code)){removeSaved(code);return;}
+  saved.push({code,en,th,unit,freq,cat});
+  persist();
+  if(currentCat)renderSeriesList(allSeries.filter(s=>!document.getElementById('search-inp').value||s.series_code.toLowerCase().includes(document.getElementById('search-inp').value.toLowerCase())||s.series_name_th.includes(document.getElementById('search-inp').value)||s.series_name_eng.toLowerCase().includes(document.getElementById('search-inp').value.toLowerCase())));
+}
+function removeSaved(code){
+  saved=saved.filter(s=>s.code!==code);
+  persist();
+}
+function persist(){
+  try{localStorage.setItem('bot_saved',JSON.stringify(saved))}catch{}
+  renderSavedSidebar();updateStats();updateObsChips();
+  if(currentCat)filterSeries();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OBSERVATIONS
+═══════════════════════════════════════════════════════════ */
+function quickObs(code,en,th,unit){
+  document.getElementById('obs-code').value=code;
+  currentObsMeta={code,en,th,unit};
+  switchTab('obs');
+  updateObsChips();
+  doFetchObs();
+}
+async function doFetchObs(){
+  const code=document.getElementById('obs-code').value.trim();
+  if(!code)return;
+  currentObsMeta=currentObsMeta&&currentObsMeta.code===code?currentObsMeta:{code,en:'',th:'',unit:''};
+  const start=document.getElementById('obs-start').value;
+  const end=document.getElementById('obs-end').value;
+  document.getElementById('obs-loading').style.display='block';
+  document.getElementById('obs-result').style.display='none';
+  document.getElementById('obs-save-btn').style.display='none';
+  try{
+    const data=await apiObs(code,start,end);
+    currentObs=data;
+    renderObs(data,currentObsMeta);
+    document.getElementById('obs-save-btn').style.display=saved.some(s=>s.code===code)?'none':'block';
+  }catch(err){
+    document.getElementById('obs-loading').innerHTML=`<div style="color:#f87171;text-align:center">❌ ${err.message}</div>`;
+  }
+}
+function saveCurrentObs(){
+  if(!currentObsMeta)return;
+  const sv=saved.some(s=>s.code===currentObsMeta.code);
+  if(!sv)saved.push(currentObsMeta);
+  persist();
+  document.getElementById('obs-save-btn').style.display='none';
+}
+function renderObs(data,meta){
+  document.getElementById('obs-loading').style.display='none';
+  document.getElementById('obs-result').style.display='block';
+  document.getElementById('obs-res-code').textContent=meta.code||'';
+  document.getElementById('obs-res-en').textContent=meta.en||'';
+  document.getElementById('obs-res-th').textContent=(meta.th||'')+(meta.unit?(' · '+meta.unit):'');
+  document.getElementById('obs-res-count').textContent=data.length+' จุดข้อมูล';
+  document.getElementById('obs-table').textContent=data.map(o=>`${(o.p||o.period_start||'').padEnd(10)}  ${o.v||o.value}`).join('\n');
+  drawSpark(data);
+}
+function drawSpark(data){
+  const canvas=document.getElementById('spark-canvas');
+  const ctx=canvas.getContext('2d');
+  const vals=data.map(o=>parseFloat(o.v||o.value)).filter(v=>!isNaN(v));
+  if(vals.length<2){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
+  const W=canvas.width,H=canvas.height,p=5;
+  const mn=Math.min(...vals),mx=Math.max(...vals),rng=mx-mn||.01;
+  const pts=vals.map((v,i)=>[p+(i/(vals.length-1))*(W-p*2),H-p-((v-mn)/rng)*(H-p*2)]);
+  const up=vals[vals.length-1]>=vals[vals.length-2];
+  const col=up?'#34d399':'#f87171';
+  ctx.clearRect(0,0,W,H);
+  // fill
+  ctx.beginPath();ctx.moveTo(pts[0][0],H);
+  pts.forEach(([x,y])=>ctx.lineTo(x,y));
+  ctx.lineTo(pts[pts.length-1][0],H);ctx.closePath();
+  const grd=ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,col+'44');grd.addColorStop(1,col+'00');
+  ctx.fillStyle=grd;ctx.fill();
+  // line
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  pts.forEach(([x,y])=>ctx.lineTo(x,y));
+  ctx.strokeStyle=col;ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.stroke();
+  // dot
+  ctx.beginPath();ctx.arc(pts[pts.length-1][0],pts[pts.length-1][1],3,0,Math.PI*2);
+  ctx.fillStyle=col;ctx.fill();
+  // labels
+  document.getElementById('spark-labels').innerHTML=`<span>${data[0]?.p||data[0]?.period_start||''}</span><span style="color:${col};font-weight:700">${vals[vals.length-1]}</span><span>${data[data.length-1]?.p||data[data.length-1]?.period_start||''}</span>`;
+}
+function exportCSV(){
+  if(!currentObs||!currentObsMeta)return;
+  const rows=[['period','value'],...currentObs.map(o=>[o.p||o.period_start,o.v||o.value])].map(r=>r.join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));a.download=(currentObsMeta.code||'data')+'.csv';a.click();
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CATALOG
+═══════════════════════════════════════════════════════════ */
+async function loadAllCats(){
+  const btn=document.getElementById('load-all-btn');
+  btn.disabled=true;btn.textContent='⏳ Loading...';
+  for(const c of CATS){
+    if(!catalog[c.id]){
+      try{const l=await apiSeries(c.id);catalog[c.id]=l;}catch{}
+    }
+  }
+  btn.disabled=false;btn.textContent='⬇ Load ทุกหมวด';
+  renderCatalog();renderCatList();updateStats();
+}
+function clearCatalog(){catalog={};renderCatalog();renderCatList();updateStats();}
+function renderCatalog(){
+  const total=Object.values(catalog).reduce((a,b)=>a+b.length,0);
+  document.getElementById('catalog-stat').textContent=`โหลดแล้ว ${Object.keys(catalog).length}/10 หมวด · รวม ${total} series`;
+  document.getElementById('catalog-content').innerHTML=Object.entries(catalog).map(([id,list])=>{
+    const cat=CATS.find(c=>c.id===id);
+    return`<div class="card">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <span style="font-weight:700;color:#60a5fa">[${id}]</span>
+        <span style="color:#3a4060;font-size:11px">${cat?.th||''}</span>
+        <span class="tag">${list.length} series</span>
+      </div>
+      ${list.map(s=>`<div style="display:flex;align-items:center;gap:7px;padding:5px 0;border-bottom:1px solid #0d0f1e">
+        <span style="color:#3a6090;font-size:10px;min-width:160px;flex-shrink:0">${s.series_code}</span>
+        <span style="color:#3a4060;font-size:10px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${s.series_name_eng||''}</span>
+        <button class="btn btn-sm" onclick="quickObs('${s.series_code}','${(s.series_name_eng||'').replace(/'/g,"\\'")}','${(s.series_name_th||'').replace(/'/g,"\\'")}','${s.unit_eng||''}')">ดูข้อมูล</button>
+        <button class="btn btn-sm${saved.some(x=>x.code===s.series_code)?' btn-ok':''}" onclick="toggleSave('${s.series_code}','${(s.series_name_eng||'').replace(/'/g,"\\'")}','${(s.series_name_th||'').replace(/'/g,"\\'")}','${s.unit_eng||''}','${s.frequency||''}','${id}')">${saved.some(x=>x.code===s.series_code)?'⭐':'☆'}</button>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════════
+   API
+═══════════════════════════════════════════════════════════ */
+async function apiSeries(catId){
+  await new Promise(r=>setTimeout(r,320));
+  if(mode==='mock')return MOCK_S[catId]||[];
+  const url=mode==='worker'?`${WORKER}/bot/series?category=${catId}`:`https://apiportal.bot.or.th/bot/public/series?category=${catId}`;
+  const headers=mode==='worker'?{Authorization:`Bearer ${wToken}`}:{'X-IBM-Client-Id':botKey};
+  const r=await fetch(url,{headers});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const d=await r.json();return d?.result?.series||[];
+}
+async function apiObs(code,start,end){
+  await new Promise(r=>setTimeout(r,320));
+  if(mode==='mock')return mockObs(code);
+  let url=mode==='worker'?`${WORKER}/bot/observations?series_code=${code}&start_period=${start}`:`https://apiportal.bot.or.th/bot/public/observations?series_code=${code}&start_period=${start}`;
+  if(end)url+=`&end_period=${end}`;
+  const headers=mode==='worker'?{Authorization:`Bearer ${wToken}`}:{'X-IBM-Client-Id':botKey};
+  const r=await fetch(url,{headers});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const d=await r.json();return d?.result?.series?.[0]?.observations||[];
+}
+async function checkStatus(){
+  const dot=document.getElementById('setup-status-dot');
+  dot.textContent='⏳ กำลังตรวจสอบ...';dot.style.color='#3a4060';
+  if(mode==='mock'){
+    await new Promise(r=>setTimeout(r,400));
+    dot.innerHTML='<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:#0a2018;color:#34d399;border:1px solid #14402e"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block;animation:pulse 2s infinite"></span>Online (Mock) · 180ms</span>';
+    return;
+  }
+  const t=Date.now();
+  try{
+    const r=await fetch(`${WORKER}/bot/status`,{headers:{Authorization:`Bearer ${wToken}`},signal:AbortSignal.timeout(8000)});
+    const ms=Date.now()-t;
+    const d=await r.json().catch(()=>({}));
+    const ok=d.ok??r.ok;
+    dot.innerHTML=ok
+      ?`<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:#0a2018;color:#34d399;border:1px solid #14402e"><span style="width:6px;height:6px;border-radius:50%;background:#34d399;display:inline-block"></span>Online · ${d.latency_ms||ms}ms</span>`
+      :`<span style="display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;background:#220a0a;color:#f87171;border:1px solid #401414">❌ HTTP ${r.status}</span>`;
+  }catch(err){
+    dot.innerHTML=`<span style="color:#f87171">❌ ${err.message}</span>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   MODE
+═══════════════════════════════════════════════════════════ */
+function setMode(m){
+  mode=m;
+  ['mock','worker','direct'].forEach(k=>{
+    const btn=document.getElementById('mode-'+k);
+    const active=k===m;
+    btn.style.background=active?'#0d1830':'#0c0e1c';
+    btn.style.borderColor=active?'#2563eb':'#161826';
+    btn.querySelector('div').style.color=active?'#93c5fd':'#4a5070';
+  });
+  const fields=document.getElementById('mode-fields');
+  if(m==='worker'){
+    fields.innerHTML=`<div style="font-size:9px;color:#3a4060;margin-bottom:4px;letter-spacing:1px">INGEST_SECRET_TOKEN</div><input class="inp" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="wToken=this.value">`;
+  }else if(m==='direct'){
+    fields.innerHTML=`<div style="font-size:9px;color:#3a4060;margin-bottom:4px;letter-spacing:1px">BOT CLIENT ID (X-IBM-Client-Id)</div><input class="inp" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" oninput="botKey=this.value"><div style="font-size:9px;color:#1e2235;margin-top:6px">สมัครที่ <a href="https://apiportal.bot.or.th/bot/public/" target="_blank">apiportal.bot.or.th</a></div>`;
+  }else{
+    fields.innerHTML='';
+  }
+  document.getElementById('mode-desc').textContent=m==='mock'?'Mock mode — เห็นข้อมูล demo ได้ทันที':m==='worker'?'CF Worker mode — ต้องมี INGEST_SECRET_TOKEN':'Direct mode — ต้องมี BOT Client ID';
+  const hdot=document.getElementById('status-dot');
+  hdot.textContent=m==='mock'?'🎭 Mock':m==='worker'?'☁️ Worker':'🔑 Direct';
+}
+</script>
+
+<script>
+// ── AUTH GUARD ───────────────────────────────────────────────
+(function authGuard(){
+  const token  = localStorage.getItem('bot_auth_token');
+  const expiry = localStorage.getItem('bot_auth_expiry');
+  if(!token || !expiry || Date.now() >= parseInt(expiry)){
+    window.location.href = 'index.html';
+    return;
+  }
+  // แสดง username
+  const user = localStorage.getItem('bot_username') || '';
+  if(user){
+    const nameEl = document.getElementById('header-username');
+    if(nameEl) nameEl.textContent = user;
+  }
+})();
+
+function logout(){
+  localStorage.removeItem('bot_auth_token');
+  localStorage.removeItem('bot_auth_expiry');
+  window.location.href = 'index.html';
+}
+</script>
+
+</body>
+</html>
