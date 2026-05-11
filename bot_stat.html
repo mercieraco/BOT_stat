@@ -4,268 +4,341 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT API Tester</title>
+<title>BOT Data Explorer</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
 button{cursor:pointer;font-family:inherit}
-#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px}
-#hdr h1{font-size:14px;font-weight:700}
-.wrap{max-width:860px;margin:20px auto;padding:0 16px}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:14px}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:99}
+h1{font-size:14px;font-weight:700}
+#layout{display:flex;height:calc(100vh - 50px)}
+#sb{width:280px;background:#fff;border-right:2px solid #e2e8f0;overflow-y:auto;flex-shrink:0}
+#main{flex:1;overflow-y:auto;padding:20px;background:#f0f4f8}
+.sb-hd{padding:12px 14px 6px;font-size:9px;color:#718096;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #f0f4f8;background:#f8fafc;position:sticky;top:0}
+.cat-btn{display:block;width:100%;text-align:left;padding:9px 14px;border:none;border-left:3px solid transparent;background:#fff;color:#4a5568;cursor:pointer;transition:all .12s}
+.cat-btn:hover{background:#eff6ff;color:#1e40af}
+.cat-btn.on{background:#eff6ff;border-left-color:#2563eb;color:#1e40af;font-weight:700}
+.cat-code{font-family:'Courier New',monospace;font-size:10px;font-weight:700;display:block}
+.cat-name{font-size:10px;color:#718096;margin-top:1px;display:block}
+.cat-btn.on .cat-name{color:#3b82f6}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:12px}
 .lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
-.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none;width:100%}
+.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none}
 .inp:focus{border-color:#3b82f6}
-.inp-sm{width:auto;flex:1}
-.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer;transition:opacity .15s}
-.btn:hover{opacity:.85}
-.pri{background:#2563eb;color:#fff}
-.grn{background:#16a34a;color:#fff}
-.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}
-.sm{padding:5px 12px;font-size:11px}
+.btn{border-radius:6px;font-weight:700;border:none;padding:7px 14px;font-size:12px;cursor:pointer}
+.pri{background:#2563eb;color:#fff}.pri:hover{background:#1d4ed8}
+.grn{background:#16a34a;color:#fff}.grn:hover{background:#15803d}
+.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.sec:hover{background:#e2e8f0}
+.sm{padding:4px 10px;font-size:11px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700}
-.ok{background:#dcfce7;color:#15803d}.err{background:#fee2e2;color:#b91c1c}.warn{background:#fef9c3;color:#854d0e}
-#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
-.res-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:11px;font-family:'Courier New',monospace;max-height:360px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6;color:#1a202c}
-hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
-.alert{background:#fffbeb;border:2px solid #fcd34d;border-radius:8px;padding:14px;margin-bottom:14px;font-size:12px;line-height:1.8;color:#78350f}
-.info{background:#eff6ff;border:2px solid #bfdbfe;border-radius:8px;padding:14px;font-size:12px;line-height:1.8;color:#1e40af}
+.srow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f4f8;cursor:pointer}
+.srow:hover{background:#f8fafc}
+.scode{font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#1e40af;min-width:180px;flex-shrink:0}
+.sname{color:#4a5568;font-size:11px;flex:1}
+.speriod{color:#a0aec0;font-size:10px;white-space:nowrap}
+canvas{display:block;margin-top:10px}
+.spark-lbl{display:flex;justify-content:space-between;font-size:10px;color:#718096;margin-top:4px}
+.obs-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:12px;font-size:11px;font-family:'Courier New',monospace;max-height:240px;overflow-y:auto;white-space:pre;line-height:1.9}
+#log{background:#0f172a;color:#4ade80;padding:12px;font-family:'Courier New',monospace;font-size:10px;border-radius:7px;max-height:150px;overflow-y:auto;white-space:pre-wrap;line-height:1.7}
+.tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700}
+.tok-wrap{display:flex;gap:8px;align-items:center}
 </style>
 </head>
 <body>
+
 <div id="hdr">
-  <h1>🧪 BOT API Tester</h1>
-  <span style="font-size:11px;opacity:.75">ผ่าน Cloudflare Worker proxy — แก้ปัญหา CORS</span>
+  <h1>🏦 BOT Data Explorer</h1>
+  <div class="tok-wrap">
+    <input id="tok" type="password" placeholder="INGEST_SECRET_TOKEN" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;padding:5px 10px;font-family:inherit;font-size:11px;width:200px" autocomplete="off">
+    <button onclick="var i=document.getElementById('tok');i.type=i.type=='password'?'text':'password'" style="background:rgba(255,255,255,.2);border:none;border-radius:5px;color:#fff;padding:4px 8px;font-size:12px">👁</button>
+    <button class="btn" onclick="loadCategories()" style="background:rgba(255,255,255,.9);color:#1e40af;font-size:11px;padding:5px 12px">โหลด Categories</button>
+  </div>
 </div>
 
-<div class="wrap">
-
-  <!-- CORS explanation -->
-
-  <div class="alert">
-    <b>⚠️ ทำไมต้องผ่าน Worker?</b><br>
-    Browser บล็อก JavaScript ไม่ให้เรียก API ข้าม domain โดยตรง (CORS policy)<br>
-    GitHub Pages → BOT API = ❌ โดนบล็อกทันที<br>
-    GitHub Pages → Cloudflare Worker → BOT API = ✅ ทำงานได้
-  </div>
-
-  <!-- Step 1: Worker token -->
-
-  <div class="card">
-    <div class="title">⚙️ Step 1 — ตั้งค่า Cloudflare Worker</div>
-    <div class="info" style="margin-bottom:14px">
-      <b>ต้องทำใน Cloudflare ก่อน:</b><br>
-      1. Workers → iaa-ingest → Settings → Variables and Secrets<br>
-      2. เพิ่ม Secret: <code>BOT_API_KEY</code> = token ใหม่ที่ได้จาก portal.api.bot.or.th<br>
-      3. paste ingest_worker_phase5.js → Save &amp; Deploy<br>
-      (Worker มี /bot/status, /bot/series, /bot/observations แล้ว)
+<div id="layout">
+  <!-- SIDEBAR: Categories -->
+  <aside id="sb">
+    <div class="sb-hd">ค้นหา Series</div>
+    <div style="padding:8px">
+      <div style="display:flex;gap:4px">
+        <input class="inp" id="search-kw" placeholder="เช่น CPI, GDP, inflation" style="flex:1;font-size:11px;padding:6px 8px" onkeydown="if(event.key=='Enter')doSearch()">
+        <button class="btn pri sm" onclick="doSearch()">🔍</button>
+      </div>
+      <div id="search-results" style="margin-top:6px"></div>
     </div>
-    <div class="lbl">INGEST_SECRET_TOKEN (ใช้ auth กับ Worker)</div>
+    <div class="sb-hd" style="margin-top:4px">Categories — กดเพื่อดู Series</div>
+    <div id="cat-list">
+      <div style="padding:20px;color:#a0aec0;font-size:12px;text-align:center">ใส่ token แล้วกด<br>"โหลด Categories"</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+
+  <div id="main">
+
+```
+<!-- Log -->
+<div class="card" style="margin-bottom:12px">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+    <div class="title" style="margin:0;font-size:12px">📟 Log</div>
+    <button class="btn sec sm" onclick="document.getElementById('log').textContent=''">🗑</button>
+  </div>
+  <div id="log">ใส่ token แล้วกด "โหลด Categories"...</div>
+</div>
+
+<!-- Welcome -->
+<div id="v-welcome" class="card">
+  <div class="title">👈 เลือก Category ทางซ้าย</div>
+  <p style="color:#718096;line-height:1.8">
+    1. ใส่ INGEST_SECRET_TOKEN ด้านบน<br>
+    2. กด "โหลด Categories" — ระบบจะดึง categories จริงจาก BOT API<br>
+    3. คลิก category ทางซ้าย → ดู series<br>
+    4. คลิก series → ดูข้อมูลจริง
+  </p>
+</div>
+
+<!-- Series list -->
+<div id="v-series" style="display:none">
+  <div class="card">
+    <div id="ser-title" class="title"></div>
     <div class="row" style="margin-bottom:10px">
-      <input class="inp inp-sm" id="w-token" type="password" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx">
-      <button class="btn sec sm" onclick="toggleTok()">👁</button>
-      <button class="btn pri"    onclick="pingWorker()">🔄 ทดสอบ Worker</button>
+      <input class="inp" id="ser-q" placeholder="🔍 ค้นหา series..." style="flex:1" oninput="filterSeries()">
+      <span id="ser-count" class="tag" style="background:#dbeafe;color:#1d4ed8"></span>
     </div>
-    <div id="ping-res" style="font-size:12px;color:#718096">กด "ทดสอบ Worker" ก่อนครับ</div>
+    <div id="ser-list"></div>
   </div>
-
-  <!-- Step 2: API calls -->
-
-  <div class="card" id="api-card">
-    <div class="title">📡 Step 2 — ทดสอบ BOT API ผ่าน Worker</div>
-    <div class="g2" style="margin-bottom:14px">
-
-```
-  <div>
-    <div class="lbl">1. ดู Categories ทั้งหมด</div>
-    <button class="btn grn sm" onclick="call('categories')" style="width:100%">ดึง Category List</button>
-  </div>
-
-  <div>
-    <div class="lbl">2. Series ตาม Category</div>
-    <div class="row">
-      <input class="inp inp-sm" id="cat" placeholder="เช่น EC, IR, ER">
-      <button class="btn grn sm" onclick="call('series')">ดึง</button>
-    </div>
-  </div>
-
-  <div>
-    <div class="lbl">3. Observations (ข้อมูลจริง)</div>
-    <div class="row" style="margin-bottom:5px">
-      <input class="inp inp-sm" id="scode" placeholder="Series Code">
-    </div>
-    <div class="row">
-      <input class="inp inp-sm" id="sstart" type="date" value="2024-01-01">
-      <button class="btn grn sm" onclick="call('obs')">ดึง</button>
-    </div>
-  </div>
-
-  <div>
-    <div class="lbl">4. Quick Test — Series รู้จัก</div>
-    <div class="row" style="flex-wrap:wrap">
-      <button class="btn sec sm" onclick="quick('IR_1103500_06')">Policy Rate</button>
-      <button class="btn sec sm" onclick="quick('BORCPI01')">CPI</button>
-      <button class="btn sec sm" onclick="quick('EREF01')">USD/THB</button>
-      <button class="btn sec sm" onclick="quick('BORGDP01')">GDP</button>
-    </div>
-  </div>
-
 </div>
-<hr>
-<div class="lbl">BOT API Status (ผ่าน Worker)</div>
-<button class="btn sec sm" onclick="call('status')">🌐 ตรวจสอบสถานะ BOT API</button>
+
+<!-- Observations -->
+<div id="v-obs" style="display:none" class="card">
+  <div id="obs-code-title" class="title"></div>
+  <div id="obs-meta" style="font-size:11px;color:#718096;margin-bottom:12px"></div>
+  <canvas id="spark" width="400" height="65"></canvas>
+  <div class="spark-lbl" id="spark-lbl"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px">
+    <span style="font-size:11px;color:#718096" id="obs-count"></span>
+    <button class="btn sec sm" onclick="dlCSV()">⬇ CSV</button>
+  </div>
+  <div class="obs-pre" id="obs-table"></div>
+</div>
 ```
 
   </div>
-
-  <!-- Log -->
-
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="title" style="margin:0">📟 Log</div>
-      <button class="btn sec sm" onclick="clearLog()">🗑 Clear</button>
-    </div>
-    <div id="log">รอใส่ Worker Token แล้วกด ทดสอบ Worker...</div>
-  </div>
-
-  <!-- Result -->
-
-  <div class="card" id="res-card" style="display:none">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <div class="title" style="margin:0">📊 Response</div>
-      <div id="res-meta" style="font-size:11px;color:#718096"></div>
-    </div>
-    <div class="res-pre" id="res-body"></div>
-  </div>
-
-  <!-- Schema hint -->
-
-  <div class="card">
-    <div class="title">💡 Response Schema ที่คาดหวัง</div>
-    <div style="font-size:11px;color:#4a5568;line-height:1.9">
-      <b style="color:#1e40af">Categories:</b><br>
-      <code>{ "result": { "categories": [{ "id": "EC", "name_th": "...", "name_en": "..." }] } }</code><br><br>
-      <b style="color:#1e40af">Series:</b><br>
-      <code>{ "result": { "series": [{ "series_code": "BORCPI01", "series_name_eng": "...", ... }] } }</code><br><br>
-      <b style="color:#1e40af">Observations:</b><br>
-      <code>{ "result": { "series": [{ "observations": [{ "period_start": "2024-01", "value": "1.2" }] }] } }</code>
-    </div>
-  </div>
-
 </div>
 
 <script>
 var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var allCats = [], allSeries = [], curCat = null, curObs = null, curMeta = {};
 
-function tok(){ return document.getElementById('w-token').value.trim(); }
-function toggleTok(){ var i=document.getElementById('w-token'); i.type=i.type==='password'?'text':'password'; }
+function tok(){ return document.getElementById('tok').value.trim(); }
+
+// ── SEARCH ────────────────────────────────────────────────────
+async function doSearch(){
+  var kw = document.getElementById('search-kw').value.trim();
+  if(!kw){alert('ใส่คำค้นหาก่อน');return;}
+  if(!tok()){alert('ใส่ token ก่อน');return;}
+  var el = document.getElementById('search-results');
+  el.innerHTML='<div style="color:#718096;font-size:10px;padding:4px">⏳ ค้นหา...</div>';
+  log('ค้นหา: '+kw,'#60a5fa');
+  try{
+    var r=await fetch(WORKER+'/bot/search?keyword='+encodeURIComponent(kw),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(12000)});
+    var d=await r.json();
+    var series=d?.result?.series??[];
+    log('พบ '+series.length+' series สำหรับ "'+kw+'"','#4ade80');
+    if(!series.length){
+      el.innerHTML='<div style="color:#f87171;font-size:10px;padding:4px">ไม่พบ series</div>';
+      return;
+    }
+    el.innerHTML=series.slice(0,10).map(function(s){
+      return '<div onclick="getObs(''+s.series_code+'',''+esc(s.series_name_eng||'')+'',''+esc(s.series_name_th||'')+'','','','')" style="padding:6px 4px;border-bottom:1px solid #f0f4f8;cursor:pointer;font-size:10px" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background=''">'
+        +'<div style="font-family:Courier New;font-weight:700;color:#1e40af">'+s.series_code+'</div>'
+        +'<div style="color:#4a5568;margin-top:1px">'+s.series_name_eng+'</div>'
+        +'<div style="color:#a0aec0;font-size:9px">'+s.series_name_th+'</div>'
+      +'</div>';
+    }).join('');
+    if(series.length>10) el.innerHTML+='<div style="font-size:9px;color:#718096;padding:4px">...และอีก '+(series.length-10)+' รายการ</div>';
+  }catch(e){
+    log('Search error: '+e.message,'#f87171');
+    el.innerHTML='<div style="color:#f87171;font-size:10px;padding:4px">Error: '+e.message+'</div>';
+  }
+}
 
 function log(msg, col){
   var el=document.getElementById('log');
-  var t=new Date().toLocaleTimeString('th-TH');
-  if(el.textContent.startsWith('รอ')) el.textContent='';
-  el.innerHTML += '\n<span style="color:'+(col||'#4ade80')+'">['+t+'] '+msg+'</span>';
-  el.scrollTop = el.scrollHeight;
-}
-function clearLog(){ document.getElementById('log').textContent='รอ...'; document.getElementById('res-card').style.display='none'; }
-
-function showRes(data, ms){
-  document.getElementById('res-card').style.display='block';
-  document.getElementById('res-meta').textContent=ms+'ms';
-  document.getElementById('res-body').textContent=typeof data==='string'?data:JSON.stringify(data,null,2);
+  if(el.textContent.startsWith('ใส่')) el.textContent='';
+  el.innerHTML+='<span style="color:'+(col||'#4ade80')+'">'+msg+'</span>\n';
+  el.scrollTop=el.scrollHeight;
 }
 
-async function pingWorker(){
-  if(!tok()){ alert('ใส่ INGEST_SECRET_TOKEN ก่อน'); return; }
-  log('ทดสอบ Worker...');
-  var pr = document.getElementById('ping-res');
-  pr.textContent = '⏳ กำลังตรวจสอบ...';
-  var t=Date.now();
+// ── CATEGORIES ────────────────────────────────────────────────
+async function loadCategories(){
+  if(!tok()){alert('ใส่ INGEST_SECRET_TOKEN ก่อน');return;}
+  log('กำลังโหลด categories จาก BOT API...','#60a5fa');
+  document.getElementById('cat-list').innerHTML='<div style="padding:16px;text-align:center;color:#718096">⏳ กำลังโหลด...</div>';
   try{
-    var r=await fetch(WORKER+'/bot/status',{
-      headers:{ Authorization:'Bearer '+tok() },
-      signal: AbortSignal.timeout(8000)
-    });
-    var ms=Date.now()-t;
-    var d=await r.json().catch(()=>({}));
-    log('Worker: HTTP '+r.status+' ('+ms+'ms)', r.ok?'#4ade80':'#f87171');
-    if(r.ok){
-      var botOk = d.ok===true;
-      pr.innerHTML='<span class="tag ok">✅ Worker ตอบสนอง ('+ms+'ms)</span>&nbsp;'+
-        (botOk?'<span class="tag ok">✅ BOT API Online</span>':'<span class="tag warn">⚠️ BOT API: '+JSON.stringify(d)+'</span>');
-      showRes(d,ms);
-    } else {
-      pr.innerHTML='<span class="tag err">❌ Worker ตอบ HTTP '+r.status+'</span>';
-      log('Response: '+JSON.stringify(d),'#f87171');
-      if(r.status===401) log('→ INGEST_SECRET_TOKEN ไม่ถูกต้อง','#f87171');
-    }
-  } catch(e){
-    log('Error: '+e.message,'#f87171');
-    pr.innerHTML='<span class="tag err">❌ '+e.message+'</span>';
-  }
+    var r=await fetch(WORKER+'/bot/status',{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(12000)});
+    var d=await r.json();
+    if(!r.ok){log('Error: '+JSON.stringify(d),'#f87171');return;}
+    allCats = d.categories || [];
+    log('โหลด categories สำเร็จ: '+d.category_count+' หมวด','#4ade80');
+    renderCats();
+  }catch(e){log('Error: '+e.message,'#f87171');}
 }
 
-async function call(type){
-  if(!tok()){ alert('ใส่ INGEST_SECRET_TOKEN ก่อน'); return; }
-  var url='', label='';
-  if(type==='status'){
-    url=WORKER+'/bot/status'; label='BOT Status';
-  } else if(type==='categories'){
-    url=WORKER+'/bot/series?category=EC'; label='Categories (ลอง EC ก่อน)';
-  } else if(type==='series'){
-    var cat=document.getElementById('cat').value.trim()||'EC';
-    url=WORKER+'/bot/series?category='+cat; label='Series ['+cat+']';
-  } else if(type==='obs'){
-    var code=document.getElementById('scode').value.trim();
-    if(!code){ alert('กรุณากรอก Series Code'); return; }
-    var start=document.getElementById('sstart').value;
-    url=WORKER+'/bot/observations?series_code='+code+'&start_period='+start;
-    label='Observations ['+code+']';
+function renderCats(){
+  if(!allCats.length){
+    document.getElementById('cat-list').innerHTML='<div style="padding:16px;color:#f87171;font-size:11px">ไม่พบข้อมูล<br>กด "โหลด Categories" ใหม่</div>';
+    return;
   }
+  document.getElementById('cat-list').innerHTML=allCats.map(function(c){
+    var on=curCat&&curCat.category===c.category;
+    return '<button class="cat-btn'+(on?' on':'')+'" onclick="selectCat(\''+c.category+'\')">'
+      +'<span class="cat-code">'+c.category+'</span>'
+      +'<span class="cat-name">'+c.description_eng+'</span>'
+      +'</button>';
+  }).join('');
+}
 
-  log('GET '+url,'#60a5fa');
-  var t=Date.now();
+// ── SELECT CATEGORY ───────────────────────────────────────────
+async function selectCat(catCode){
+  curCat = allCats.find(function(c){return c.category===catCode;});
+  renderCats();
+  document.getElementById('v-welcome').style.display='none';
+  document.getElementById('v-obs').style.display='none';
+  document.getElementById('v-series').style.display='block';
+  document.getElementById('ser-title').textContent=catCode+' — '+(curCat?curCat.description_eng:'');
+  document.getElementById('ser-list').innerHTML='<div style="padding:20px;text-align:center;color:#718096">⏳ กำลังโหลด series...</div>';
+
+  log('โหลด series สำหรับ: '+catCode,'#60a5fa');
   try{
-    var r=await fetch(url,{
-      headers:{ Authorization:'Bearer '+tok() },
-      signal: AbortSignal.timeout(12000)
-    });
-    var ms=Date.now()-t;
-    var body=await r.text();
-    log('→ HTTP '+r.status+' ('+ms+'ms)', r.ok?'#4ade80':'#f87171');
-    var parsed;
-    try{ parsed=JSON.parse(body); } catch{ parsed=body; }
-    showRes(parsed,ms);
+    var r=await fetch(WORKER+'/bot/series-sample?category='+catCode,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(15000)});
+    var d=await r.json();
+    if(!r.ok){log('Error '+r.status+': '+JSON.stringify(d),'#f87171');return;}
+    allSeries=d.sample||[];
+    log('พบ '+d.total+' series (แสดง '+allSeries.length+')','#4ade80');
+    renderSeries(allSeries, d.total);
+  }catch(e){log('Error: '+e.message,'#f87171');}
+}
 
-    // วิเคราะห์ผล
-    if(r.ok && typeof parsed==='object'){
-      var series = parsed?.result?.series;
-      var cats   = parsed?.result?.categories;
-      var obs    = parsed?.result?.series?.[0]?.observations;
-      if(series&&series.length) log('✅ พบ '+series.length+' series · ตัวอย่าง: '+series[0]?.series_code,'#4ade80');
-      else if(cats&&cats.length) log('✅ พบ '+cats.length+' categories','#4ade80');
-      else if(obs&&obs.length)   log('✅ พบ '+obs.length+' observations','#4ade80');
-      else log('⚠️ response ok แต่ไม่พบข้อมูลตาม schema ที่คาดหวัง — ดู Response ด้านล่าง','#fbbf24');
-    } else if(!r.ok){
-      log('❌ Error response: '+body.slice(0,200),'#f87171');
-      if(r.status===401||r.status===403) log('→ BOT_API_KEY ใน Cloudflare อาจไม่ถูกต้อง','#f87171');
-      if(r.status===404) log('→ endpoint ไม่ถูกต้อง หรือยังไม่ได้ deploy Worker routes','#fbbf24');
+function filterSeries(){
+  var q=document.getElementById('ser-q').value.toLowerCase();
+  var f=q?allSeries.filter(function(s){
+    return (s.series_code||'').toLowerCase().includes(q)||(s.series_name_eng||'').toLowerCase().includes(q)||(s.series_name_th||'').includes(q);
+  }):allSeries;
+  renderSeries(f, null);
+}
+
+function renderSeries(list, total){
+  var countEl=document.getElementById('ser-count');
+  countEl.textContent='แสดง '+list.length+(total?' จาก '+total:'')+' series';
+  if(!list.length){
+    document.getElementById('ser-list').innerHTML='<div style="padding:20px;text-align:center;color:#718096">ไม่พบ series</div>';
+    return;
+  }
+  document.getElementById('ser-list').innerHTML=list.map(function(s){
+    return '<div class="srow" onclick="getObs(\''+s.series_code+'\',\''+esc(s.series_name_eng)+'\',\''+esc(s.series_name_th)+'\',\''+esc(s.unit_eng||'')+'\',\''+s.observation_start+'\',\''+s.observation_end+'\')">'
+      +'<span class="scode">'+s.series_code+'</span>'
+      +'<span class="sname">'+s.series_name_eng+'<br><span style="color:#a0aec0;font-size:10px">'+s.series_name_th+'</span></span>'
+      +'<span class="speriod">'+s.observation_start+'<br>→ '+s.observation_end+'</span>'
+    +'</div>';
+  }).join('');
+}
+
+function esc(s){ return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ── OBSERVATIONS ──────────────────────────────────────────────
+async function getObs(code, en, th, unit, obsStart, obsEnd){
+  curMeta={code,en,th,unit};
+  log('ดึง observations: '+code,'#60a5fa');
+  document.getElementById('v-obs').style.display='block';
+  document.getElementById('obs-code-title').textContent=code;
+  document.getElementById('obs-meta').textContent=en+' | '+th+(unit?' | '+unit:'');
+  document.getElementById('obs-table').textContent='⏳ กำลังโหลด...';
+  document.getElementById('obs-count').textContent='';
+
+  // คำนวณ start period จาก observation_start
+  var startPeriod = obsStart ? obsStart.replace('Q','') : '2020-01-01';
+  // แปลง 2020-Q1 → 2020-01-01
+  if(startPeriod.includes('-Q')){
+    var parts=startPeriod.split('-Q');
+    var q=parseInt(parts[1]);
+    startPeriod=parts[0]+'-'+String((q-1)*3+1).padStart(2,'0')+'-01';
+  }
+  // ใช้แค่ 5 ปีล่าสุด
+  startPeriod='2020-01-01';
+
+  try{
+    var r=await fetch(WORKER+'/bot/observations?series_code='+code+'&start_period='+startPeriod,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(20000)});
+    var d=await r.json();
+    var series=d?.result?.series?.[0];
+    var obs=series?.observations??[];
+
+    log('series_code: '+(series?.series_code||'null'),'#4ade80');
+    log('observations: '+obs.length+' จุด','#4ade80');
+    if(obs.length>0) log('ตัวอย่าง: '+JSON.stringify(obs[0]),'#4ade80');
+
+    if(obs.length===0){
+      document.getElementById('obs-table').textContent='⚠️ ไม่มีข้อมูลในช่วงนี้\n\nDebug:\n'+JSON.stringify(d?._debug||d,null,2).slice(0,500);
+      document.getElementById('obs-count').textContent='0 จุด';
+      return;
     }
-  } catch(e){
+
+    curObs=obs;
+    // แสดง
+    var keys=Object.keys(obs[0]);
+    log('observation keys: '+JSON.stringify(keys),'#fbbf24');
+    // หา period และ value key
+    var pKey=keys.find(function(k){return k.includes('period')||k==='date'||k==='time';})||keys[0];
+    var vKey=keys.find(function(k){return k.includes('value')||k==='val'||k==='data';})||keys[1];
+
+    document.getElementById('obs-count').textContent=obs.length+' จุดข้อมูล';
+    document.getElementById('obs-table').textContent=obs.map(function(o){
+      return String(o[pKey]||'').padEnd(14)+' '+String(o[vKey]??'');
+    }).join('\n');
+
+    drawChart(obs, pKey, vKey);
+    document.getElementById('v-obs').scrollIntoView({behavior:'smooth'});
+  }catch(e){
     log('Error: '+e.message,'#f87171');
+    document.getElementById('obs-table').textContent='Error: '+e.message;
   }
 }
 
-function quick(code){
-  document.getElementById('scode').value=code;
-  call('obs');
+function drawChart(obs, pKey, vKey){
+  var canvas=document.getElementById('spark');
+  var ctx=canvas.getContext('2d');
+  var vals=obs.map(function(o){return parseFloat(o[vKey]);}).filter(function(v){return !isNaN(v);});
+  if(vals.length<2){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
+  var W=canvas.width,H=canvas.height,p=6;
+  var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=mx-mn||.01;
+  var pts=vals.map(function(v,i){return [p+(i/(vals.length-1))*(W-p*2),H-p-((v-mn)/rng)*(H-p*2)];});
+  var up=vals[vals.length-1]>=vals[vals.length-2];
+  var col=up?'#16a34a':'#dc2626';
+  ctx.clearRect(0,0,W,H);
+  ctx.beginPath();ctx.moveTo(pts[0][0],H);
+  pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1]);});
+  ctx.lineTo(pts[pts.length-1][0],H);ctx.closePath();
+  var g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,col+'44');g.addColorStop(1,col+'05');
+  ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);
+  pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1]);});
+  ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
+  ctx.beginPath();ctx.arc(pts[pts.length-1][0],pts[pts.length-1][1],4,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+  document.getElementById('spark-lbl').innerHTML=
+    '<span>'+obs[0][pKey]+'</span>'+
+    '<span style="color:'+col+';font-weight:700">'+vals[vals.length-1]+'</span>'+
+    '<span>'+obs[obs.length-1][pKey]+'</span>';
 }
 
-log('พร้อมใช้งาน', '#60a5fa');
-log('ขั้นตอน: ใส่ INGEST_SECRET_TOKEN → กดทดสอบ Worker → ทดสอบ BOT API', '#fbbf24');
+function dlCSV(){
+  if(!curObs||!curObs.length)return;
+  var keys=Object.keys(curObs[0]);
+  var rows=[keys.join(',')].concat(curObs.map(function(o){return keys.map(function(k){return o[k]??'';}).join(',');})).join('\n');
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));a.download=(curMeta.code||'data')+'.csv';a.click();
+}
+
+log('พร้อมใช้งาน — ใส่ token แล้วกด "โหลด Categories"','#60a5fa');
 </script>
 
 </body>
