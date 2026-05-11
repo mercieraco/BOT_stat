@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOT API Test</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
+button{cursor:pointer;font-family:inherit}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center}
+#hdr h1{font-size:14px;font-weight:700}
+.wrap{max-width:800px;margin:20px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:14px}
+.lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none}
+.inp:focus{border-color:#3b82f6}
+.inp-full{width:100%}
+.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer;display:inline-block}
+.pri{background:#2563eb;color:#fff}.pri:hover{background:#1d4ed8}
+.grn{background:#16a34a;color:#fff}.grn:hover{background:#15803d}
+.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.sec:hover{background:#e2e8f0}
+.sm{padding:5px 12px;font-size:11px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
+.res{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:11px;font-family:'Courier New',monospace;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6}
+hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
+</style>
+</head>
+<body>
+<div id="hdr"><h1>🧪 BOT API Manual Tester</h1></div>
+<div class="wrap">
+
+  <div class="card">
+    <div class="title">⚙️ ตั้งค่า</div>
+    <div class="lbl">INGEST_SECRET_TOKEN</div>
+    <div class="row">
+      <input class="inp" id="wtok" type="password" placeholder="09b9d0a2-..." style="flex:1">
+      <button class="btn sec sm" onclick="var i=document.getElementById('wtok');i.type=i.type=='password'?'text':'password'">👁</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">🔍 ทดสอบ Path ที่รู้ชื่อ</div>
+    <div class="lbl">ใส่ Path จาก portal.api.bot.or.th</div>
+    <div class="row">
+      <input class="inp" id="custom-path" placeholder="เช่น /bot/public/category หรือ /v1/StatCategory" style="flex:1">
+      <button class="btn grn" onclick="testCustom()">▶ ทดสอบ</button>
+    </div>
+    <hr>
+    <div class="lbl">Quick — paths ที่คาดว่าน่าจะถูก</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+      <button class="btn sec sm" onclick="tp('/bot/public/StatCategory')">StatCategory</button>
+      <button class="btn sec sm" onclick="tp('/bot/StatCategory')">bot/StatCategory</button>
+      <button class="btn sec sm" onclick="tp('/v1/StatCategory')">v1/StatCategory</button>
+      <button class="btn sec sm" onclick="tp('/StatisticCategory')">StatisticCategory</button>
+      <button class="btn sec sm" onclick="tp('/statistics')">statistics</button>
+      <button class="btn sec sm" onclick="tp('/bot/public/stat-category')">stat-category</button>
+      <button class="btn sec sm" onclick="tp('/BotOpenData/1.0.0/category')">BotOpenData</button>
+      <button class="btn sec sm" onclick="tp('/opendata/category')">opendata</button>
+      <button class="btn sec sm" onclick="tp('/API/category')">API/category</button>
+      <button class="btn sec sm" onclick="tp('/')">/ (root)</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">📊 ทดสอบ Observations (ใส่ path จาก portal)</div>
+    <div class="row">
+      <input class="inp" id="obs-base" placeholder="base path เช่น /bot/public/observations" style="flex:1">
+      <input class="inp" id="obs-code" placeholder="Series Code เช่น BORCPI01" style="width:160px">
+      <button class="btn grn sm" onclick="testObs()">ดึง</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="title" style="margin:0">📟 Log</div>
+      <button class="btn sec sm" onclick="document.getElementById('log').textContent='';document.getElementById('res-card').style.display='none'">🗑</button>
+    </div>
+    <div id="log">รอใส่ token แล้วกดปุ่มครับ...</div>
+  </div>
+
+  <div class="card" id="res-card" style="display:none">
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
+      <div class="title" style="margin:0">📊 Response</div>
+      <span id="res-meta" style="font-size:11px;color:#718096"></span>
+    </div>
+    <div class="res" id="res-body"></div>
+  </div>
+
+</div>
+<script>
+var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+
+function wtok(){ return document.getElementById(‘wtok’).value.trim(); }
+
+function addLog(msg, col){
+var el = document.getElementById(‘log’);
+if(el.textContent.startsWith(‘รอ’)) el.textContent = ‘’;
+el.innerHTML += ‘<span style="color:'+(col||'#4ade80')+'">’+msg+’</span>\n’;
+el.scrollTop = el.scrollHeight;
+}
+
+function showRes(title, data, ms){
+document.getElementById(‘res-card’).style.display = ‘block’;
+document.getElementById(‘res-meta’).textContent = ms + ’ms — ’ + title;
+var txt = typeof data === ‘string’ ? data : JSON.stringify(data, null, 2);
+document.getElementById(‘res-body’).textContent = txt;
+document.getElementById(‘res-card’).scrollIntoView({behavior:‘smooth’});
+}
+
+function tp(path){ document.getElementById(‘custom-path’).value = path; testCustom(); }
+
+async function testCustom(){
+var path = document.getElementById(‘custom-path’).value.trim();
+if(!path){ alert(‘ใส่ path ก่อนครับ’); return; }
+if(!wtok()){ alert(‘ใส่ INGEST_SECRET_TOKEN ก่อนครับ’); return; }
+
+addLog(’ทดสอบ: ’ + path, ‘#60a5fa’);
+var url = WORKER + ‘/bot/probe?path=’ + encodeURIComponent(path);
+var t = Date.now();
+try{
+var r = await fetch(url, {
+headers: { Authorization: ’Bearer ’ + wtok() },
+signal: AbortSignal.timeout(12000)
+});
+var ms = Date.now() - t;
+var d  = await r.json().catch(function(){ return {}; });
+
+```
+var status = d.http_status || r.status;
+var ok     = d.ok === true;
+var col    = ok ? '#4ade80' : status===404 ? '#f87171' : '#fbbf24';
+
+addLog('→ HTTP ' + status + ' ' + (ok?'✅ SUCCESS!':'❌') + ' (' + ms + 'ms)', col);
+
+if(ok){
+  addLog('🎉 PATH ที่ใช้ได้: ' + path, '#4ade80');
+  addLog('Preview: ' + (d.preview||'').slice(0,200), '#4ade80');
+} else {
+  addLog('detail: ' + JSON.stringify(d).slice(0,300), '#94a3b8');
+}
+showRes('Path: '+path, d, ms);
+```
+
+} catch(e){
+addLog(’Error: ’ + e.message, ‘#f87171’);
+}
+}
+
+async function testObs(){
+var base = document.getElementById(‘obs-base’).value.trim();
+var code = document.getElementById(‘obs-code’).value.trim();
+if(!base||!code){ alert(‘ใส่ base path และ series code’); return; }
+var path = base + ‘?series_code=’ + code + ‘&start_period=2024-01-01’;
+document.getElementById(‘custom-path’).value = path;
+testCustom();
+}
+
+addLog(‘พร้อมใช้งาน’, ‘#60a5fa’);
+addLog(‘1. ใส่ INGEST_SECRET_TOKEN’, ‘#fbbf24’);
+addLog(‘2. กดปุ่ม path ที่ต้องการทดสอบ’, ‘#fbbf24’);
+addLog(‘3. ดูผลใน Log และ Response’, ‘#fbbf24’);
+</script>
+
+</body>
+</html>
