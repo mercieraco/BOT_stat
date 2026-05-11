@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOT Path Discovery</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
+button{cursor:pointer;font-family:inherit}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px}
+h1{font-size:14px;font-weight:700}
+.wrap{max-width:860px;margin:20px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:14px}
+.lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
+.inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none;width:100%}
+.inp:focus{border-color:#3b82f6}
+.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer}
+.pri{background:#2563eb;color:#fff}
+.sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}
+.sm{padding:5px 12px;font-size:11px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
+.res-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:11px;font-family:'Courier New',monospace;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6}
+.prow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:11px}
+.ok{background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:8px;font-weight:700}
+.err{background:#fee2e2;color:#b91c1c;padding:2px 8px;border-radius:8px;font-weight:700}
+</style>
+</head>
+<body>
+<div id="hdr"><h1>🔍 BOT API Path Discovery — หา endpoint ที่ถูกต้อง</h1></div>
+<div class="wrap">
+
+  <div class="card">
+    <div class="title">⚙️ ตั้งค่า</div>
+    <div class="lbl">INGEST_SECRET_TOKEN</div>
+    <div class="row" style="margin-bottom:12px">
+      <input class="inp" id="tok" type="password" placeholder="09b9d0a2-..." style="flex:1">
+      <button class="btn sec sm" onclick="var i=document.getElementById('tok');i.type=i.type=='password'?'text':'password'">👁</button>
+    </div>
+    <div class="row">
+      <button class="btn pri" onclick="runAll()">🚀 ลอง Paths ทั้งหมด</button>
+      <button class="btn sec sm" onclick="clear()">🗑 Clear</button>
+    </div>
+  </div>
+
+  <div class="card" id="res-card" style="display:none">
+    <div class="title" id="res-title">✅ Path ที่ใช้งานได้!</div>
+    <div class="res-pre" id="res-body"></div>
+  </div>
+
+  <div class="card" id="path-card" style="display:none">
+    <div class="title">📊 ผลทุก Path</div>
+    <div id="path-results"></div>
+  </div>
+
+  <div class="card">
+    <div class="title">📟 Log</div>
+    <div id="log">รอกด "ลอง Paths ทั้งหมด"...</div>
+  </div>
+
+</div>
+<script>
+var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+
+// paths ที่จะลองทั้งหมด
+var PATHS = [
+// portal ใหม่ (gateway.api.bot.or.th)
+‘/bot/public/categories’,
+‘/bot/public/series?category=EC’,
+‘/api/v1/Statistics/series?category=EC’,
+‘/api/v1/Statistics/categories’,
+‘/api/Statistics/categories’,
+‘/api/Statistics/series?category=EC’,
+‘/statistics/categories’,
+‘/statistics/series?category=EC’,
+‘/v1/statistics/categories’,
+‘/v1/statistics/series?category=EC’,
+‘/v1/series?category=EC’,
+‘/categories’,
+‘/series?category=EC’,
+// portal เก่า format
+‘/DataSeries/category’,
+‘/DataSeries?category=EC’,
+‘/BotDataApi/1.0.0/DataSeries/category’,
+‘/1.0.0/DataSeries/category’,
+‘/1.0.0/DataSeries?category=EC’,
+];
+
+function tok(){ return document.getElementById(‘tok’).value.trim(); }
+
+function log(msg, col){
+var el=document.getElementById(‘log’);
+if(el.textContent.startsWith(‘รอ’)) el.textContent=’’;
+el.innerHTML += ‘<span style="color:'+(col||'#4ade80')+'">’+msg+’</span>\n’;
+el.scrollTop = el.scrollHeight;
+}
+
+function clear(){
+document.getElementById(‘log’).textContent=‘รอ…’;
+document.getElementById(‘res-card’).style.display=‘none’;
+document.getElementById(‘path-card’).style.display=‘none’;
+document.getElementById(‘path-results’).innerHTML=’’;
+}
+
+function addRow(path, status, ok, ms){
+var pc=document.getElementById(‘path-card’);
+pc.style.display=‘block’;
+var d=document.createElement(‘div’);
+d.className=‘prow’;
+d.innerHTML=
+‘<span style="font-family:Courier New;flex:1;color:#374151">’+path+’</span>’+
+‘<span class="'+(ok?'ok':'err')+'">’+status+’</span>’+
+‘<span style="color:#718096;font-size:10px">’+ms+‘ms</span>’;
+document.getElementById(‘path-results’).appendChild(d);
+}
+
+async function probe(path){
+var url=WORKER+’/bot/probe?path=’+encodeURIComponent(path);
+var t=Date.now();
+try{
+var r=await fetch(url,{
+headers:{Authorization:’Bearer ’+tok()},
+signal:AbortSignal.timeout(10000)
+});
+var ms=Date.now()-t;
+var d=await r.json().catch(()=>({}));
+return {ok:d.ok===true, status:d.http_status||r.status, ms, data:d, path};
+}catch(e){
+return {ok:false, status:0, ms:Date.now()-t, data:{error:e.message}, path};
+}
+}
+
+async function runAll(){
+if(!tok()){alert(‘ใส่ INGEST_SECRET_TOKEN ก่อน’);return;}
+clear();
+log(‘เริ่มทดสอบ ‘+PATHS.length+’ paths ผ่าน /bot/probe…’,’#60a5fa’);
+log(‘Gateway: gateway.api.bot.or.th\n’,’#60a5fa’);
+
+var found=null;
+
+for(var i=0;i<PATHS.length;i++){
+var path=PATHS[i];
+log(’[’+(i+1)+’/’+PATHS.length+’] ‘+path,’#94a3b8’);
+var result=await probe(path);
+var col=result.ok?’#4ade80’:result.status===404?’#f87171’:’#fbbf24’;
+log(’  → HTTP ‘+result.status+’ ‘+(result.ok?‘✅’:‘❌’)+’ (’+result.ms+‘ms)’,col);
+
+```
+if(result.status!==0) addRow(path,result.status,result.ok,result.ms);
+
+if(result.ok && !found){
+  found=result;
+  log('\n🎉 FOUND! Path ที่ใช้ได้: '+path,'#4ade80');
+  log('Response preview: '+JSON.stringify(result.data).slice(0,300),'#4ade80');
+  document.getElementById('res-card').style.display='block';
+  document.getElementById('res-title').textContent='✅ Path ที่ใช้งานได้: '+path;
+  document.getElementById('res-body').textContent=JSON.stringify(result.data,null,2);
+  document.getElementById('res-card').scrollIntoView({behavior:'smooth'});
+}
+
+await new Promise(r=>setTimeout(r,400));
+```
+
+}
+
+if(!found){
+log(’\n❌ ไม่พบ path ที่ใช้งานได้\nกรุณาดู Documentation ใน portal.api.bot.or.th’,’#f87171’);
+log(‘แนะนำ: ไปที่ portal → Apps → Statistics data → Documentation → ดู Endpoint URL’,’#fbbf24’);
+} else {
+log(’\n✅ สรุป: ใช้ path “’+found.path+’” ครับ’,’#4ade80’);
+log(‘จะ update Worker ให้อัตโนมัติ กรุณาแจ้ง path ที่ได้ครับ’,’#60a5fa’);
+}
+}
+</script>
+
+</body>
+</html>
