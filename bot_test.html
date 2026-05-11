@@ -1,169 +1,169 @@
 <!DOCTYPE html>
-
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT API Test</title>
+<title>BOT Series Finder</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
 button{cursor:pointer;font-family:inherit}
-#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center}
-#hdr h1{font-size:14px;font-weight:700}
-.wrap{max-width:800px;margin:20px auto;padding:0 16px}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px}
+h1{font-size:14px;font-weight:700}
+.wrap{max-width:900px;margin:20px auto;padding:0 16px}
 .card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:14px}
 .lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none}
 .inp:focus{border-color:#3b82f6}
-.inp-full{width:100%}
-.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer;display:inline-block}
+.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer}
 .pri{background:#2563eb;color:#fff}.pri:hover{background:#1d4ed8}
 .grn{background:#16a34a;color:#fff}.grn:hover{background:#15803d}
 .sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.sec:hover{background:#e2e8f0}
 .sm{padding:5px 12px;font-size:11px}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#log{background:#0f172a;color:#4ade80;padding:14px;font-family:'Courier New',monospace;font-size:11px;border-radius:7px;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.8}
 .res{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:14px;font-size:11px;font-family:'Courier New',monospace;max-height:400px;overflow-y:auto;white-space:pre-wrap;word-break:break-all;line-height:1.6}
-hr{border:none;border-top:1px solid #e2e8f0;margin:14px 0}
+.srow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:11px}
+.code{font-family:'Courier New',monospace;font-size:11px;font-weight:700;color:#1e40af;min-width:160px;flex-shrink:0}
+.name{color:#4a5568;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.period{color:#718096;font-size:10px;white-space:nowrap}
 </style>
 </head>
 <body>
-<div id="hdr"><h1>🧪 BOT API Manual Tester</h1></div>
+<div id="hdr"><h1>🔍 BOT Series Finder — หา Series Code จริง</h1></div>
 <div class="wrap">
 
   <div class="card">
     <div class="title">⚙️ ตั้งค่า</div>
     <div class="lbl">INGEST_SECRET_TOKEN</div>
     <div class="row">
-      <input class="inp" id="wtok" type="password" placeholder="09b9d0a2-..." style="flex:1">
-      <button class="btn sec sm" onclick="var i=document.getElementById('wtok');i.type=i.type=='password'?'text':'password'">👁</button>
+      <input class="inp" id="tok" type="password" placeholder="09b9d0a2-..." style="flex:1">
+      <button class="btn sec sm" onclick="var i=document.getElementById('tok');i.type=i.type=='password'?'text':'password'">👁</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="title">🔍 ทดสอบ Path ที่รู้ชื่อ</div>
-    <div class="lbl">ใส่ Path จาก portal.api.bot.or.th</div>
-    <div class="row">
-      <input class="inp" id="custom-path" placeholder="เช่น /bot/public/category หรือ /v1/StatCategory" style="flex:1">
-      <button class="btn grn" onclick="testCustom()">▶ ทดสอบ</button>
+    <div class="title">📋 Step 1 — ดู Series จริงใน BOT API</div>
+    <p style="color:#4a5568;margin-bottom:14px;line-height:1.7">
+      ดึง series codes จริงจาก BOT API ก่อน เพราะ <code style="background:#f1f5f9;padding:2px 6px;border-radius:4px">BORCPI01</code> อาจไม่ใช่ชื่อที่ถูกต้องในระบบใหม่
+    </p>
+    <div class="lbl">เลือก Category</div>
+    <div class="row" style="margin-bottom:10px">
+      <select class="inp" id="cat" style="width:auto">
+        <option value="EC">EC — เศรษฐกิจ</option>
+        <option value="IR">IR — อัตราดอกเบี้ย</option>
+        <option value="ER">ER — อัตราแลกเปลี่ยน</option>
+        <option value="FM">FM — ตลาดการเงิน</option>
+        <option value="FI">FI — สถาบันการเงิน</option>
+        <option value="PS">PS — ระบบการชำระเงิน</option>
+      </select>
+      <input class="inp" id="cat-custom" placeholder="หรือกรอก category เอง เช่น FM_RT_013" style="flex:1">
+      <button class="btn pri" onclick="getSample()">🔍 ดู Series</button>
     </div>
-    <hr>
-    <div class="lbl">Quick — paths ที่คาดว่าน่าจะถูก</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
-      <button class="btn sec sm" onclick="tp('/bot/public/StatCategory')">StatCategory</button>
-      <button class="btn sec sm" onclick="tp('/bot/StatCategory')">bot/StatCategory</button>
-      <button class="btn sec sm" onclick="tp('/v1/StatCategory')">v1/StatCategory</button>
-      <button class="btn sec sm" onclick="tp('/StatisticCategory')">StatisticCategory</button>
-      <button class="btn sec sm" onclick="tp('/statistics')">statistics</button>
-      <button class="btn sec sm" onclick="tp('/bot/public/stat-category')">stat-category</button>
-      <button class="btn sec sm" onclick="tp('/BotOpenData/1.0.0/category')">BotOpenData</button>
-      <button class="btn sec sm" onclick="tp('/opendata/category')">opendata</button>
-      <button class="btn sec sm" onclick="tp('/API/category')">API/category</button>
-      <button class="btn sec sm" onclick="tp('/')">/ (root)</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="title">📊 ทดสอบ Observations (ใส่ path จาก portal)</div>
-    <div class="row">
-      <input class="inp" id="obs-base" placeholder="base path เช่น /bot/public/observations" style="flex:1">
-      <input class="inp" id="obs-code" placeholder="Series Code เช่น BORCPI01" style="width:160px">
-      <button class="btn grn sm" onclick="testObs()">ดึง</button>
+    <div id="series-wrap" style="display:none">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <div class="lbl" id="series-count"></div>
+        <input class="inp" id="series-q" placeholder="ค้นหาใน list นี้..." style="width:200px;font-size:11px" oninput="filterSeries()">
+      </div>
+      <div id="series-list"></div>
     </div>
   </div>
 
   <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <div class="title" style="margin:0">📟 Log</div>
-      <button class="btn sec sm" onclick="document.getElementById('log').textContent='';document.getElementById('res-card').style.display='none'">🗑</button>
+    <div class="title">📊 Step 2 — ทดสอบ Observations</div>
+    <div class="lbl">Series Code (จาก list ด้านบน)</div>
+    <div class="row" style="margin-bottom:10px">
+      <input class="inp" id="obs-code" placeholder="คลิก series ด้านบนเพื่อเติมอัตโนมัติ" style="flex:1">
+      <input class="inp" id="obs-start" type="date" value="2023-01-01" style="width:140px">
+      <button class="btn grn" onclick="getObs()">ดึงข้อมูล</button>
     </div>
-    <div id="log">รอใส่ token แล้วกดปุ่มครับ...</div>
+    <div id="obs-result" style="display:none"></div>
   </div>
 
-  <div class="card" id="res-card" style="display:none">
-    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-      <div class="title" style="margin:0">📊 Response</div>
-      <span id="res-meta" style="font-size:11px;color:#718096"></span>
-    </div>
-    <div class="res" id="res-body"></div>
+  <div class="card">
+    <div class="title">📟 Log</div>
+    <div id="log">รอใส่ token...</div>
   </div>
 
 </div>
 <script>
 var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var allSeries = [];
 
-function wtok(){ return document.getElementById(‘wtok’).value.trim(); }
+function tok(){ return document.getElementById('tok').value.trim(); }
+function log(msg,col){ var el=document.getElementById('log'); if(el.textContent.startsWith('รอ')) el.textContent=''; el.innerHTML+='<span style="color:'+(col||'#4ade80')+'">'+msg+'</span>\n'; el.scrollTop=el.scrollHeight; }
 
-function addLog(msg, col){
-var el = document.getElementById(‘log’);
-if(el.textContent.startsWith(‘รอ’)) el.textContent = ‘’;
-el.innerHTML += ‘<span style="color:'+(col||'#4ade80')+'">’+msg+’</span>\n’;
-el.scrollTop = el.scrollHeight;
+async function getSample(){
+  if(!tok()){alert('ใส่ token ก่อน');return;}
+  var cat = document.getElementById('cat-custom').value.trim() || document.getElementById('cat').value;
+  log('ดึง series สำหรับ category: '+cat, '#60a5fa');
+  try{
+    var r = await fetch(WORKER+'/bot/series-sample?category='+cat, {headers:{Authorization:'Bearer '+tok()}, signal:AbortSignal.timeout(15000)});
+    var d = await r.json();
+    if(!r.ok){log('Error: '+JSON.stringify(d),'#f87171');return;}
+    allSeries = d.sample || [];
+    log('พบ '+d.total+' series ทั้งหมด แสดง '+allSeries.length+' ตัวแรก', '#4ade80');
+    renderSeries(allSeries);
+    document.getElementById('series-wrap').style.display='block';
+  }catch(e){log('Error: '+e.message,'#f87171');}
 }
 
-function showRes(title, data, ms){
-document.getElementById(‘res-card’).style.display = ‘block’;
-document.getElementById(‘res-meta’).textContent = ms + ’ms — ’ + title;
-var txt = typeof data === ‘string’ ? data : JSON.stringify(data, null, 2);
-document.getElementById(‘res-body’).textContent = txt;
-document.getElementById(‘res-card’).scrollIntoView({behavior:‘smooth’});
+function filterSeries(){
+  var q=document.getElementById('series-q').value.toLowerCase();
+  var f=q?allSeries.filter(s=>(s.series_code||'').toLowerCase().includes(q)||(s.series_name_eng||'').toLowerCase().includes(q)||(s.series_name_th||'').includes(q)):allSeries;
+  renderSeries(f);
 }
 
-function tp(path){ document.getElementById(‘custom-path’).value = path; testCustom(); }
-
-async function testCustom(){
-var path = document.getElementById(‘custom-path’).value.trim();
-if(!path){ alert(‘ใส่ path ก่อนครับ’); return; }
-if(!wtok()){ alert(‘ใส่ INGEST_SECRET_TOKEN ก่อนครับ’); return; }
-
-addLog(’ทดสอบ: ’ + path, ‘#60a5fa’);
-var url = WORKER + ‘/bot/probe?path=’ + encodeURIComponent(path);
-var t = Date.now();
-try{
-var r = await fetch(url, {
-headers: { Authorization: ’Bearer ’ + wtok() },
-signal: AbortSignal.timeout(12000)
-});
-var ms = Date.now() - t;
-var d  = await r.json().catch(function(){ return {}; });
-
-```
-var status = d.http_status || r.status;
-var ok     = d.ok === true;
-var col    = ok ? '#4ade80' : status===404 ? '#f87171' : '#fbbf24';
-
-addLog('→ HTTP ' + status + ' ' + (ok?'✅ SUCCESS!':'❌') + ' (' + ms + 'ms)', col);
-
-if(ok){
-  addLog('🎉 PATH ที่ใช้ได้: ' + path, '#4ade80');
-  addLog('Preview: ' + (d.preview||'').slice(0,200), '#4ade80');
-} else {
-  addLog('detail: ' + JSON.stringify(d).slice(0,300), '#94a3b8');
-}
-showRes('Path: '+path, d, ms);
-```
-
-} catch(e){
-addLog(’Error: ’ + e.message, ‘#f87171’);
-}
+function renderSeries(list){
+  document.getElementById('series-count').textContent='แสดง '+list.length+' series — คลิกเพื่อทดสอบ Observations';
+  document.getElementById('series-list').innerHTML=list.map(function(s){
+    return '<div class="srow" onclick="pickSeries(\''+s.series_code+'\')" style="cursor:pointer" onmouseover="this.style.background=\'#f0f4f8\'" onmouseout="this.style.background=\'\'">'
+      +'<span class="code">'+s.series_code+'</span>'
+      +'<span class="name">'+s.series_name_eng+'<br><span style="color:#a0aec0;font-size:10px">'+s.series_name_th+'</span></span>'
+      +'<span class="period">'+s.observation_start+' → '+s.observation_end+'</span>'
+    +'</div>';
+  }).join('');
 }
 
-async function testObs(){
-var base = document.getElementById(‘obs-base’).value.trim();
-var code = document.getElementById(‘obs-code’).value.trim();
-if(!base||!code){ alert(‘ใส่ base path และ series code’); return; }
-var path = base + ‘?series_code=’ + code + ‘&start_period=2024-01-01’;
-document.getElementById(‘custom-path’).value = path;
-testCustom();
+function pickSeries(code){
+  document.getElementById('obs-code').value=code;
+  document.getElementById('obs-code').style.borderColor='#16a34a';
+  log('เลือก: '+code+' → กด "ดึงข้อมูล"','#4ade80');
 }
 
-addLog(‘พร้อมใช้งาน’, ‘#60a5fa’);
-addLog(‘1. ใส่ INGEST_SECRET_TOKEN’, ‘#fbbf24’);
-addLog(‘2. กดปุ่ม path ที่ต้องการทดสอบ’, ‘#fbbf24’);
-addLog(‘3. ดูผลใน Log และ Response’, ‘#fbbf24’);
+async function getObs(){
+  var code=document.getElementById('obs-code').value.trim();
+  var start=document.getElementById('obs-start').value;
+  if(!code){alert('เลือก series code ก่อน');return;}
+  if(!tok()){alert('ใส่ token ก่อน');return;}
+  log('ดึง observations: '+code+' ตั้งแต่ '+start,'#60a5fa');
+  try{
+    var r=await fetch(WORKER+'/bot/observations?series_code='+code+'&start_period='+start,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(15000)});
+    var d=await r.json();
+    var obs=d?.result?.series?.[0]?.observations??[];
+    var info=d?.result?.series?.[0];
+    log('series_code: '+info?.series_code,'#4ade80');
+    log('observations: '+obs.length+' จุด','#4ade80');
+    if(obs.length>0) log('ตัวอย่าง: '+JSON.stringify(obs[0]),'#4ade80');
+
+    var el=document.getElementById('obs-result');
+    el.style.display='block';
+    if(obs.length===0){
+      el.innerHTML='<div style="color:#b45309;background:#fffbeb;border:2px solid #fcd34d;border-radius:7px;padding:14px">⚠️ observations ว่างเปล่า — series นี้อาจไม่มีข้อมูลในช่วงที่เลือก หรือ series_code ไม่ถูกต้อง</div>';
+    } else {
+      var rows='period'.padEnd(12)+'  value\n'+'─'.repeat(25)+'\n';
+      rows+=obs.map(o=>(o.period||o.period_start||'').padEnd(12)+'  '+(o.value??o.val??JSON.stringify(o))).join('\n');
+      el.innerHTML='<div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">✅ '+obs.length+' จุดข้อมูล</div>'
+        +'<pre class="res">'+rows+'</pre>';
+    }
+  }catch(e){log('Error: '+e.message,'#f87171');}
+}
+
+log('พร้อมใช้งาน','#60a5fa');
+log('1. ใส่ INGEST_SECRET_TOKEN','#fbbf24');
+log('2. เลือก Category → กด "ดู Series"','#fbbf24');
+log('3. คลิก series ที่ต้องการ → กด "ดึงข้อมูล"','#fbbf24');
 </script>
-
 </body>
 </html>
