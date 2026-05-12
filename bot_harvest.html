@@ -4,82 +4,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT Harvest — Exchange Rates & Interest Rates</title>
+<title>BOT Harvest — Phase 6b</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#f0f4f8}
-body{font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
+html,body{height:100%;background:#0f172a}
+body{font-family:Arial,sans-serif;font-size:13px;color:#e2e8f0}
 button{cursor:pointer;font-family:inherit;font-size:13px}
-input{font-family:inherit;font-size:13px}
+input,select{font-family:inherit;font-size:13px}
 ::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:10px}
+::-webkit-scrollbar-thumb{background:#334155;border-radius:10px}
 
 #hdr{
-background:#1e40af;color:#fff;
+background:#1e3a5f;color:#fff;
 padding:0 20px;height:52px;
 display:flex;align-items:center;justify-content:space-between;
 position:sticky;top:0;z-index:99;
-box-shadow:0 2px 8px rgba(0,0,0,.2);
+border-bottom:1px solid #1e40af;
 }
 #logo-wrap{display:flex;align-items:center;gap:10px}
-#logo-box{width:32px;height:32px;border-radius:8px;background:#fff;color:#1e40af;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;}
+#logo-box{width:32px;height:32px;border-radius:8px;background:#1e40af;display:flex;align-items:center;justify-content:center;font-size:16px}
 #logo-title{font-weight:700;font-size:14px}
-#logo-sub{font-size:9px;opacity:.7;margin-top:1px}
+#logo-sub{font-size:9px;opacity:.6;margin-top:1px}
 
-.container{max-width:980px;margin:0 auto;padding:16px}
+.container{max-width:1000px;margin:0 auto;padding:16px}
+.card{background:#1e293b;border-radius:10px;border:1px solid #334155;padding:16px;margin-bottom:14px}
+.card-title{font-weight:700;font-size:13px;color:#93c5fd;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 
-.card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:16px;margin-bottom:14px}
-.card-title{font-weight:700;font-size:14px;color:#1e40af;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.btn{padding:7px 14px;border-radius:6px;border:none;font-weight:600;font-size:12px;transition:all .15s}
+.btn-blue{background:#1e40af;color:#fff}.btn-blue:hover{background:#1d4ed8}
+.btn-green{background:#065f46;color:#6ee7b7}.btn-green:hover{background:#047857}
+.btn-slate{background:#334155;color:#e2e8f0}.btn-slate:hover{background:#475569}
+.btn-red{background:#7f1d1d;color:#fca5a5}.btn-red:hover{background:#991b1b}
 
-.btn{padding:7px 14px;border-radius:6px;border:none;font-weight:600;font-size:12px;transition:all .15s;}
-.btn-blue{background:#1e40af;color:#fff}.btn-blue:hover{background:#1d3a9e}
-.btn-green{background:#047857;color:#fff}.btn-green:hover{background:#036845}
-.btn-red{background:#dc2626;color:#fff}.btn-red:hover{background:#b91c1c}
-.btn-gray{background:#64748b;color:#fff}.btn-gray:hover{background:#4e5f75}
-.btn-outline{background:#fff;color:#1e40af;border:1px solid #1e40af}.btn-outline:hover{background:#eff6ff}
+.inp{padding:6px 10px;border:1px solid #475569;border-radius:6px;background:#0f172a;color:#e2e8f0;width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.inp{padding:6px 10px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;width:100%}
+.log-box{background:#0a0f1a;color:#64748b;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;height:180px;overflow-y:auto;margin-top:10px}
+.log-ok{color:#4ade80}.log-err{color:#f87171}.log-warn{color:#fbbf24}.log-info{color:#60a5fa}
 
-.log-box{background:#0f172a;color:#94a3b8;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;height:160px;overflow-y:auto;margin-top:8px}
-.log-ok{color:#4ade80}.log-err{color:#f87171}.log-warn{color:#fbbf24}
-
-.table-wrap{overflow-x:auto;margin-top:10px}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#f1f5f9;padding:7px 10px;text-align:left;font-weight:600;border-bottom:2px solid #e2e8f0;white-space:nowrap}
-td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:top}
-tr:hover td{background:#f8fafc}
-.badge{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
-.badge-ok{background:#d1fae5;color:#065f46}
-.badge-warn{background:#fef3c7;color:#92400e}
-.badge-err{background:#fee2e2;color:#991b1b}
-
-.status-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-.stat-box{flex:1;min-width:120px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px 12px}
-.stat-label{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.stat-val{font-size:18px;font-weight:700;color:#1e40af;margin-top:2px}
-.stat-sub{font-size:10px;color:#94a3b8;margin-top:1px}
-
-.section-label{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin:10px 0 6px}
-
-.series-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:border-color .15s}
-.series-item:hover{border-color:#1e40af}
-.series-item.selected{border-color:#1e40af;background:#eff6ff}
-.series-code{font-family:monospace;font-size:12px;font-weight:700;color:#1e40af}
-.series-name{font-size:12px;color:#374151;margin-top:2px}
-.series-meta{font-size:10px;color:#94a3b8;margin-top:2px}
-
-#saved-panel{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:12px;margin-top:10px}
-.saved-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #e0f2fe}
-.saved-row:last-child{border-bottom:none}
-
-.tabs{display:flex;gap:4px;margin-bottom:14px}
-.tab{padding:7px 16px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;font-size:12px;font-weight:600;color:#64748b;cursor:pointer}
+.tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:7px 16px;border-radius:6px;border:1px solid #334155;background:#1e293b;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s}
 .tab.active{background:#1e40af;color:#fff;border-color:#1e40af}
-
 .panel{display:none}.panel.active{display:block}
 
-.worker-url-inp{width:100%;padding:7px 10px;border:1px solid #cbd5e0;border-radius:6px;background:#fff;margin-bottom:8px}
+.kv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
+.kv-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 12px}
+.kv-label{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kv-val{font-size:20px;font-weight:700;color:#60a5fa;margin-top:3px}
+.kv-val.green{color:#4ade80}
+.kv-sub{font-size:10px;color:#475569;margin-top:2px}
+.kv-na{font-size:14px;color:#334155}
+
+.api-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #1e293b;font-size:12px}
+.api-row:last-child{border-bottom:none}
+.api-name{color:#94a3b8;font-weight:600}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
+.badge-ok{background:#052e16;color:#4ade80;border:1px solid #166534}
+.badge-err{background:#450a0a;color:#f87171;border:1px solid #991b1b}
+.badge-na{background:#1e293b;color:#64748b;border:1px solid #334155}
+
+code{background:#0f172a;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:#93c5fd}
+pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:auto;color:#94a3b8;margin-top:8px;border:1px solid #1e293b}
+
+.section-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px}
 </style>
 
 </head>
@@ -90,12 +77,12 @@ tr:hover td{background:#f8fafc}
     <div id="logo-box">🌾</div>
     <div>
       <div id="logo-title">BOT Harvest</div>
-      <div id="logo-sub">Exchange Rates &amp; Interest Rates Discovery</div>
+      <div id="logo-sub">Phase 6b — Exchange Rates &amp; Interest Rates</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <span id="auth-status" style="font-size:11px;opacity:.7">Not connected</span>
-    <button class="btn btn-outline" style="font-size:11px;padding:4px 10px" onclick="logout()">Logout</button>
+    <span id="auth-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#64748b">Not connected</span>
+    <button class="btn btn-slate" style="font-size:11px;padding:4px 10px" onclick="logout()">Logout</button>
   </div>
 </div>
 
@@ -103,247 +90,203 @@ tr:hover td{background:#f8fafc}
 
 <!-- Login -->
 
-<div id="login-card" class="card" style="max-width:380px;margin:40px auto">
+<div id="login-card" class="card" style="max-width:400px;margin:40px auto">
   <div class="card-title">🔐 Login</div>
-  <div style="margin-bottom:8px"><input class="inp" id="inp-user" placeholder="Username" type="text" style="margin-bottom:6px"></div>
-  <div style="margin-bottom:10px"><input class="inp" id="inp-pass" placeholder="Password" type="password"></div>
-  <div style="margin-bottom:10px">
+  <div style="margin-bottom:8px"><input class="inp" id="inp-user" placeholder="Username" type="text" autocomplete="username"></div>
+  <div style="margin-bottom:10px"><input class="inp" id="inp-pass" placeholder="Password" type="password" autocomplete="current-password"></div>
+  <div style="margin-bottom:12px">
     <div style="font-size:11px;color:#64748b;margin-bottom:4px">Worker URL</div>
-    <input class="worker-url-inp" id="inp-worker" value="https://iaa-ingest.9vk92zm5z2.workers.dev" placeholder="Worker URL">
+    <input class="inp" id="inp-worker" value="https://iaa-ingest.9vk92zm5z2.workers.dev">
   </div>
   <button class="btn btn-blue" style="width:100%" onclick="doLogin()">Login</button>
-  <div id="login-err" style="color:#dc2626;font-size:11px;margin-top:8px;display:none"></div>
+  <div id="login-err" style="color:#f87171;font-size:11px;margin-top:8px;display:none"></div>
 </div>
 
-<!-- Main content (hidden until login) -->
+<!-- Main -->
 
 <div id="main-content" style="display:none">
 
-  <!-- Worker status bar -->
+  <!-- Worker status -->
 
-  <div class="card" style="padding:10px 16px">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <span style="font-size:11px;color:#64748b">Worker:</span>
-      <span id="worker-url-display" style="font-family:monospace;font-size:11px;color:#1e40af"></span>
-      <span id="worker-status" class="badge badge-warn">ยังไม่ได้ทดสอบ</span>
-      <button class="btn btn-outline" style="font-size:11px;padding:3px 10px" onclick="pingWorker()">Ping Worker</button>
+  <div class="card" style="padding:10px 16px;margin-bottom:12px">
+    <div class="row">
+      <span style="font-size:11px;color:#475569">Worker:</span>
+      <span id="worker-url-display" style="font-family:monospace;font-size:11px;color:#93c5fd"></span>
+      <span id="worker-badge" class="badge badge-na">ยังไม่ได้ ping</span>
+      <button class="btn btn-slate" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="pingWorker()">Ping</button>
     </div>
   </div>
 
   <!-- Tabs -->
 
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('harvest')">🌾 Harvest & Run</div>
-    <div class="tab" onclick="switchTab('discover-rates')">🔍 Discover Rates</div>
-    <div class="tab" onclick="switchTab('discover-fx')">💱 Discover FX</div>
-    <div class="tab" onclick="switchTab('test')">🧪 Test Series</div>
+    <div class="tab active" onclick="switchTab('run')">🌾 Harvest & Run</div>
+    <div class="tab" onclick="switchTab('fx')">💱 Test FX APIs</div>
+    <div class="tab" onclick="switchTab('rates')">🏦 Test Rate APIs</div>
+    <div class="tab" onclick="switchTab('raw')">🔍 Raw JSON</div>
   </div>
 
-  <!-- ═══════ Tab: Harvest & Run ═══════ -->
+  <!-- ═══ Tab: Harvest & Run ═══ -->
 
-  <div id="panel-harvest" class="panel active">
+  <div id="panel-run" class="panel active">
+    <div class="card">
+      <div class="card-title">📡 Latest Snapshot (KV)</div>
+      <div id="snapshot-grid" class="kv-grid">
+        <div style="color:#475569;font-size:12px;grid-column:1/-1">กด Load Latest หรือ Run Harvest เพื่อดูข้อมูล</div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn btn-slate" onclick="loadLatest()">↻ Load Latest</button>
+        <button class="btn btn-green" onclick="runHarvest()">▶ Run Harvest Now</button>
+        <span id="run-status" style="font-size:11px;color:#64748b"></span>
+      </div>
+      <div id="run-log" class="log-box" style="display:none"></div>
+    </div>
 
 ```
 <div class="card">
-  <div class="card-title">📡 Latest Snapshot</div>
-  <div id="harvest-snapshot">
-    <div style="color:#94a3b8;font-size:12px">กด "Load Latest" เพื่อดูข้อมูลล่าสุด</div>
-  </div>
-  <div class="row" style="margin-top:12px">
-    <button class="btn btn-blue" onclick="loadLatest()">Load Latest</button>
-    <button class="btn btn-green" onclick="runHarvest()">▶ Run Harvest Now</button>
-  </div>
-  <div id="harvest-log" class="log-box" style="display:none"></div>
-</div>
-
-<div class="card">
-  <div class="card-title">📋 Known Series Codes</div>
-  <div class="section-label">Policy Rate</div>
-  <div class="row" style="margin-bottom:8px">
-    <div class="series-item" style="flex:1;cursor:default">
-      <span class="series-code">FMRTINTM00262</span>
-      <div class="series-name">Policy Rate (2024-07 → 2026-04)</div>
-      <div class="series-meta">ล่าสุด — ใช้เป็น primary</div>
-    </div>
-    <div class="series-item" style="flex:1;cursor:default">
-      <span class="series-code">FMRTINTM00001</span>
-      <div class="series-name">Policy Rate (2005-01 → 2025-07)</div>
-      <div class="series-meta">ยาว — fallback</div>
-    </div>
-  </div>
-  <div class="section-label">THOR Rate (Overnight Reference)</div>
-  <div class="series-item" style="cursor:default">
-    <span class="series-code">FMRTTHORD00003</span>
-    <div class="series-name">THOR Overnight Rate (2020-04 → 2026-05)</div>
-    <div class="series-meta">ใช้เป็น proxy สำหรับ short-term rate</div>
-  </div>
-  <div class="section-label">MLR (EXIM Bank — Proxy ชั่วคราว)</div>
-  <div class="series-item" style="cursor:default">
-    <span class="series-code">FMRTINTM00140</span>
-    <div class="series-name">EXIM MLR Min</div>
-    <div class="series-meta">ใช้เป็น proxy — ต้อง discover Commercial Bank MLR ก่อน</div>
-  </div>
-
-  <div class="section-label">Exchange Rate (ยังไม่พบใน Statistics API)</div>
-  <div style="background:#fef9c3;border:1px solid #fde047;border-radius:6px;padding:10px;font-size:12px">
-    ⚠️ USD/THB และ EUR/THB <b>ไม่อยู่ใน BOT Statistics API</b><br>
-    อยู่ใน <b>BOT API #2 (Exchange Rates)</b> ที่ต้อง subscribe แยก<br>
-    <a href="https://apiportal.bot.or.th/bot/public/node/1429" target="_blank" style="color:#1e40af">→ Subscribe ที่นี่</a><br><br>
-    ถ้า Subscribe แล้ว → ใช้แท็บ "Discover FX" หา series code แล้วตั้งใน Cloudflare Secrets:<br>
-    <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px">BOT_FX_USD_CODE</code>  
-    <code style="background:#f1f5f9;padding:2px 5px;border-radius:3px">BOT_FX_EUR_CODE</code>
-  </div>
-</div>
-
-<div class="card">
-  <div class="card-title">⚙️ ตั้งค่า Env Variables (หลัง Discover)</div>
+  <div class="card-title">📋 API Map</div>
   <div style="font-size:12px;color:#64748b;margin-bottom:10px">
-    เมื่อพบ series code ที่ถูกต้องแล้ว ให้ตั้งใน Cloudflare Workers → Settings → Variables &amp; Secrets
+    APIs ที่ harvest/run ดึงข้อมูลจาก — ใช้ <code>BOT_API_KEY</code> เดียวกันทั้งหมด
   </div>
-  <table>
-    <thead><tr><th>Variable</th><th>ความหมาย</th><th>ตัวอย่าง</th></tr></thead>
-    <tbody>
-      <tr><td><code>BOT_FX_USD_CODE</code></td><td>USD/THB series code</td><td>XXXXXXXX00001</td></tr>
-      <tr><td><code>BOT_FX_EUR_CODE</code></td><td>EUR/THB series code</td><td>XXXXXXXX00002</td></tr>
-      <tr><td><code>BOT_MLR_CODE</code></td><td>Commercial Bank MLR series code</td><td>FMRTINTM00XXX</td></tr>
-      <tr><td><code>BOT_MRR_CODE</code></td><td>Commercial Bank MRR series code</td><td>FMRTINTM00XXX</td></tr>
-    </tbody>
-  </table>
+  <div style="background:#0f172a;border-radius:8px;overflow:hidden;border:1px solid #1e293b">
+    <div class="api-row">
+      <div>
+        <div class="api-name">Policy Rate</div>
+        <code>PolicyRate/v3/policy_rate/</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">ไม่ต้องใส่ date<br>result.data = "2.50"</div>
+    </div>
+    <div class="api-row">
+      <div>
+        <div class="api-name">Avg Loan Rate (MLR/MRR/MOR)</div>
+        <code>LoanRate/v2/avg_loan_rate/</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>filter: Commercial Banks</div>
+    </div>
+    <div class="api-row">
+      <div>
+        <div class="api-name">BIBOR (O/N, 1M, 3M)</div>
+        <code>BIBOR/v2/bibor_avg_rate/</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>data_detail[0]</div>
+    </div>
+    <div class="api-row">
+      <div>
+        <div class="api-name">Avg Exchange Rate (USD)</div>
+        <code>Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?currency=USD</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>buying + selling → mid</div>
+    </div>
+    <div class="api-row">
+      <div>
+        <div class="api-name">Avg Exchange Rate (EUR)</div>
+        <code>Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?currency=EUR</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">Daily</div>
+    </div>
+    <div class="api-row">
+      <div>
+        <div class="api-name">Weighted Interbank USD</div>
+        <code>Stat-ReferenceRate/v2/DAILY_REF_RATE/</code>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#475569">Official reference<br>USD only</div>
+    </div>
+  </div>
 </div>
 ```
 
   </div>
 
-  <!-- ═══════ Tab: Discover Rates ═══════ -->
+  <!-- ═══ Tab: Test FX ═══ -->
 
-  <div id="panel-discover-rates" class="panel">
+  <div id="panel-fx" class="panel">
     <div class="card">
-      <div class="card-title">🔍 Auto-Discover: MLR / MRR / Lending Rates</div>
+      <div class="card-title">💱 ทดสอบ Exchange Rate APIs</div>
       <div style="font-size:12px;color:#64748b;margin-bottom:12px">
-        สแกน BOT API ทุก category เพื่อหา series code ของ MLR, MRR จากธนาคารพาณิชย์หลัก<br>
-        ผลลัพธ์จะบอกว่าต้องตั้ง <code>BOT_MLR_CODE</code> เป็นค่าอะไร
-      </div>
-      <div class="row" style="margin-bottom:10px;align-items:center">
-        <label style="font-size:12px;color:#374151">Max categories to scan:</label>
-        <input id="rates-max-cats" type="number" value="80" min="10" max="200" class="inp" style="width:80px">
-        <button class="btn btn-blue" onclick="discoverRates()">🔍 Start Discovery</button>
-      </div>
-      <div id="rates-progress" style="font-size:12px;color:#64748b;display:none">กำลังสแกน...</div>
-      <div id="rates-log" class="log-box" style="display:none"></div>
-    </div>
-
-```
-<div id="rates-results" style="display:none">
-  <div class="card">
-    <div class="card-title">📊 MLR Candidates</div>
-    <div id="mlr-list"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">📊 MRR Candidates</div>
-    <div id="mrr-list"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">📊 Other Interest Rate Series</div>
-    <div id="other-rates-list"></div>
-  </div>
-</div>
-```
-
-  </div>
-
-  <!-- ═══════ Tab: Discover FX ═══════ -->
-
-  <div id="panel-discover-fx" class="panel">
-    <div class="card">
-      <div class="card-title">💱 Auto-Discover: Exchange Rates (USD/THB, EUR/THB)</div>
-      <div style="background:#fef9c3;border:1px solid #fde047;border-radius:6px;padding:10px;font-size:12px;margin-bottom:12px">
-        ⚠️ <b>คาดว่าจะไม่พบ</b> ใน BOT Statistics API (API #4)<br>
-        Exchange Rates อยู่ใน <b>BOT API #2</b> ซึ่งต้อง subscribe แยก<br>
-        การสแกนนี้จะยืนยันว่ามีหรือไม่มีใน Statistics API
-      </div>
-      <div class="row" style="margin-bottom:10px;align-items:center">
-        <label style="font-size:12px;color:#374151">Max categories:</label>
-        <input id="fx-max-cats" type="number" value="80" min="10" max="200" class="inp" style="width:80px">
-        <button class="btn btn-blue" onclick="discoverFX()">🔍 Start Discovery</button>
-      </div>
-      <div id="fx-progress" style="font-size:12px;color:#64748b;display:none">กำลังสแกน...</div>
-      <div id="fx-log" class="log-box" style="display:none"></div>
-    </div>
-
-```
-<div id="fx-results" style="display:none">
-  <div class="card">
-    <div class="card-title">💵 USD/THB Candidates</div>
-    <div id="usd-list"></div>
-  </div>
-  <div class="card">
-    <div class="card-title">💶 EUR/THB Candidates</div>
-    <div id="eur-list"></div>
-  </div>
-  <div id="fx-api2-note" class="card" style="display:none;background:#fef9c3;border-color:#fde047">
-    <div class="card-title">⚠️ ไม่พบใน Statistics API</div>
-    <div style="font-size:12px;line-height:1.6">
-      Exchange Rate ไม่อยู่ใน BOT Statistics API (#4) — ต้อง Subscribe BOT API #2 ก่อน<br><br>
-      <b>ขั้นตอน:</b><br>
-      1. ไป <a href="https://apiportal.bot.or.th/bot/public/node/1429" target="_blank" style="color:#1e40af">apiportal.bot.or.th</a><br>
-      2. Subscribe "Exchange Rates" API<br>
-      3. ได้ API Key ใหม่แล้ว → กลับมา Discover อีกครั้ง<br>
-      4. ตั้ง <code>BOT_FX_USD_CODE</code> และ <code>BOT_FX_EUR_CODE</code> ใน Cloudflare Secrets
-    </div>
-  </div>
-</div>
-```
-
-  </div>
-
-  <!-- ═══════ Tab: Test Series ═══════ -->
-
-  <div id="panel-test" class="panel">
-    <div class="card">
-      <div class="card-title">🧪 Test Series Code</div>
-      <div style="font-size:12px;color:#64748b;margin-bottom:10px">
-        ทดสอบดึงค่าล่าสุดของ series code ใดก็ได้
+        ยิงตรงไปที่ Worker → Worker ยิงต่อไป BOT API แล้วส่ง raw response กลับมา
       </div>
       <div class="row" style="margin-bottom:10px">
-        <input class="inp" id="test-code" placeholder="Series Code เช่น FMRTINTM00262" style="flex:1">
-        <button class="btn btn-blue" onclick="testSeries()">ทดสอบ</button>
+        <label style="font-size:12px;color:#94a3b8">Currency:</label>
+        <select id="fx-currency" class="inp" style="width:120px">
+          <option value="USD">USD</option>
+          <option value="EUR">EUR</option>
+          <option value="JPY">JPY</option>
+          <option value="GBP">GBP</option>
+          <option value="CNY">CNY</option>
+          <option value="SGD">SGD</option>
+        </select>
+        <button class="btn btn-blue" onclick="testFX()">ทดสอบ</button>
       </div>
-
-```
-  <div class="section-label">Quick Test — Known Series</div>
-  <div class="row" style="flex-wrap:wrap;gap:6px;margin-bottom:10px">
-    <button class="btn btn-outline" onclick="quickTest('FMRTINTM00262')">Policy Rate (latest)</button>
-    <button class="btn btn-outline" onclick="quickTest('FMRTINTM00001')">Policy Rate (long)</button>
-    <button class="btn btn-outline" onclick="quickTest('FMRTTHORD00003')">THOR Rate</button>
-    <button class="btn btn-outline" onclick="quickTest('FMRTINTM00140')">EXIM MLR (proxy)</button>
-    <button class="btn btn-outline" onclick="quickTest('EIRPPIM00089')">House Price Index</button>
+      <div id="fx-log" class="log-box" style="display:none"></div>
+    </div>
+    <div id="fx-result" style="display:none">
+      <div class="card">
+        <div class="card-title">📊 ผลลัพธ์ Avg Exchange Rate</div>
+        <div id="fx-avg-result"></div>
+      </div>
+      <div id="fx-interbank-card" class="card" style="display:none">
+        <div class="card-title">📊 ผลลัพธ์ Weighted Interbank (USD)</div>
+        <div id="fx-interbank-result"></div>
+      </div>
+    </div>
   </div>
 
-  <div id="test-log" class="log-box" style="display:none"></div>
-  <div id="test-result" style="display:none;margin-top:10px">
-    <div class="status-row" id="test-stats"></div>
-  </div>
-</div>
-```
+  <!-- ═══ Tab: Test Rates ═══ -->
 
+  <div id="panel-rates" class="panel">
+    <div class="card">
+      <div class="card-title">🏦 ทดสอบ Interest Rate APIs</div>
+      <div style="font-size:12px;color:#64748b;margin-bottom:12px">
+        ทดสอบ Policy Rate, Loan Rate (MLR/MRR), BIBOR พร้อมกัน
+      </div>
+      <button class="btn btn-blue" onclick="testRates()">▶ ทดสอบทั้งหมด</button>
+      <div id="rates-log" class="log-box" style="display:none"></div>
+    </div>
+    <div id="rates-result" style="display:none">
+      <div class="card">
+        <div class="card-title">📊 Policy Rate</div>
+        <div id="rates-policy"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 Loan Rates (MLR / MRR / MOR)</div>
+        <div id="rates-loan"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📊 BIBOR</div>
+        <div id="rates-bibor"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Tab: Raw JSON ═══ -->
+
+  <div id="panel-raw" class="panel">
+    <div class="card">
+      <div class="card-title">🔍 Raw KV Snapshot</div>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn btn-slate" onclick="loadRaw()">Load Raw JSON</button>
+      </div>
+      <pre id="raw-output" style="min-height:100px;color:#475569">กด Load Raw JSON เพื่อดู</pre>
+    </div>
   </div>
 
 </div><!-- /main-content -->
 </div><!-- /container -->
 
 <script>
-var WORKER = localStorage.getItem('harvest_worker') || 'https://iaa-ingest.9vk92zm5z2.workers.dev';
-var TOKEN  = localStorage.getItem('harvest_token') || '';
+var WORKER = localStorage.getItem('bh_worker') || 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var TOKEN  = localStorage.getItem('bh_token')  || '';
 
-function tok() { return TOKEN; }
-function wurl(path){ return WORKER + path; }
+function wurl(p){ return WORKER + p; }
+function tok(){ return TOKEN; }
+function headers(){ return { 'Authorization': 'Bearer ' + tok(), 'Content-Type': 'application/json' }; }
 
-function log(elId, msg, cls){
-  var el = document.getElementById(elId);
+function log(id, msg, cls){
+  var el = document.getElementById(id);
   if(!el) return;
   el.style.display = 'block';
   var line = document.createElement('div');
-  line.className = cls||'';
+  line.className = cls || '';
   line.textContent = '[' + new Date().toLocaleTimeString('th-TH') + '] ' + msg;
   el.appendChild(line);
   el.scrollTop = el.scrollHeight;
@@ -351,8 +294,8 @@ function log(elId, msg, cls){
 
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(function(t,i){
-    var tabs = ['harvest','discover-rates','discover-fx','test'];
-    t.classList.toggle('active', tabs[i]===name);
+    var tabs = ['run','fx','rates','raw'];
+    t.classList.toggle('active', tabs[i] === name);
   });
   document.querySelectorAll('.panel').forEach(function(p){
     p.classList.remove('active');
@@ -360,224 +303,260 @@ function switchTab(name){
   document.getElementById('panel-'+name).classList.add('active');
 }
 
-// ── Login ───────────────────────────────────────────────────────
+// ── Auth ─────────────────────────────────────────────────────────
 async function doLogin(){
-  var user = document.getElementById('inp-user').value.trim();
-  var pass = document.getElementById('inp-pass').value.trim();
+  var user   = document.getElementById('inp-user').value.trim();
+  var pass   = document.getElementById('inp-pass').value.trim();
   var worker = document.getElementById('inp-worker').value.trim();
-  if(!user||!pass||!worker){alert('กรอกข้อมูลให้ครบ');return}
+  if(!user||!pass||!worker){ alert('กรอกข้อมูลให้ครบ'); return; }
   WORKER = worker;
   try {
-    var r = await fetch(WORKER+'/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})});
+    var r = await fetch(WORKER+'/auth/login',{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username:user,password:pass})});
     var d = await r.json();
-    if(!r.ok || !d.token){ document.getElementById('login-err').style.display='block'; document.getElementById('login-err').textContent=d.error||'Login ไม่สำเร็จ'; return; }
+    if(!r.ok||!d.token){
+      document.getElementById('login-err').style.display='block';
+      document.getElementById('login-err').textContent = d.error||'Login ไม่สำเร็จ';
+      return;
+    }
     TOKEN = d.token;
-    localStorage.setItem('harvest_token',TOKEN);
-    localStorage.setItem('harvest_worker',WORKER);
+    localStorage.setItem('bh_token', TOKEN);
+    localStorage.setItem('bh_worker', WORKER);
     showMain();
-  } catch(e){ document.getElementById('login-err').style.display='block'; document.getElementById('login-err').textContent='Error: '+e.message; }
+  } catch(e){
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-err').textContent = 'Error: '+e.message;
+  }
 }
-
 function showMain(){
   document.getElementById('login-card').style.display='none';
   document.getElementById('main-content').style.display='block';
-  document.getElementById('auth-status').textContent='Connected: '+WORKER.replace('https://','');
-  document.getElementById('worker-url-display').textContent=WORKER;
+  document.getElementById('worker-url-display').textContent = WORKER.replace('https://','');
+  document.getElementById('auth-badge').textContent = 'Connected';
+  document.getElementById('auth-badge').style.cssText = 'font-size:10px;padding:2px 8px;border-radius:10px;background:#052e16;border:1px solid #166534;color:#4ade80';
 }
-
 function logout(){
-  localStorage.removeItem('harvest_token');
-  TOKEN='';
-  document.getElementById('login-card').style.display='block';
-  document.getElementById('main-content').style.display='none';
-  document.getElementById('auth-status').textContent='Not connected';
+  localStorage.removeItem('bh_token');
+  TOKEN = '';
+  location.reload();
 }
-
 async function pingWorker(){
-  var el = document.getElementById('worker-status');
-  el.textContent='กำลัง ping...'; el.className='badge badge-warn';
+  var el = document.getElementById('worker-badge');
+  el.textContent = 'pinging...'; el.className = 'badge badge-na';
   try {
-    var r = await fetch(wurl('/bot/status'),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(8000)});
-    var d = await r.json();
-    if(d.ok){ el.textContent='✅ Online ('+d.latency_ms+'ms)'; el.className='badge badge-ok'; }
-    else { el.textContent='⚠️ '+d.http_status; el.className='badge badge-warn'; }
+    var t = Date.now();
+    var r = await fetch(wurl('/bot/status'),{headers:headers(),signal:AbortSignal.timeout(8000)});
+    var ms = Date.now()-t;
+    if(r.ok){ el.textContent='✅ '+ms+'ms'; el.className='badge badge-ok'; }
+    else { el.textContent='⚠️ HTTP '+r.status; el.className='badge badge-err'; }
   } catch(e){ el.textContent='❌ '+e.message; el.className='badge badge-err'; }
 }
 
-// ── Load Latest Snapshot ─────────────────────────────────────────
+// ── Snapshot display ──────────────────────────────────────────────
+function kvBox(label, val, sub, green){
+  if(val==null) return '<div class="kv-box"><div class="kv-label">'+label+'</div><div class="kv-na">—</div></div>';
+  return '<div class="kv-box"><div class="kv-label">'+label+'</div>'
+    +'<div class="kv-val'+(green?' green':'')+'">'+val+'</div>'
+    +(sub?'<div class="kv-sub">'+sub+'</div>':'')+
+    '</div>';
+}
+function renderSnapshot(d){
+  var g = document.getElementById('snapshot-grid');
+  if(!d){ g.innerHTML='<div style="color:#475569;font-size:12px;grid-column:1/-1">ยังไม่มีข้อมูล</div>'; return; }
+  var html = '';
+  // Interest Rates
+  html += kvBox('Policy Rate', d.policyRate!=null?d.policyRate+'%':null, d.policyRateDate);
+  html += kvBox('MLR', d.mlr!=null?d.mlr+'%':null, d.loanRateDate);
+  html += kvBox('MRR', d.mrr!=null?d.mrr+'%':null, '');
+  html += kvBox('MOR', d.mor!=null?d.mor+'%':null, '');
+  html += kvBox('BIBOR O/N', d.biborON!=null?d.biborON+'%':null, d.biborDate);
+  html += kvBox('BIBOR 1M', d.bibor1m!=null?d.bibor1m+'%':null, '');
+  html += kvBox('BIBOR 3M', d.bibor3m!=null?d.bibor3m+'%':null, '');
+  // Exchange Rates
+  html += kvBox('USD/THB Mid', d.usdThbMid!=null?d.usdThbMid:null, d.usdThbDate, true);
+  html += kvBox('USD Buy', d.usdThbBuying!=null?d.usdThbBuying:null, '');
+  html += kvBox('USD Sell', d.usdThbSelling!=null?d.usdThbSelling:null, '');
+  html += kvBox('USD Interbank', d.usdThbInterbank!=null?d.usdThbInterbank:null, d.usdThbInterbankDate);
+  html += kvBox('EUR/THB Mid', d.eurThbMid!=null?d.eurThbMid:null, d.eurThbDate, true);
+  html += kvBox('EUR Buy', d.eurThbBuying!=null?d.eurThbBuying:null, '');
+  html += kvBox('EUR Sell', d.eurThbSelling!=null?d.eurThbSelling:null, '');
+  if(d.fetchedAt){
+    var dt = new Date(d.fetchedAt).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+    html += '<div style="grid-column:1/-1;font-size:10px;color:#475569;margin-top:4px">ดึงข้อมูลเมื่อ: '+dt+'</div>';
+  }
+  g.innerHTML = html;
+}
+
 async function loadLatest(){
-  var el = document.getElementById('harvest-snapshot');
-  el.innerHTML = '<div style="color:#94a3b8;font-size:12px">กำลังโหลด...</div>';
+  document.getElementById('run-status').textContent = 'กำลังโหลด...';
   try {
-    var r = await fetch(wurl('/bot/harvest/latest'),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(8000)});
-    if(r.status===404){ el.innerHTML='<div style="color:#94a3b8;font-size:12px">ยังไม่มีข้อมูล — กด "Run Harvest Now"</div>'; return; }
+    var r = await fetch(wurl('/bot/harvest/latest'),{headers:headers(),signal:AbortSignal.timeout(10000)});
+    if(r.status===404){ renderSnapshot(null); document.getElementById('run-status').textContent='ยังไม่มีข้อมูล'; return; }
     var d = await r.json();
-    renderSnapshot(el, d);
-  } catch(e){ el.innerHTML='<div style="color:#dc2626;font-size:12px">Error: '+e.message+'</div>'; }
+    renderSnapshot(d);
+    document.getElementById('run-status').textContent = '';
+  } catch(e){ document.getElementById('run-status').textContent = 'Error: '+e.message; }
 }
 
-function renderSnapshot(el, d){
-  var items = [
-    {label:'Policy Rate', val: d.policyRate!=null ? d.policyRate+'%' : null, sub: d.policyRatePeriod||''},
-    {label:'THOR Rate',   val: d.thorRate!=null ? d.thorRate+'%' : null,   sub: d.thorRatePeriod||''},
-    {label:'MLR (proxy)', val: d.mlr!=null ? d.mlr+'%' : null,             sub: (d.mlrPeriod||'')+' '+(d.mlrNote||'')},
-    {label:'USD/THB',     val: d.usdThb!=null ? d.usdThb : null,           sub: d.usdThbPeriod||''},
-    {label:'EUR/THB',     val: d.eurThb!=null ? d.eurThb : null,           sub: d.eurThbPeriod||''},
-  ];
-  var fetchedAt = d.fetchedAt ? new Date(d.fetchedAt).toLocaleString('th-TH') : '-';
-  var html = '<div class="status-row">';
-  items.forEach(function(it){
-    html += '<div class="stat-box">';
-    html += '<div class="stat-label">'+it.label+'</div>';
-    if(it.val!=null){
-      html += '<div class="stat-val">'+it.val+'</div>';
-      html += '<div class="stat-sub">'+it.sub+'</div>';
-    } else {
-      html += '<div class="stat-val" style="font-size:13px;color:#94a3b8">—</div>';
-      html += '<div class="stat-sub">ไม่มีข้อมูล</div>';
-    }
-    html += '</div>';
-  });
-  html += '</div>';
-  html += '<div style="font-size:10px;color:#94a3b8">ดึงข้อมูลเมื่อ: '+fetchedAt+'</div>';
-  el.innerHTML = html;
-}
-
-// ── Run Harvest ──────────────────────────────────────────────────
 async function runHarvest(){
-  var logEl = document.getElementById('harvest-log');
-  logEl.innerHTML = '';
-  log('harvest-log','กำลัง harvest...','log-warn');
+  var runLog = document.getElementById('run-log');
+  runLog.innerHTML = '';
+  document.getElementById('run-status').textContent = 'กำลัง harvest...';
+  log('run-log','เริ่ม harvest 6 APIs...','log-info');
   try {
-    var r = await fetch(wurl('/bot/harvest/run'),{method:'POST',headers:{Authorization:'Bearer '+tok(),'Content-Type':'application/json'},signal:AbortSignal.timeout(60000)});
+    var r = await fetch(wurl('/bot/harvest/run'),{method:'POST',headers:headers(),signal:AbortSignal.timeout(60000)});
     var d = await r.json();
     if(d.ok){
-      log('harvest-log','✅ Harvest สำเร็จ: '+d.success_count+'/'+d.total+' series','log-ok');
-      d.results.forEach(function(res){
-        if(res.ok){
-          log('harvest-log','  ✅ '+res.name+': '+res.value+' ('+res.period+')','log-ok');
+      log('run-log','✅ สำเร็จ '+d.success_count+'/'+d.total_apis+' APIs','log-ok');
+      d.log.forEach(function(item){
+        if(item.ok){
+          var detail = '';
+          if(item.rate != null) detail = ' = '+item.rate+'%';
+          else if(item.value != null) detail = ' = '+item.value;
+          else if(item.mlr) detail = ' MLR='+item.mlr+'% MRR='+item.mrr+'% ('+item.period+')';
+          else if(item.mid) detail = ' mid='+item.mid+' ('+item.period+')';
+          else if(item['O/N']) detail = ' O/N='+item['O/N']+'% 1M='+item['1M']+'% ('+item.period+')';
+          log('run-log','  ✅ '+item.api+detail,'log-ok');
         } else {
-          log('harvest-log','  ⚠️ '+res.name+': '+res.error,'log-warn');
+          log('run-log','  ⚠️ '+item.api+': '+(item.error||item.note||'HTTP '+item.http),'log-warn');
         }
       });
-      loadLatest();
+      renderSnapshot(d.snapshot);
+      document.getElementById('run-status').textContent = '';
     } else {
-      log('harvest-log','❌ Error: '+(d.error||JSON.stringify(d)),'log-err');
+      log('run-log','❌ '+(d.error||JSON.stringify(d)),'log-err');
     }
-  } catch(e){ log('harvest-log','❌ '+e.message,'log-err'); }
+  } catch(e){ log('run-log','❌ '+e.message,'log-err'); }
 }
 
-// ── Discover Rates ────────────────────────────────────────────────
-async function discoverRates(){
-  var maxCats = document.getElementById('rates-max-cats').value||80;
-  document.getElementById('rates-progress').style.display='block';
-  document.getElementById('rates-progress').textContent='กำลังสแกน (อาจใช้เวลา 30-60 วินาที)...';
-  var logEl = document.getElementById('rates-log');
-  logEl.innerHTML='';
-  log('rates-log','เริ่ม discover MLR/MRR (max '+maxCats+' categories)...','log-warn');
+// ── Test FX ──────────────────────────────────────────────────────
+async function testFX(){
+  var currency = document.getElementById('fx-currency').value;
+  var fxLog = document.getElementById('fx-log');
+  fxLog.innerHTML = '';
+  document.getElementById('fx-result').style.display = 'none';
+  log('fx-log','ทดสอบ Exchange Rate: '+currency+'...','log-info');
   try {
-    var r = await fetch(wurl('/bot/harvest/discover/rates?max_cats='+maxCats),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(120000)});
+    var r = await fetch(wurl('/bot/harvest/test/fx?currency='+currency),{headers:headers(),signal:AbortSignal.timeout(20000)});
     var d = await r.json();
-    log('rates-log','สแกนแล้ว: '+d.cats_searched+' categories, พบ '+d.total_found+' series','log-ok');
-    log('rates-log','MLR: '+d.mlr_candidates.length+' candidates, MRR: '+d.mrr_candidates.length+' candidates','log-ok');
-    renderCandidates('mlr-list', d.mlr_candidates);
-    renderCandidates('mrr-list', d.mrr_candidates);
-    renderCandidates('other-rates-list', d.other_rates||[]);
-    document.getElementById('rates-results').style.display='block';
-    document.getElementById('rates-progress').textContent='เสร็จแล้ว — พบ '+d.total_found+' series';
-  } catch(e){
-    log('rates-log','❌ '+e.message,'log-err');
-    document.getElementById('rates-progress').textContent='Error: '+e.message;
-  }
-}
-
-// ── Discover FX ───────────────────────────────────────────────────
-async function discoverFX(){
-  var maxCats = document.getElementById('fx-max-cats').value||80;
-  document.getElementById('fx-progress').style.display='block';
-  document.getElementById('fx-progress').textContent='กำลังสแกน...';
-  var logEl = document.getElementById('fx-log');
-  logEl.innerHTML='';
-  log('fx-log','เริ่ม discover Exchange Rate (max '+maxCats+' categories)...','log-warn');
-  try {
-    var r = await fetch(wurl('/bot/harvest/discover/fx?max_cats='+maxCats),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(120000)});
-    var d = await r.json();
-    log('fx-log','สแกนแล้ว: '+d.cats_searched+' categories, พบ '+d.total_found+' series','log-ok');
-    renderCandidates('usd-list', d.usd_thb_candidates||[]);
-    renderCandidates('eur-list', d.eur_thb_candidates||[]);
-    document.getElementById('fx-results').style.display='block';
-    if(d.total_found===0){
-      document.getElementById('fx-api2-note').style.display='block';
-      log('fx-log','⚠️ ไม่พบ Exchange Rate ใน Statistics API — ต้อง subscribe BOT API #2','log-warn');
+    log('fx-log','HTTP '+r.status,'log-'+(r.ok?'ok':'err'));
+    // Avg Exchange Rate
+    var avg = d.results?.avg_exchange_rate;
+    if(avg){
+      log('fx-log','Avg Exchange Rate: HTTP '+avg.http_status+(avg.ok?' ✅':' ❌'),'log-'+(avg.ok?'ok':'err'));
+      if(avg.latest) log('fx-log','  latest: '+JSON.stringify(avg.latest),'log-ok');
     }
-    document.getElementById('fx-progress').textContent=d.note||('เสร็จแล้ว — พบ '+d.total_found+' series');
-  } catch(e){
-    log('fx-log','❌ '+e.message,'log-err');
-    document.getElementById('fx-progress').textContent='Error: '+e.message;
-  }
-}
-
-function renderCandidates(elId, items){
-  var el = document.getElementById(elId);
-  if(!items||!items.length){
-    el.innerHTML='<div style="color:#94a3b8;font-size:12px;padding:8px">ไม่พบ series ที่ตรงกัน</div>';
-    return;
-  }
-  var html = '';
-  items.forEach(function(s){
-    html += '<div class="series-item" onclick="quickTest(\''+s.series_code+'\')">';
-    html += '<span class="series-code">'+s.series_code+'</span>';
-    html += '<div class="series-name">'+s.series_name_eng+'</div>';
-    html += '<div class="series-meta">'+s.category+' | '+s.obs_start+' → '+s.obs_end+'</div>';
-    html += '<div class="series-meta" style="color:#1e40af">keywords: '+s.matched.join(', ')+'</div>';
-    html += '</div>';
-  });
-  el.innerHTML = html;
-}
-
-// ── Test Series ───────────────────────────────────────────────────
-async function testSeries(){
-  var code = document.getElementById('test-code').value.trim();
-  if(!code){ alert('ใส่ series code ก่อน'); return; }
-  await runTestCode(code);
-}
-async function quickTest(code){
-  document.getElementById('test-code').value = code;
-  switchTab('test');
-  await runTestCode(code);
-}
-async function runTestCode(code){
-  var logEl = document.getElementById('test-log');
-  logEl.innerHTML='';
-  document.getElementById('test-result').style.display='none';
-  log('test-log','กำลังดึง: '+code+'...','log-warn');
-  try {
-    var r = await fetch(wurl('/bot/harvest/test/'+encodeURIComponent(code)),{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(20000)});
-    var d = await r.json();
-    if(d.ok && d.result){
-      log('test-log','✅ '+d.message,'log-ok');
-      log('test-log','  Series Code: '+code,'');
-      log('test-log','  Value: '+d.result.value,'log-ok');
-      log('test-log','  Period: '+d.result.period,'');
-      document.getElementById('test-stats').innerHTML =
-        '<div class="stat-box"><div class="stat-label">Series Code</div><div class="stat-val" style="font-size:13px;font-family:monospace">'+code+'</div></div>'+
-        '<div class="stat-box"><div class="stat-label">ค่าล่าสุด</div><div class="stat-val">'+d.result.value+'</div></div>'+
-        '<div class="stat-box"><div class="stat-label">Period</div><div class="stat-val" style="font-size:14px">'+d.result.period+'</div></div>';
-      document.getElementById('test-result').style.display='block';
-    } else {
-      log('test-log','⚠️ '+d.message,'log-warn');
-      if(d.result===null){
-        log('test-log','อาจเป็นเพราะ: series code ผิด, API key ไม่มีสิทธิ์, หรือยังไม่มีข้อมูลในช่วงที่ query','log-warn');
-      }
+    // Interbank (USD only)
+    var ib = d.results?.weighted_interbank;
+    if(ib){
+      log('fx-log','Weighted Interbank: HTTP '+ib.http_status+(ib.ok?' ✅':' ❌'),'log-'+(ib.ok?'ok':'err'));
+      if(ib.latest) log('fx-log','  latest: '+JSON.stringify(ib.latest),'log-ok');
     }
-  } catch(e){ log('test-log','❌ '+e.message,'log-err'); }
+    // Render results
+    document.getElementById('fx-result').style.display = 'block';
+    if(avg?.latest){
+      var l = avg.latest;
+      var buy = parseFloat(l.buying_transfer||l.buying_sight);
+      var sell = parseFloat(l.selling_transfer);
+      var mid = (!isNaN(buy)&&!isNaN(sell)) ? ((buy+sell)/2).toFixed(4) : null;
+      document.getElementById('fx-avg-result').innerHTML =
+        '<div class="kv-grid">'
+        + kvBox('Currency', currency)
+        + kvBox('Period', l.period||l.date)
+        + kvBox('Buying Transfer', l.buying_transfer||'—')
+        + kvBox('Selling Transfer', l.selling_transfer||'—')
+        + kvBox('Mid (calc)', mid, 'avg of buy+sell', true)
+        + '</div>'
+        + '<pre>'+JSON.stringify(l,null,2)+'</pre>';
+
+```
+} else {
+  document.getElementById('fx-avg-result').innerHTML = '<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล — ลอง currency อื่น หรือตรวจ BOT_API_KEY</div>';
+}
+if(ib?.latest){
+  document.getElementById('fx-interbank-card').style.display = 'block';
+  document.getElementById('fx-interbank-result').innerHTML =
+    '<div class="kv-grid">'
+    + kvBox('Period', ib.latest.period)
+    + kvBox('Weighted Rate', ib.latest.rate, 'USD/THB', true)
+    + '</div>';
+}
+```
+
+} catch(e){ log(‘fx-log’,’❌ ’+e.message,‘log-err’); }
+}
+
+// ── Test Rates ────────────────────────────────────────────────────
+async function testRates(){
+var ratesLog = document.getElementById(‘rates-log’);
+ratesLog.innerHTML = ‘’;
+document.getElementById(‘rates-result’).style.display = ‘none’;
+log(‘rates-log’,‘ทดสอบ Interest Rate APIs…’,‘log-info’);
+try {
+var r = await fetch(wurl(’/bot/harvest/test/rates’),{headers:headers(),signal:AbortSignal.timeout(30000)});
+var d = await r.json();
+log(‘rates-log’,‘HTTP ‘+r.status,‘log-’+(r.ok?‘ok’:‘err’));
+// Policy Rate
+var pr = d.results?.policy_rate;
+if(pr) log(‘rates-log’,‘Policy Rate: ‘+(pr.ok?pr.rate+’ (’+pr.announcement_date+’) ✅’:‘❌ ‘+pr.error),‘log-’+(pr.ok?‘ok’:‘err’));
+// Loan Rate
+var lr = d.results?.avg_loan_rate;
+if(lr) log(‘rates-log’,‘Avg Loan Rate: count=’+lr.count+(lr.ok?’ ✅’:’ ❌’),‘log-’+(lr.ok?‘ok’:‘err’));
+// BIBOR
+var br = d.results?.bibor;
+if(br) log(‘rates-log’,‘BIBOR: count=’+br.count+(br.ok?’ ✅’:’ ❌’),‘log-’+(br.ok?‘ok’:‘err’));
+document.getElementById(‘rates-result’).style.display = ‘block’;
+// Render
+if(pr){
+document.getElementById(‘rates-policy’).innerHTML =
+‘<div class="kv-grid">’
++ kvBox(‘Policy Rate’, pr.rate!=null?pr.rate+’%’:null, pr.announcement_date, true)
++ ‘</div>’
++ (pr.news_en?’<div style="font-size:11px;color:#64748b;margin-top:8px">’+pr.news_en+’…</div>’:’’);
+}
+if(lr?.latest){
+var ll = lr.latest;
+document.getElementById(‘rates-loan’).innerHTML =
+‘<div class="kv-grid">’
++ kvBox(‘MLR’, ll.mlr?ll.mlr+’%’:null, ll.period)
++ kvBox(‘MRR’, ll.mrr?ll.mrr+’%’:null, ‘’)
++ kvBox(‘MOR’, ll.mor?ll.mor+’%’:null, ‘’)
++ ‘</div>’
++ ‘<div class="section-label">Bank rows found</div>’
++ ‘<div style="font-size:11px;color:#64748b">’+lr.sample_names?.join(’<br>’)+’ …</div>’
++ ‘<pre>’+JSON.stringify(ll,null,2)+’</pre>’;
+} else {
+document.getElementById(‘rates-loan’).innerHTML = ‘<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล</div>’;
+}
+if(br?.latest){
+var bl = br.latest;
+document.getElementById(‘rates-bibor’).innerHTML =
+‘<div class="kv-grid">’
++ kvBox(‘O/N’, bl.bibor_o_n?bl.bibor_o_n+’%’:null, bl.period, true)
++ kvBox(‘1M’, bl.bibor_1_month?bl.bibor_1_month+’%’:null, ‘’)
++ kvBox(‘3M’, bl.bibor_3_month?bl.bibor_3_month+’%’:null, ‘’)
++ kvBox(‘6M’, bl.bibor_6_month?bl.bibor_6_month+’%’:null, ‘’)
++ kvBox(‘1Y’, bl.bibor_1_year?bl.bibor_1_year+’%’:null, ‘’)
++ ‘</div>’;
+} else {
+document.getElementById(‘rates-bibor’).innerHTML = ‘<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล</div>’;
+}
+} catch(e){ log(‘rates-log’,’❌ ’+e.message,‘log-err’); }
+}
+
+// ── Raw JSON ──────────────────────────────────────────────────────
+async function loadRaw(){
+document.getElementById(‘raw-output’).textContent = ‘กำลังโหลด…’;
+try {
+var r = await fetch(wurl(’/bot/harvest/latest’),{headers:headers(),signal:AbortSignal.timeout(10000)});
+var d = await r.json();
+document.getElementById(‘raw-output’).textContent = JSON.stringify(d, null, 2);
+} catch(e){ document.getElementById(‘raw-output’).textContent = ’Error: ’+e.message; }
 }
 
 // ── Init ──────────────────────────────────────────────────────────
-if(TOKEN){
-  showMain();
-  pingWorker();
-}
+if(TOKEN){ showMain(); pingWorker(); }
 </script>
 
 </body>
