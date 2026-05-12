@@ -1,275 +1,362 @@
 <!DOCTYPE html>
+
 <html lang="th">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT Data Explorer</title>
+<title>BOT Series Discovery</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#f0f4f8;font-family:Arial,sans-serif;font-size:13px;color:#1a202c}
 button{cursor:pointer;font-family:inherit}
-#hdr{background:#1e40af;color:#fff;padding:0 20px;height:50px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:99}
-h1{font-size:14px;font-weight:700}
-#layout{display:flex;height:calc(100vh - 50px)}
-#sb{width:280px;background:#fff;border-right:2px solid #e2e8f0;overflow-y:auto;flex-shrink:0}
-#main{flex:1;overflow-y:auto;padding:20px;background:#f0f4f8}
-.sb-hd{padding:12px 14px 6px;font-size:9px;color:#718096;letter-spacing:1.5px;text-transform:uppercase;border-bottom:1px solid #f0f4f8;background:#f8fafc;position:sticky;top:0}
-.cat-btn{display:block;width:100%;text-align:left;padding:9px 14px;border:none;border-left:3px solid transparent;background:#fff;color:#4a5568;cursor:pointer;transition:all .12s}
-.cat-btn:hover{background:#eff6ff;color:#1e40af}
-.cat-btn.on{background:#eff6ff;border-left-color:#2563eb;color:#1e40af;font-weight:700}
-.cat-code{font-family:'Courier New',monospace;font-size:10px;font-weight:700;display:block}
-.cat-name{font-size:10px;color:#718096;margin-top:1px;display:block}
-.cat-btn.on .cat-name{color:#3b82f6}
-.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:18px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+#hdr{background:#1e40af;color:#fff;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99}
+#hdr h1{font-size:14px;font-weight:700}
+.tok-row{display:flex;gap:6px;align-items:center}
+.tok-inp{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;padding:5px 10px;font-family:inherit;font-size:11px;width:220px}
+.tok-inp::placeholder{color:rgba(255,255,255,.6)}
+.hbtn{background:rgba(255,255,255,.9);color:#1e40af;border:none;border-radius:5px;padding:5px 12px;font-size:11px;font-weight:700}
+.wrap{max-width:960px;margin:20px auto;padding:0 16px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .title{font-size:14px;font-weight:700;color:#1e40af;margin-bottom:12px}
 .lbl{font-size:10px;color:#718096;margin-bottom:5px;letter-spacing:1px;text-transform:uppercase;font-weight:600}
 .inp{background:#fff;border:2px solid #e2e8f0;border-radius:7px;color:#1a202c;font-size:12px;padding:8px 12px;outline:none}
 .inp:focus{border-color:#3b82f6}
-.btn{border-radius:6px;font-weight:700;border:none;padding:7px 14px;font-size:12px;cursor:pointer}
+.btn{border-radius:6px;font-weight:700;border:none;padding:8px 16px;font-size:12px;cursor:pointer}
 .pri{background:#2563eb;color:#fff}.pri:hover{background:#1d4ed8}
 .grn{background:#16a34a;color:#fff}.grn:hover{background:#15803d}
 .sec{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}.sec:hover{background:#e2e8f0}
-.sm{padding:4px 10px;font-size:11px}
+.sm{padding:5px 12px;font-size:11px}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.srow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f4f8;cursor:pointer}
-.srow:hover{background:#f8fafc}
-.scode{font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#1e40af;min-width:180px;flex-shrink:0}
-.sname{color:#4a5568;font-size:11px;flex:1}
-.speriod{color:#a0aec0;font-size:10px;white-space:nowrap}
-canvas{display:block;margin-top:10px}
-.spark-lbl{display:flex;justify-content:space-between;font-size:10px;color:#718096;margin-top:4px}
-.obs-pre{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:12px;font-size:11px;font-family:'Courier New',monospace;max-height:240px;overflow-y:auto;white-space:pre;line-height:1.9}
-#log{background:#0f172a;color:#4ade80;padding:12px;font-family:'Courier New',monospace;font-size:10px;border-radius:7px;max-height:150px;overflow-y:auto;white-space:pre-wrap;line-height:1.7}
-.tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700}
-.tok-wrap{display:flex;gap:8px;align-items:center}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#log{background:#0f172a;color:#4ade80;padding:12px;font-family:'Courier New',monospace;font-size:10px;border-radius:7px;max-height:160px;overflow-y:auto;white-space:pre-wrap;line-height:1.7}
+.res{background:#f8fafc;border:2px solid #e2e8f0;border-radius:7px;padding:12px;font-size:11px;font-family:'Courier New',monospace;max-height:260px;overflow-y:auto;white-space:pre;line-height:1.9}
+.srow{display:flex;align-items:flex-start;gap:8px;padding:10px 0;border-bottom:1px solid #f0f4f8;cursor:pointer;border-radius:4px;padding-left:6px}
+.srow:hover{background:#eff6ff}
+.scode{font-family:'Courier New',monospace;font-size:10px;font-weight:700;color:#1e40af;min-width:190px;flex-shrink:0;padding-top:2px}
+.sinfo{flex:1}
+.sen{color:#1a202c;font-size:12px}
+.sth{color:#718096;font-size:10px;margin-top:2px}
+.scat{color:#a0aec0;font-size:9px;margin-top:2px}
+.speriod{color:#a0aec0;font-size:10px;white-space:nowrap;flex-shrink:0}
+.kw-chip{display:inline-block;background:#dbeafe;color:#1d4ed8;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:700;margin-left:4px}
+.prog{background:#e2e8f0;border-radius:10px;height:8px;overflow:hidden;margin:8px 0}
+.prog-bar{background:#2563eb;height:100%;border-radius:10px;transition:width .3s}
+canvas{display:block;margin-top:10px;border-radius:6px}
+.spark-lbl{display:flex;justify-content:space-between;font-size:10px;color:#718096;margin-top:4px;margin-bottom:12px}
+.saved-chip{display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:3px 8px;font-size:10px;font-weight:600;color:#1d4ed8;margin:2px}
+.saved-chip button{background:none;border:none;color:#b91c1c;font-size:11px;padding:0;cursor:pointer}
 </style>
 </head>
 <body>
 
 <div id="hdr">
-  <h1>🏦 BOT Data Explorer</h1>
-  <div class="tok-wrap">
-    <input id="tok" type="password" placeholder="INGEST_SECRET_TOKEN" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;padding:5px 10px;font-family:inherit;font-size:11px;width:200px" autocomplete="off">
-    <button onclick="var i=document.getElementById('tok');i.type=i.type=='password'?'text':'password'" style="background:rgba(255,255,255,.2);border:none;border-radius:5px;color:#fff;padding:4px 8px;font-size:12px">👁</button>
-    <button class="btn" onclick="loadCategories()" style="background:rgba(255,255,255,.9);color:#1e40af;font-size:11px;padding:5px 12px">โหลด Categories</button>
+  <h1>🔭 BOT Series Discovery</h1>
+  <div class="tok-row">
+    <input id="tok" type="password" class="tok-inp" placeholder="INGEST_SECRET_TOKEN" autocomplete="off">
+    <button onclick="var i=document.getElementById('tok');i.type=i.type=='password'?'text':'password'" class="hbtn" style="background:rgba(255,255,255,.2);color:#fff">👁</button>
   </div>
 </div>
 
-<div id="layout">
-  <!-- SIDEBAR: Categories -->
-  <aside id="sb">
-    <div class="sb-hd">Categories — กดเพื่อดู Series</div>
-    <div id="cat-list">
-      <div style="padding:20px;color:#a0aec0;font-size:12px;text-align:center">ใส่ token แล้วกด<br>"โหลด Categories"</div>
-    </div>
-  </aside>
+<div class="wrap">
 
-  <!-- MAIN -->
-  <div id="main">
+  <!-- Step 1: Auto Discovery -->
 
-    <!-- Log -->
-    <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div class="title" style="margin:0;font-size:12px">📟 Log</div>
-        <button class="btn sec sm" onclick="document.getElementById('log').textContent=''">🗑</button>
-      </div>
-      <div id="log">ใส่ token แล้วกด "โหลด Categories"...</div>
-    </div>
+  <div class="card">
+    <div class="title">🔭 Auto Discovery — ค้นหา Series อัตโนมัติ</div>
+    <p style="color:#4a5568;line-height:1.8;margin-bottom:14px">
+      ระบบจะวน loop ผ่านทุก category แล้วหา series ที่ตรงกับ keyword ให้อัตโนมัติ<br>
+      <span style="color:#718096;font-size:11px">⏱ ใช้เวลาประมาณ 1-3 นาที เพราะต้องดึงข้อมูลหลาย category</span>
+    </p>
 
-    <!-- Welcome -->
-    <div id="v-welcome" class="card">
-      <div class="title">👈 เลือก Category ทางซ้าย</div>
-      <p style="color:#718096;line-height:1.8">
-        1. ใส่ INGEST_SECRET_TOKEN ด้านบน<br>
-        2. กด "โหลด Categories" — ระบบจะดึง categories จริงจาก BOT API<br>
-        3. คลิก category ทางซ้าย → ดู series<br>
-        4. คลิก series → ดูข้อมูลจริง
-      </p>
-    </div>
+```
+<div class="lbl">Keywords (คั่นด้วยจุลภาค)</div>
+<div class="row" style="margin-bottom:10px">
+  <input class="inp" id="kw" value="CPI,consumer price,inflation,GDP,gross domestic" style="flex:1">
+</div>
 
-    <!-- Series list -->
-    <div id="v-series" style="display:none">
-      <div class="card">
-        <div id="ser-title" class="title"></div>
-        <div class="row" style="margin-bottom:10px">
-          <input class="inp" id="ser-q" placeholder="🔍 ค้นหา series..." style="flex:1" oninput="filterSeries()">
-          <span id="ser-count" class="tag" style="background:#dbeafe;color:#1d4ed8"></span>
-        </div>
-        <div id="ser-list"></div>
-      </div>
-    </div>
+<div class="lbl">Preset keywords</div>
+<div class="row" style="margin-bottom:14px">
+  <button class="btn sec sm" onclick="setkw('CPI,consumer price,inflation')">💰 CPI / เงินเฟ้อ</button>
+  <button class="btn sec sm" onclick="setkw('GDP,gross domestic product')">📈 GDP</button>
+  <button class="btn sec sm" onclick="setkw('policy rate,overnight,THOR')">🏦 Interest Rate</button>
+  <button class="btn sec sm" onclick="setkw('exchange rate,USD,THB,baht')">💱 Exchange Rate</button>
+  <button class="btn sec sm" onclick="setkw('CPI,GDP,policy rate,export,import,unemployment')">⭐ ทั้งหมดที่ต้องการ</button>
+</div>
 
-    <!-- Observations -->
-    <div id="v-obs" style="display:none" class="card">
-      <div id="obs-code-title" class="title"></div>
-      <div id="obs-meta" style="font-size:11px;color:#718096;margin-bottom:12px"></div>
-      <canvas id="spark" width="400" height="65"></canvas>
-      <div class="spark-lbl" id="spark-lbl"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0 8px">
-        <span style="font-size:11px;color:#718096" id="obs-count"></span>
-        <button class="btn sec sm" onclick="dlCSV()">⬇ CSV</button>
-      </div>
-      <div class="obs-pre" id="obs-table"></div>
-    </div>
+<div class="row">
+  <button class="btn pri" id="disc-btn" onclick="runDiscover()">🚀 เริ่ม Discovery</button>
+  <button class="btn sec sm" onclick="stopDisc=true">⏹ หยุด</button>
+  <span id="disc-status" style="font-size:11px;color:#718096"></span>
+</div>
+
+<div id="prog-wrap" style="display:none;margin-top:10px">
+  <div class="prog"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+  <div id="prog-text" style="font-size:10px;color:#718096;text-align:center"></div>
+</div>
+```
 
   </div>
+
+  <!-- Results -->
+
+  <div class="card" id="results-card" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div class="title" style="margin:0">✅ Series ที่พบ</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn sec sm" onclick="exportJSON()">📋 Export JSON</button>
+        <button class="btn grn sm" onclick="saveAll()">⭐ Save ทั้งหมด</button>
+      </div>
+    </div>
+    <div id="results-list"></div>
+  </div>
+
+  <!-- Saved series -->
+
+  <div class="card" id="saved-card" style="display:none">
+    <div class="title">⭐ Series ที่บันทึกไว้</div>
+    <div id="saved-chips"></div>
+  </div>
+
+  <!-- Observations -->
+
+  <div class="card" id="obs-card" style="display:none">
+    <div class="title" id="obs-title"></div>
+    <div id="obs-meta" style="font-size:11px;color:#718096;margin-bottom:10px"></div>
+    <canvas id="spark" width="440" height="70"></canvas>
+    <div class="spark-lbl" id="spark-lbl"></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+      <span id="obs-count" style="font-size:11px;color:#718096"></span>
+      <button class="btn sec sm" onclick="dlCSV()">⬇ CSV</button>
+    </div>
+    <div class="res" id="obs-table"></div>
+  </div>
+
+  <!-- Log -->
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="title" style="margin:0;font-size:12px">📟 Log</div>
+      <button class="btn sec sm" onclick="document.getElementById('log').textContent=''">🗑</button>
+    </div>
+    <div id="log">รอ...</div>
+  </div>
+
 </div>
 
 <script>
-var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
-var allCats = [], allSeries = [], curCat = null, curObs = null, curMeta = {};
+var WORKER  = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var stopDisc = false;
+var foundSeries = [];
+var savedSeries = [];
+try { savedSeries = JSON.parse(localStorage.getItem('bot_saved_series')||'[]'); } catch{}
+var curObs = null, curMeta = {};
 
 function tok(){ return document.getElementById('tok').value.trim(); }
+function setkw(v){ document.getElementById('kw').value=v; }
 
 function log(msg, col){
   var el=document.getElementById('log');
-  if(el.textContent.startsWith('ใส่')) el.textContent='';
+  if(el.textContent==='รอ...') el.textContent='';
   el.innerHTML+='<span style="color:'+(col||'#4ade80')+'">'+msg+'</span>\n';
   el.scrollTop=el.scrollHeight;
 }
 
-// ── CATEGORIES ────────────────────────────────────────────────
-async function loadCategories(){
+// ── DISCOVER ─────────────────────────────────────────────────
+async function runDiscover(){
   if(!tok()){alert('ใส่ INGEST_SECRET_TOKEN ก่อน');return;}
-  log('กำลังโหลด categories จาก BOT API...','#60a5fa');
-  document.getElementById('cat-list').innerHTML='<div style="padding:16px;text-align:center;color:#718096">⏳ กำลังโหลด...</div>';
+  var kw=document.getElementById('kw').value.trim();
+  if(!kw){alert('ใส่ keyword ก่อน');return;}
+
+  stopDisc=false;
+  foundSeries=[];
+  document.getElementById('disc-btn').disabled=true;
+  document.getElementById('prog-wrap').style.display='block';
+  document.getElementById('results-card').style.display='none';
+  document.getElementById('results-list').innerHTML='';
+  document.getElementById('disc-status').textContent='กำลังทำงาน...';
+
+  log('เริ่ม Discovery: "'+kw+'"','#60a5fa');
+
+  // Step 1: ดึง categories ทั้งหมด
+  log('1. ดึง category list...','#fbbf24');
+  var cats=[];
   try{
-    var r=await fetch(WORKER+'/bot/status',{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(12000)});
+    var r=await fetch(WORKER+'/bot/categories',{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(12000)});
     var d=await r.json();
-    if(!r.ok){log('Error: '+JSON.stringify(d),'#f87171');return;}
-    allCats = d.categories || [];
-    log('โหลด categories สำเร็จ: '+d.category_count+' หมวด','#4ade80');
-    renderCats();
-  }catch(e){log('Error: '+e.message,'#f87171');}
-}
+    cats=d?.result?.category??[];
+    log('พบ '+cats.length+' categories','#4ade80');
+  }catch(e){log('Error: '+e.message,'#f87171');done();return;}
 
-function renderCats(){
-  if(!allCats.length){
-    document.getElementById('cat-list').innerHTML='<div style="padding:16px;color:#f87171;font-size:11px">ไม่พบข้อมูล<br>กด "โหลด Categories" ใหม่</div>';
-    return;
+  if(!cats.length){log('ไม่พบ categories','#f87171');done();return;}
+
+  // Step 2: วน loop ทุก category
+  log('2. วน loop '+cats.length+' categories...','#fbbf24');
+  var keywords=kw.toLowerCase().split(',').map(function(k){return k.trim();}).filter(Boolean);
+
+  for(var i=0;i<cats.length;i++){
+    if(stopDisc){log('หยุดโดยผู้ใช้','#fbbf24');break;}
+
+    var cat=cats[i];
+    var catCode=cat.category;
+    var pct=Math.round((i/cats.length)*100);
+    document.getElementById('prog-bar').style.width=pct+'%';
+    document.getElementById('prog-text').textContent='['+i+'/'+cats.length+'] '+catCode+' — พบแล้ว '+foundSeries.length+' series';
+
+    try{
+      var r2=await fetch(WORKER+'/bot/series?category='+catCode,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(10000)});
+      if(!r2.ok) continue;
+      var d2=await r2.json();
+      var seriesList=d2?.result?.series??[];
+
+      for(var j=0;j<seriesList.length;j++){
+        var s=seriesList[j];
+        var txt=([s.series_code,s.series_name_eng,s.series_name_th].join(' ')).toLowerCase();
+        var matched=keywords.filter(function(kw2){return txt.includes(kw2);});
+        if(matched.length>0){
+          foundSeries.push({
+            series_code:       s.series_code,
+            series_name_eng:   s.series_name_eng,
+            series_name_th:    s.series_name_th,
+            category:          catCode,
+            category_eng:      cat.description_eng,
+            observation_start: s.observation_start,
+            observation_end:   s.observation_end,
+            matched:           matched,
+          });
+        }
+      }
+    }catch(e){ continue; }
+
+    // update results realtime ทุก 5 category
+    if(i%5===0 && foundSeries.length>0) renderResults();
+    if(foundSeries.length>=100) break; // พอแล้ว
   }
-  document.getElementById('cat-list').innerHTML=allCats.map(function(c){
-    var on=curCat&&curCat.category===c.category;
-    return '<button class="cat-btn'+(on?' on':'')+'" onclick="selectCat(\''+c.category+'\')">'
-      +'<span class="cat-code">'+c.category+'</span>'
-      +'<span class="cat-name">'+c.description_eng+'</span>'
-      +'</button>';
-  }).join('');
+
+  log('Discovery เสร็จ: พบ '+foundSeries.length+' series จาก '+Math.min(i+1,cats.length)+' categories','#4ade80');
+  document.getElementById('prog-bar').style.width='100%';
+  document.getElementById('prog-text').textContent='เสร็จแล้ว — พบ '+foundSeries.length+' series';
+  document.getElementById('disc-status').textContent='✅ พบ '+foundSeries.length+' series';
+  renderResults();
+  done();
 }
 
-// ── SELECT CATEGORY ───────────────────────────────────────────
-async function selectCat(catCode){
-  curCat = allCats.find(function(c){return c.category===catCode;});
-  renderCats();
-  document.getElementById('v-welcome').style.display='none';
-  document.getElementById('v-obs').style.display='none';
-  document.getElementById('v-series').style.display='block';
-  document.getElementById('ser-title').textContent=catCode+' — '+(curCat?curCat.description_eng:'');
-  document.getElementById('ser-list').innerHTML='<div style="padding:20px;text-align:center;color:#718096">⏳ กำลังโหลด series...</div>';
-
-  log('โหลด series สำหรับ: '+catCode,'#60a5fa');
-  try{
-    var r=await fetch(WORKER+'/bot/series-sample?category='+catCode,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(15000)});
-    var d=await r.json();
-    if(!r.ok){log('Error '+r.status+': '+JSON.stringify(d),'#f87171');return;}
-    allSeries=d.sample||[];
-    log('พบ '+d.total+' series (แสดง '+allSeries.length+')','#4ade80');
-    renderSeries(allSeries, d.total);
-  }catch(e){log('Error: '+e.message,'#f87171');}
+function done(){
+  document.getElementById('disc-btn').disabled=false;
 }
 
-function filterSeries(){
-  var q=document.getElementById('ser-q').value.toLowerCase();
-  var f=q?allSeries.filter(function(s){
-    return (s.series_code||'').toLowerCase().includes(q)||(s.series_name_eng||'').toLowerCase().includes(q)||(s.series_name_th||'').includes(q);
-  }):allSeries;
-  renderSeries(f, null);
-}
-
-function renderSeries(list, total){
-  var countEl=document.getElementById('ser-count');
-  countEl.textContent='แสดง '+list.length+(total?' จาก '+total:'')+' series';
-  if(!list.length){
-    document.getElementById('ser-list').innerHTML='<div style="padding:20px;text-align:center;color:#718096">ไม่พบ series</div>';
-    return;
-  }
-  document.getElementById('ser-list').innerHTML=list.map(function(s){
-    return '<div class="srow" onclick="getObs(\''+s.series_code+'\',\''+esc(s.series_name_eng)+'\',\''+esc(s.series_name_th)+'\',\''+esc(s.unit_eng||'')+'\',\''+s.observation_start+'\',\''+s.observation_end+'\')">'
+function renderResults(){
+  if(!foundSeries.length) return;
+  var card=document.getElementById('results-card');
+  card.style.display='block';
+  document.getElementById('results-list').innerHTML=foundSeries.map(function(s,idx){
+    var chips=s.matched.map(function(m){return '<span class="kw-chip">'+m+'</span>';}).join('');
+    return '<div class="srow" onclick="getObs('+idx+')">'
       +'<span class="scode">'+s.series_code+'</span>'
-      +'<span class="sname">'+s.series_name_eng+'<br><span style="color:#a0aec0;font-size:10px">'+s.series_name_th+'</span></span>'
+      +'<span class="sinfo">'
+        +'<div class="sen">'+s.series_name_eng+chips+'</div>'
+        +'<div class="sth">'+s.series_name_th+'</div>'
+        +'<div class="scat">📁 '+s.category+' — '+s.category_eng+'</div>'
+      +'</span>'
       +'<span class="speriod">'+s.observation_start+'<br>→ '+s.observation_end+'</span>'
     +'</div>';
   }).join('');
 }
 
-function esc(s){ return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+// ── SAVE ────────────────────────────────────────────────────
+function saveAll(){
+  foundSeries.forEach(function(s){
+    if(!savedSeries.find(function(x){return x.series_code===s.series_code;})){
+      savedSeries.push(s);
+    }
+  });
+  try{localStorage.setItem('bot_saved_series',JSON.stringify(savedSeries));}catch{}
+  renderSaved();
+}
 
-// ── OBSERVATIONS ──────────────────────────────────────────────
-async function getObs(code, en, th, unit, obsStart, obsEnd){
-  curMeta={code,en,th,unit};
-  log('ดึง observations: '+code,'#60a5fa');
-  document.getElementById('v-obs').style.display='block';
-  document.getElementById('obs-code-title').textContent=code;
-  document.getElementById('obs-meta').textContent=en+' | '+th+(unit?' | '+unit:'');
+function saveSingle(idx){
+  var s=foundSeries[idx];
+  if(!savedSeries.find(function(x){return x.series_code===s.series_code;})){
+    savedSeries.push(s);
+    try{localStorage.setItem('bot_saved_series',JSON.stringify(savedSeries));}catch{}
+    renderSaved();
+  }
+}
+
+function removeSaved(code){
+  savedSeries=savedSeries.filter(function(s){return s.series_code!==code;});
+  try{localStorage.setItem('bot_saved_series',JSON.stringify(savedSeries));}catch{}
+  renderSaved();
+}
+
+function renderSaved(){
+  var card=document.getElementById('saved-card');
+  if(!savedSeries.length){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('saved-chips').innerHTML=savedSeries.map(function(s){
+    return '<span class="saved-chip" onclick="getObsByCode(\''+s.series_code+'\',\''+esc(s.series_name_eng)+'\',\''+esc(s.series_name_th)+'\',\'\')">'+
+      s.series_code+
+      '<button onclick="event.stopPropagation();removeSaved(\''+s.series_code+'\')">✕</button>'+
+    '</span>';
+  }).join('');
+}
+renderSaved();
+
+// ── OBSERVATIONS ────────────────────────────────────────────
+async function getObs(idx){
+  var s=foundSeries[idx];
+  saveSingle(idx);
+  renderSaved();
+  getObsByCode(s.series_code, s.series_name_eng, s.series_name_th, s.series_name_th);
+}
+
+async function getObsByCode(code, en, th, unit){
+  if(!tok()){alert('ใส่ token ก่อน');return;}
+  curMeta={code,en,th};
+  document.getElementById('obs-card').style.display='block';
+  document.getElementById('obs-title').textContent=code;
+  document.getElementById('obs-meta').textContent=(en||'')+(th?' | '+th:'');
   document.getElementById('obs-table').textContent='⏳ กำลังโหลด...';
   document.getElementById('obs-count').textContent='';
-
-  // คำนวณ start period จาก observation_start
-  var startPeriod = obsStart ? obsStart.replace('Q','') : '2020-01-01';
-  // แปลง 2020-Q1 → 2020-01-01
-  if(startPeriod.includes('-Q')){
-    var parts=startPeriod.split('-Q');
-    var q=parseInt(parts[1]);
-    startPeriod=parts[0]+'-'+String((q-1)*3+1).padStart(2,'0')+'-01';
-  }
-  // ใช้แค่ 5 ปีล่าสุด
-  startPeriod='2020-01-01';
+  log('ดึง observations: '+code,'#60a5fa');
 
   try{
-    var r=await fetch(WORKER+'/bot/observations?series_code='+code+'&start_period='+startPeriod,{headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(20000)});
+    var r=await fetch(WORKER+'/bot/observations?series_code='+code+'&start_period=2020-01-01',{
+      headers:{Authorization:'Bearer '+tok()},signal:AbortSignal.timeout(20000)
+    });
     var d=await r.json();
     var series=d?.result?.series?.[0];
     var obs=series?.observations??[];
+    log('series_code='+series?.series_code+' obs='+obs.length,'#4ade80');
 
-    log('series_code: '+(series?.series_code||'null'),'#4ade80');
-    log('observations: '+obs.length+' จุด','#4ade80');
-    if(obs.length>0) log('ตัวอย่าง: '+JSON.stringify(obs[0]),'#4ade80');
-
-    if(obs.length===0){
-      document.getElementById('obs-table').textContent='⚠️ ไม่มีข้อมูลในช่วงนี้\n\nDebug:\n'+JSON.stringify(d?._debug||d,null,2).slice(0,500);
-      document.getElementById('obs-count').textContent='0 จุด';
+    if(!obs.length){
+      document.getElementById('obs-table').textContent='⚠️ ไม่มีข้อมูล\n\n'+JSON.stringify(d?._debug||{},null,2);
       return;
     }
-
     curObs=obs;
-    // แสดง
     var keys=Object.keys(obs[0]);
-    log('observation keys: '+JSON.stringify(keys),'#fbbf24');
-    // หา period และ value key
-    var pKey=keys.find(function(k){return k.includes('period')||k==='date'||k==='time';})||keys[0];
-    var vKey=keys.find(function(k){return k.includes('value')||k==='val'||k==='data';})||keys[1];
-
-    document.getElementById('obs-count').textContent=obs.length+' จุดข้อมูล';
-    document.getElementById('obs-table').textContent=obs.map(function(o){
+    log('keys: '+JSON.stringify(keys),'#fbbf24');
+    var pKey=keys.find(function(k){return k.toLowerCase().includes('period')||k==='date';})||keys[0];
+    var vKey=keys.find(function(k){return k.toLowerCase().includes('value')||k==='val';})||keys[1];
+    document.getElementById('obs-count').textContent=obs.length+' จุดข้อมูล | '+pKey+' / '+vKey;
+    document.getElementById('obs-table').textContent=obs.slice().reverse().map(function(o){
       return String(o[pKey]||'').padEnd(14)+' '+String(o[vKey]??'');
     }).join('\n');
-
-    drawChart(obs, pKey, vKey);
-    document.getElementById('v-obs').scrollIntoView({behavior:'smooth'});
+    drawChart(obs,pKey,vKey);
+    document.getElementById('obs-card').scrollIntoView({behavior:'smooth'});
   }catch(e){
     log('Error: '+e.message,'#f87171');
     document.getElementById('obs-table').textContent='Error: '+e.message;
   }
 }
 
-function drawChart(obs, pKey, vKey){
+function drawChart(obs,pKey,vKey){
   var canvas=document.getElementById('spark');
   var ctx=canvas.getContext('2d');
   var vals=obs.map(function(o){return parseFloat(o[vKey]);}).filter(function(v){return !isNaN(v);});
   if(vals.length<2){ctx.clearRect(0,0,canvas.width,canvas.height);return;}
   var W=canvas.width,H=canvas.height,p=6;
   var mn=Math.min.apply(null,vals),mx=Math.max.apply(null,vals),rng=mx-mn||.01;
-  var pts=vals.map(function(v,i){return [p+(i/(vals.length-1))*(W-p*2),H-p-((v-mn)/rng)*(H-p*2)];});
+  var pts=vals.map(function(v,i){return[p+(i/(vals.length-1))*(W-p*2),H-p-((v-mn)/rng)*(H-p*2)];});
   var up=vals[vals.length-1]>=vals[vals.length-2];
   var col=up?'#16a34a':'#dc2626';
   ctx.clearRect(0,0,W,H);
@@ -282,10 +369,11 @@ function drawChart(obs, pKey, vKey){
   pts.forEach(function(pt){ctx.lineTo(pt[0],pt[1]);});
   ctx.strokeStyle=col;ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.stroke();
   ctx.beginPath();ctx.arc(pts[pts.length-1][0],pts[pts.length-1][1],4,0,Math.PI*2);ctx.fillStyle=col;ctx.fill();
+  var first=obs[0],last=obs[obs.length-1];
   document.getElementById('spark-lbl').innerHTML=
-    '<span>'+obs[0][pKey]+'</span>'+
+    '<span>'+(first[pKey]||'')+'</span>'+
     '<span style="color:'+col+';font-weight:700">'+vals[vals.length-1]+'</span>'+
-    '<span>'+obs[obs.length-1][pKey]+'</span>';
+    '<span>'+(last[pKey]||'')+'</span>';
 }
 
 function dlCSV(){
@@ -295,7 +383,20 @@ function dlCSV(){
   var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows],{type:'text/csv'}));a.download=(curMeta.code||'data')+'.csv';a.click();
 }
 
-log('พร้อมใช้งาน — ใส่ token แล้วกด "โหลด Categories"','#60a5fa');
+function exportJSON(){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(foundSeries,null,2)],{type:'application/json'}));
+  a.download='bot_series_found.json';a.click();
+}
+
+function esc(s){return(s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
+
+log('พร้อมใช้งาน','#60a5fa');
+log('1. ใส่ INGEST_SECRET_TOKEN','#fbbf24');
+log('2. เลือก preset หรือกรอก keyword','#fbbf24');
+log('3. กด "เริ่ม Discovery" — รอ 1-3 นาที','#fbbf24');
+log('4. คลิก series ที่สนใจ → เห็นข้อมูลจริง','#fbbf24');
 </script>
+
 </body>
 </html>
