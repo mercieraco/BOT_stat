@@ -4,528 +4,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOT Harvest — Phase 6b</title>
+<title>BOT Harvest</title>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#0f172a}
-body{font-family:Arial,sans-serif;font-size:13px;color:#e2e8f0}
-button{cursor:pointer;font-family:inherit;font-size:13px}
-input,select{font-family:inherit;font-size:13px}
-::-webkit-scrollbar{width:5px}
-::-webkit-scrollbar-thumb{background:#334155;border-radius:10px}
-
-#hdr{
-background:#1e3a5f;color:#fff;
-padding:0 20px;height:52px;
-display:flex;align-items:center;justify-content:space-between;
-position:sticky;top:0;z-index:99;
-border-bottom:1px solid #1e40af;
-}
-#logo-wrap{display:flex;align-items:center;gap:10px}
-#logo-box{width:32px;height:32px;border-radius:8px;background:#1e40af;display:flex;align-items:center;justify-content:center;font-size:16px}
-#logo-title{font-weight:700;font-size:14px}
-#logo-sub{font-size:9px;opacity:.6;margin-top:1px}
-
-.container{max-width:1000px;margin:0 auto;padding:16px}
-.card{background:#1e293b;border-radius:10px;border:1px solid #334155;padding:16px;margin-bottom:14px}
-.card-title{font-weight:700;font-size:13px;color:#93c5fd;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-
-.btn{padding:7px 14px;border-radius:6px;border:none;font-weight:600;font-size:12px;transition:all .15s}
-.btn-blue{background:#1e40af;color:#fff}.btn-blue:hover{background:#1d4ed8}
-.btn-green{background:#065f46;color:#6ee7b7}.btn-green:hover{background:#047857}
-.btn-slate{background:#334155;color:#e2e8f0}.btn-slate:hover{background:#475569}
-.btn-red{background:#7f1d1d;color:#fca5a5}.btn-red:hover{background:#991b1b}
-
-.inp{padding:6px 10px;border:1px solid #475569;border-radius:6px;background:#0f172a;color:#e2e8f0;width:100%}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-.log-box{background:#0a0f1a;color:#64748b;font-family:monospace;font-size:11px;padding:10px;border-radius:6px;height:180px;overflow-y:auto;margin-top:10px}
-.log-ok{color:#4ade80}.log-err{color:#f87171}.log-warn{color:#fbbf24}.log-info{color:#60a5fa}
-
-.tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap}
-.tab{padding:7px 16px;border-radius:6px;border:1px solid #334155;background:#1e293b;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s}
-.tab.active{background:#1e40af;color:#fff;border-color:#1e40af}
-.panel{display:none}.panel.active{display:block}
-
-.kv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
-.kv-box{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 12px}
-.kv-label{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.kv-val{font-size:20px;font-weight:700;color:#60a5fa;margin-top:3px}
-.kv-val.green{color:#4ade80}
-.kv-sub{font-size:10px;color:#475569;margin-top:2px}
-.kv-na{font-size:14px;color:#334155}
-
-.api-row{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-bottom:1px solid #1e293b;font-size:12px}
-.api-row:last-child{border-bottom:none}
-.api-name{color:#94a3b8;font-weight:600}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700}
-.badge-ok{background:#052e16;color:#4ade80;border:1px solid #166534}
-.badge-err{background:#450a0a;color:#f87171;border:1px solid #991b1b}
-.badge-na{background:#1e293b;color:#64748b;border:1px solid #334155}
-
-code{background:#0f172a;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:11px;color:#93c5fd}
-pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:auto;color:#94a3b8;margin-top:8px;border:1px solid #1e293b}
-
-.section-label{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 6px}
+body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 16px; font-size: 14px; }
+h2 { color: #93c5fd; margin: 0 0 16px; }
+button { background: #1e40af; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; cursor: pointer; margin: 4px; }
+button:active { background: #1d4ed8; }
+button.gray { background: #334155; }
+pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px; white-space: pre-wrap; word-break: break-all; font-size: 12px; color: #94a3b8; min-height: 60px; margin-top: 10px; }
+.ok { color: #4ade80; }
+.err { color: #f87171; }
+.section { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+#status { font-size: 13px; color: #fbbf24; margin: 8px 0; min-height: 20px; }
 </style>
-
 </head>
 <body>
 
-<div id="hdr">
-  <div id="logo-wrap">
-    <div id="logo-box">🌾</div>
-    <div>
-      <div id="logo-title">BOT Harvest</div>
-      <div id="logo-sub">Phase 6b — Exchange Rates &amp; Interest Rates</div>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:8px">
-    <span id="auth-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#64748b">Ready</span>
-  </div>
+<h2>🌾 BOT Harvest</h2>
+
+<div class="section">
+  <div><strong>Worker:</strong> <span id="wurl" style="font-size:12px;color:#93c5fd"></span></div>
+  <div id="status">กด Ping เพื่อทดสอบ connection</div>
+  <button onclick="ping()">Ping Worker</button>
 </div>
 
-<div class="container">
-
-<!-- Main -->
-
-<div id="main-content">
-
-  <!-- Worker status -->
-
-  <div class="card" style="padding:10px 16px;margin-bottom:12px">
-    <div class="row">
-      <span style="font-size:11px;color:#475569">Worker:</span>
-      <span id="worker-url-display" style="font-family:monospace;font-size:11px;color:#93c5fd"></span>
-      <span id="worker-badge" class="badge badge-na">ยังไม่ได้ ping</span>
-      <button class="btn btn-slate" style="font-size:10px;padding:3px 10px;margin-left:auto" onclick="pingWorker()">Ping</button>
-    </div>
+<div class="section">
+  <strong>Harvest ข้อมูล</strong>
+  <div style="margin: 10px 0">
+    <button onclick="runHarvest()">▶ Run Harvest</button>
+    <button class="gray" onclick="getLatest()">↻ Load Latest</button>
   </div>
-
-  <!-- Tabs -->
-
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('run')">🌾 Harvest & Run</div>
-    <div class="tab" onclick="switchTab('fx')">💱 Test FX APIs</div>
-    <div class="tab" onclick="switchTab('rates')">🏦 Test Rate APIs</div>
-    <div class="tab" onclick="switchTab('raw')">🔍 Raw JSON</div>
-  </div>
-
-  <!-- ═══ Tab: Harvest & Run ═══ -->
-
-  <div id="panel-run" class="panel active">
-    <div class="card">
-      <div class="card-title">📡 Latest Snapshot (KV)</div>
-      <div id="snapshot-grid" class="kv-grid">
-        <div style="color:#475569;font-size:12px;grid-column:1/-1">กด Load Latest หรือ Run Harvest เพื่อดูข้อมูล</div>
-      </div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn btn-slate" onclick="loadLatest()">↻ Load Latest</button>
-        <button class="btn btn-green" onclick="runHarvest()">▶ Run Harvest Now</button>
-        <span id="run-status" style="font-size:11px;color:#64748b"></span>
-      </div>
-      <div id="run-log" class="log-box" style="display:none"></div>
-    </div>
-
-```
-<div class="card">
-  <div class="card-title">📋 API Map</div>
-  <div style="font-size:12px;color:#64748b;margin-bottom:10px">
-    APIs ที่ harvest/run ดึงข้อมูลจาก — ใช้ <code>BOT_API_KEY</code> เดียวกันทั้งหมด
-  </div>
-  <div style="background:#0f172a;border-radius:8px;overflow:hidden;border:1px solid #1e293b">
-    <div class="api-row">
-      <div>
-        <div class="api-name">Policy Rate</div>
-        <code>PolicyRate/v3/policy_rate/</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">ไม่ต้องใส่ date<br>result.data = "2.50"</div>
-    </div>
-    <div class="api-row">
-      <div>
-        <div class="api-name">Avg Loan Rate (MLR/MRR/MOR)</div>
-        <code>LoanRate/v2/avg_loan_rate/</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>filter: Commercial Banks</div>
-    </div>
-    <div class="api-row">
-      <div>
-        <div class="api-name">BIBOR (O/N, 1M, 3M)</div>
-        <code>BIBOR/v2/bibor_avg_rate/</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>data_detail[0]</div>
-    </div>
-    <div class="api-row">
-      <div>
-        <div class="api-name">Avg Exchange Rate (USD)</div>
-        <code>Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?currency=USD</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">Daily<br>buying + selling → mid</div>
-    </div>
-    <div class="api-row">
-      <div>
-        <div class="api-name">Avg Exchange Rate (EUR)</div>
-        <code>Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?currency=EUR</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">Daily</div>
-    </div>
-    <div class="api-row">
-      <div>
-        <div class="api-name">Weighted Interbank USD</div>
-        <code>Stat-ReferenceRate/v2/DAILY_REF_RATE/</code>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#475569">Official reference<br>USD only</div>
-    </div>
-  </div>
+  <pre id="out1">กด Run Harvest เพื่อดึงข้อมูลจาก BOT API</pre>
 </div>
-```
 
+<div class="section">
+  <strong>ทดสอบ APIs แยก</strong>
+  <div style="margin: 10px 0">
+    <button onclick="testRates()">🏦 Test Rates</button>
+    <button onclick="testFX('USD')">💵 Test USD</button>
+    <button onclick="testFX('EUR')">💶 Test EUR</button>
   </div>
-
-  <!-- ═══ Tab: Test FX ═══ -->
-
-  <div id="panel-fx" class="panel">
-    <div class="card">
-      <div class="card-title">💱 ทดสอบ Exchange Rate APIs</div>
-      <div style="font-size:12px;color:#64748b;margin-bottom:12px">
-        ยิงตรงไปที่ Worker → Worker ยิงต่อไป BOT API แล้วส่ง raw response กลับมา
-      </div>
-      <div class="row" style="margin-bottom:10px">
-        <label style="font-size:12px;color:#94a3b8">Currency:</label>
-        <select id="fx-currency" class="inp" style="width:120px">
-          <option value="USD">USD</option>
-          <option value="EUR">EUR</option>
-          <option value="JPY">JPY</option>
-          <option value="GBP">GBP</option>
-          <option value="CNY">CNY</option>
-          <option value="SGD">SGD</option>
-        </select>
-        <button class="btn btn-blue" onclick="testFX()">ทดสอบ</button>
-      </div>
-      <div id="fx-log" class="log-box" style="display:none"></div>
-    </div>
-    <div id="fx-result" style="display:none">
-      <div class="card">
-        <div class="card-title">📊 ผลลัพธ์ Avg Exchange Rate</div>
-        <div id="fx-avg-result"></div>
-      </div>
-      <div id="fx-interbank-card" class="card" style="display:none">
-        <div class="card-title">📊 ผลลัพธ์ Weighted Interbank (USD)</div>
-        <div id="fx-interbank-result"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Tab: Test Rates ═══ -->
-
-  <div id="panel-rates" class="panel">
-    <div class="card">
-      <div class="card-title">🏦 ทดสอบ Interest Rate APIs</div>
-      <div style="font-size:12px;color:#64748b;margin-bottom:12px">
-        ทดสอบ Policy Rate, Loan Rate (MLR/MRR), BIBOR พร้อมกัน
-      </div>
-      <button class="btn btn-blue" onclick="testRates()">▶ ทดสอบทั้งหมด</button>
-      <div id="rates-log" class="log-box" style="display:none"></div>
-    </div>
-    <div id="rates-result" style="display:none">
-      <div class="card">
-        <div class="card-title">📊 Policy Rate</div>
-        <div id="rates-policy"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📊 Loan Rates (MLR / MRR / MOR)</div>
-        <div id="rates-loan"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">📊 BIBOR</div>
-        <div id="rates-bibor"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ Tab: Raw JSON ═══ -->
-
-  <div id="panel-raw" class="panel">
-    <div class="card">
-      <div class="card-title">🔍 Raw KV Snapshot</div>
-      <div class="row" style="margin-bottom:10px">
-        <button class="btn btn-slate" onclick="loadRaw()">Load Raw JSON</button>
-      </div>
-      <pre id="raw-output" style="min-height:100px;color:#475569">กด Load Raw JSON เพื่อดู</pre>
-    </div>
-  </div>
-
-</div><!-- /main-content -->
-</div><!-- /container -->
+  <pre id="out2">กดปุ่มด้านบนเพื่อทดสอบ</pre>
+</div>
 
 <script>
-var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
-var TOKEN  = '09b9d0a2-4091-4173-873c-3c46860a5fe1';
+var W = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var T = '09b9d0a2-4091-4173-873c-3c46860a5fe1';
 
-function wurl(p){ return WORKER + p; }
-function tok(){ return TOKEN; }
-function headers(){ return { 'Authorization': 'Bearer ' + tok(), 'Content-Type': 'application/json' }; }
+document.getElementById('wurl').textContent = W;
 
-function addLog(el, msg, cls){
-  var line = document.createElement('div');
-  line.className = cls || '';
-  line.textContent = '[' + new Date().toLocaleTimeString('th-TH') + '] ' + msg;
-  el.appendChild(line);
-  el.scrollTop = el.scrollHeight;
+function h() {
+  return { 'Authorization': 'Bearer ' + T, 'Content-Type': 'application/json' };
 }
-function log(id, msg, cls){
+
+function show(id, text, isErr) {
   var el = document.getElementById(id);
-  if(!el) return;
-  el.style.display = 'block';
-  addLog(el, msg, cls);
+  el.textContent = text;
+  el.className = isErr ? 'err' : '';
 }
 
-function switchTab(name){
-  document.querySelectorAll('.tab').forEach(function(t,i){
-    var tabs = ['run','fx','rates','raw'];
-    t.classList.toggle('active', tabs[i] === name);
-  });
-  document.querySelectorAll('.panel').forEach(function(p){
-    p.classList.remove('active');
-  });
-  document.getElementById('panel-'+name).classList.add('active');
+function status(msg) {
+  document.getElementById('status').textContent = msg;
 }
 
-async function pingWorker(){
-  var el = document.getElementById('worker-badge');
-  el.textContent = 'pinging...'; el.className = 'badge badge-na';
+async function ping() {
+  status('กำลัง ping...');
   try {
     var t = Date.now();
-    var r = await fetch(wurl('/bot/status'),{headers:headers(),signal:AbortSignal.timeout(8000)});
-    var ms = Date.now()-t;
-    if(r.ok){ el.textContent='✅ '+ms+'ms'; el.className='badge badge-ok'; }
-    else { el.textContent='⚠️ HTTP '+r.status; el.className='badge badge-err'; }
-  } catch(e){ el.textContent='❌ '+e.message; el.className='badge badge-err'; }
-}
-
-// ── Snapshot display ──────────────────────────────────────────────
-function kvBox(label, val, sub, green){
-  if(val==null) return '<div class="kv-box"><div class="kv-label">'+label+'</div><div class="kv-na">—</div></div>';
-  return '<div class="kv-box"><div class="kv-label">'+label+'</div>'
-    +'<div class="kv-val'+(green?' green':'')+'">'+val+'</div>'
-    +(sub?'<div class="kv-sub">'+sub+'</div>':'')+
-    '</div>';
-}
-function renderSnapshot(d){
-  var g = document.getElementById('snapshot-grid');
-  if(!d){ g.innerHTML='<div style="color:#475569;font-size:12px;grid-column:1/-1">ยังไม่มีข้อมูล</div>'; return; }
-  var html = '';
-  // Interest Rates
-  html += kvBox('Policy Rate', d.policyRate!=null?d.policyRate+'%':null, d.policyRateDate);
-  html += kvBox('MLR', d.mlr!=null?d.mlr+'%':null, d.loanRateDate);
-  html += kvBox('MRR', d.mrr!=null?d.mrr+'%':null, '');
-  html += kvBox('MOR', d.mor!=null?d.mor+'%':null, '');
-  html += kvBox('BIBOR O/N', d.biborON!=null?d.biborON+'%':null, d.biborDate);
-  html += kvBox('BIBOR 1M', d.bibor1m!=null?d.bibor1m+'%':null, '');
-  html += kvBox('BIBOR 3M', d.bibor3m!=null?d.bibor3m+'%':null, '');
-  // Exchange Rates
-  html += kvBox('USD/THB Mid', d.usdThbMid!=null?d.usdThbMid:null, d.usdThbDate, true);
-  html += kvBox('USD Buy', d.usdThbBuying!=null?d.usdThbBuying:null, '');
-  html += kvBox('USD Sell', d.usdThbSelling!=null?d.usdThbSelling:null, '');
-  html += kvBox('USD Interbank', d.usdThbInterbank!=null?d.usdThbInterbank:null, d.usdThbInterbankDate);
-  html += kvBox('EUR/THB Mid', d.eurThbMid!=null?d.eurThbMid:null, d.eurThbDate, true);
-  html += kvBox('EUR Buy', d.eurThbBuying!=null?d.eurThbBuying:null, '');
-  html += kvBox('EUR Sell', d.eurThbSelling!=null?d.eurThbSelling:null, '');
-  if(d.fetchedAt){
-    var dt = new Date(d.fetchedAt).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
-    html += '<div style="grid-column:1/-1;font-size:10px;color:#475569;margin-top:4px">ดึงข้อมูลเมื่อ: '+dt+'</div>';
-  }
-  g.innerHTML = html;
-}
-
-async function loadLatest(){
-  document.getElementById('run-status').textContent = 'กำลังโหลด...';
-  try {
-    var r = await fetch(wurl('/bot/harvest/latest'),{headers:headers(),signal:AbortSignal.timeout(10000)});
-    if(r.status===404){ renderSnapshot(null); document.getElementById('run-status').textContent='ยังไม่มีข้อมูล'; return; }
+    var r = await fetch(W + '/bot/status', { headers: h(), signal: AbortSignal.timeout(8000) });
     var d = await r.json();
-    renderSnapshot(d);
-    document.getElementById('run-status').textContent = '';
-  } catch(e){ document.getElementById('run-status').textContent = 'Error: '+e.message; }
+    status('HTTP ' + r.status + ' — ' + (Date.now()-t) + 'ms');
+    show('out1', JSON.stringify(d, null, 2));
+  } catch(e) {
+    status('❌ ' + e.message);
+    show('out1', e.message, true);
+  }
 }
 
-async function runHarvest(){
-  var runLog = document.getElementById('run-log');
-  var status = document.getElementById('run-status');
-  runLog.innerHTML = '';
-  runLog.style.display = 'block';
-  status.textContent = '⏳ กำลัง harvest...';
-  status.style.color = '#fbbf24';
-  addLog(runLog, 'POST ' + wurl('/bot/harvest/run'), 'log-info');
-  addLog(runLog, 'Token: ' + TOKEN.slice(0,8) + '...', 'log-info');
+async function runHarvest() {
+  status('⏳ กำลัง harvest...');
+  show('out1', 'กำลังส่ง POST /bot/harvest/run ...');
   try {
-    var r = await fetch(wurl('/bot/harvest/run'), {
+    var r = await fetch(W + '/bot/harvest/run', {
       method: 'POST',
-      headers: headers(),
+      headers: h(),
       signal: AbortSignal.timeout(60000)
     });
-    addLog(runLog, 'HTTP ' + r.status + ' ' + (r.ok ? '✅' : '❌'), r.ok ? 'log-ok' : 'log-err');
-    var d = await r.json();
-    if(d.ok){
-      addLog(runLog, '✅ สำเร็จ ' + d.success_count + '/' + d.total_apis + ' APIs', 'log-ok');
-      (d.log || []).forEach(function(item){
-        if(item.ok){
-          var detail = '';
-          if(item.rate != null) detail = ' = ' + item.rate + '%';
-          else if(item.mlr) detail = ' MLR=' + item.mlr + '% MRR=' + item.mrr + '%';
-          else if(item.mid) detail = ' mid=' + item.mid;
-          else if(item['O/N']) detail = ' O/N=' + item['O/N'] + '%';
-          addLog(runLog, '  ✅ ' + item.api + detail, 'log-ok');
-        } else {
-          addLog(runLog, '  ⚠️ ' + item.api + ': ' + (item.error || item.note || 'HTTP ' + item.http), 'log-warn');
-        }
-      });
-      renderSnapshot(d.snapshot);
-      status.textContent = '✅ Done';
-      status.style.color = '#4ade80';
-    } else {
-      addLog(runLog, '❌ ' + (d.error || JSON.stringify(d)), 'log-err');
-      status.textContent = '❌ Error';
-      status.style.color = '#f87171';
+    var text = await r.text();
+    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
+    try {
+      show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
+    } catch(e) {
+      show('out1', text, !r.ok);
     }
-  } catch(e){
-    addLog(runLog, '❌ ' + e.message, 'log-err');
-    status.textContent = '❌ ' + e.message;
-    status.style.color = '#f87171';
+  } catch(e) {
+    status('❌ ' + e.message);
+    show('out1', 'Error: ' + e.message, true);
   }
 }
 
-// ── Test FX ──────────────────────────────────────────────────────
-async function testFX(){
-  var currency = document.getElementById('fx-currency').value;
-  var fxLog = document.getElementById('fx-log');
-  fxLog.innerHTML = '';
-  document.getElementById('fx-result').style.display = 'none';
-  log('fx-log','ทดสอบ Exchange Rate: '+currency+'...','log-info');
+async function getLatest() {
+  status('⏳ กำลังโหลด...');
   try {
-    var r = await fetch(wurl('/bot/harvest/test/fx?currency='+currency),{headers:headers(),signal:AbortSignal.timeout(20000)});
-    var d = await r.json();
-    log('fx-log','HTTP '+r.status,'log-'+(r.ok?'ok':'err'));
-    // Avg Exchange Rate
-    var avg = d.results?.avg_exchange_rate;
-    if(avg){
-      log('fx-log','Avg Exchange Rate: HTTP '+avg.http_status+(avg.ok?' ✅':' ❌'),'log-'+(avg.ok?'ok':'err'));
-      if(avg.latest) log('fx-log','  latest: '+JSON.stringify(avg.latest),'log-ok');
+    var r = await fetch(W + '/bot/harvest/latest', { headers: h(), signal: AbortSignal.timeout(10000) });
+    var text = await r.text();
+    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
+    try {
+      show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
+    } catch(e) {
+      show('out1', text, !r.ok);
     }
-    // Interbank (USD only)
-    var ib = d.results?.weighted_interbank;
-    if(ib){
-      log('fx-log','Weighted Interbank: HTTP '+ib.http_status+(ib.ok?' ✅':' ❌'),'log-'+(ib.ok?'ok':'err'));
-      if(ib.latest) log('fx-log','  latest: '+JSON.stringify(ib.latest),'log-ok');
+  } catch(e) {
+    status('❌ ' + e.message);
+    show('out1', 'Error: ' + e.message, true);
+  }
+}
+
+async function testRates() {
+  status('⏳ กำลังทดสอบ Rates...');
+  show('out2', 'กำลังส่ง GET /bot/harvest/test/rates ...');
+  try {
+    var r = await fetch(W + '/bot/harvest/test/rates', { headers: h(), signal: AbortSignal.timeout(30000) });
+    var text = await r.text();
+    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
+    try {
+      show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
+    } catch(e) {
+      show('out2', text, !r.ok);
     }
-    // Render results
-    document.getElementById('fx-result').style.display = 'block';
-    if(avg?.latest){
-      var l = avg.latest;
-      var buy = parseFloat(l.buying_transfer||l.buying_sight);
-      var sell = parseFloat(l.selling_transfer);
-      var mid = (!isNaN(buy)&&!isNaN(sell)) ? ((buy+sell)/2).toFixed(4) : null;
-      document.getElementById('fx-avg-result').innerHTML =
-        '<div class="kv-grid">'
-        + kvBox('Currency', currency)
-        + kvBox('Period', l.period||l.date)
-        + kvBox('Buying Transfer', l.buying_transfer||'—')
-        + kvBox('Selling Transfer', l.selling_transfer||'—')
-        + kvBox('Mid (calc)', mid, 'avg of buy+sell', true)
-        + '</div>'
-        + '<pre>'+JSON.stringify(l,null,2)+'</pre>';
-
-```
-} else {
-  document.getElementById('fx-avg-result').innerHTML = '<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล — ลอง currency อื่น หรือตรวจ BOT_API_KEY</div>';
-}
-if(ib?.latest){
-  document.getElementById('fx-interbank-card').style.display = 'block';
-  document.getElementById('fx-interbank-result').innerHTML =
-    '<div class="kv-grid">'
-    + kvBox('Period', ib.latest.period)
-    + kvBox('Weighted Rate', ib.latest.rate, 'USD/THB', true)
-    + '</div>';
-}
-```
-
-} catch(e){ log(‘fx-log’,’❌ ’+e.message,‘log-err’); }
+  } catch(e) {
+    status('❌ ' + e.message);
+    show('out2', 'Error: ' + e.message, true);
+  }
 }
 
-// ── Test Rates ────────────────────────────────────────────────────
-async function testRates(){
-var ratesLog = document.getElementById(‘rates-log’);
-ratesLog.innerHTML = ‘’;
-document.getElementById(‘rates-result’).style.display = ‘none’;
-log(‘rates-log’,‘ทดสอบ Interest Rate APIs…’,‘log-info’);
-try {
-var r = await fetch(wurl(’/bot/harvest/test/rates’),{headers:headers(),signal:AbortSignal.timeout(30000)});
-var d = await r.json();
-log(‘rates-log’,‘HTTP ‘+r.status,‘log-’+(r.ok?‘ok’:‘err’));
-// Policy Rate
-var pr = d.results?.policy_rate;
-if(pr) log(‘rates-log’,‘Policy Rate: ‘+(pr.ok?pr.rate+’ (’+pr.announcement_date+’) ✅’:‘❌ ‘+pr.error),‘log-’+(pr.ok?‘ok’:‘err’));
-// Loan Rate
-var lr = d.results?.avg_loan_rate;
-if(lr) log(‘rates-log’,‘Avg Loan Rate: count=’+lr.count+(lr.ok?’ ✅’:’ ❌’),‘log-’+(lr.ok?‘ok’:‘err’));
-// BIBOR
-var br = d.results?.bibor;
-if(br) log(‘rates-log’,‘BIBOR: count=’+br.count+(br.ok?’ ✅’:’ ❌’),‘log-’+(br.ok?‘ok’:‘err’));
-document.getElementById(‘rates-result’).style.display = ‘block’;
-// Render
-if(pr){
-document.getElementById(‘rates-policy’).innerHTML =
-‘<div class="kv-grid">’
-+ kvBox(‘Policy Rate’, pr.rate!=null?pr.rate+’%’:null, pr.announcement_date, true)
-+ ‘</div>’
-+ (pr.news_en?’<div style="font-size:11px;color:#64748b;margin-top:8px">’+pr.news_en+’…</div>’:’’);
+async function testFX(currency) {
+  status('⏳ กำลังทดสอบ FX ' + currency + '...');
+  show('out2', 'กำลังส่ง GET /bot/harvest/test/fx?currency=' + currency + ' ...');
+  try {
+    var r = await fetch(W + '/bot/harvest/test/fx?currency=' + currency, { headers: h(), signal: AbortSignal.timeout(20000) });
+    var text = await r.text();
+    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
+    try {
+      show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
+    } catch(e) {
+      show('out2', text, !r.ok);
+    }
+  } catch(e) {
+    status('❌ ' + e.message);
+    show('out2', 'Error: ' + e.message, true);
+  }
 }
-if(lr?.latest){
-var ll = lr.latest;
-document.getElementById(‘rates-loan’).innerHTML =
-‘<div class="kv-grid">’
-+ kvBox(‘MLR’, ll.mlr?ll.mlr+’%’:null, ll.period)
-+ kvBox(‘MRR’, ll.mrr?ll.mrr+’%’:null, ‘’)
-+ kvBox(‘MOR’, ll.mor?ll.mor+’%’:null, ‘’)
-+ ‘</div>’
-+ ‘<div class="section-label">Bank rows found</div>’
-+ ‘<div style="font-size:11px;color:#64748b">’+lr.sample_names?.join(’<br>’)+’ …</div>’
-+ ‘<pre>’+JSON.stringify(ll,null,2)+’</pre>’;
-} else {
-document.getElementById(‘rates-loan’).innerHTML = ‘<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล</div>’;
-}
-if(br?.latest){
-var bl = br.latest;
-document.getElementById(‘rates-bibor’).innerHTML =
-‘<div class="kv-grid">’
-+ kvBox(‘O/N’, bl.bibor_o_n?bl.bibor_o_n+’%’:null, bl.period, true)
-+ kvBox(‘1M’, bl.bibor_1_month?bl.bibor_1_month+’%’:null, ‘’)
-+ kvBox(‘3M’, bl.bibor_3_month?bl.bibor_3_month+’%’:null, ‘’)
-+ kvBox(‘6M’, bl.bibor_6_month?bl.bibor_6_month+’%’:null, ‘’)
-+ kvBox(‘1Y’, bl.bibor_1_year?bl.bibor_1_year+’%’:null, ‘’)
-+ ‘</div>’;
-} else {
-document.getElementById(‘rates-bibor’).innerHTML = ‘<div style="color:#f87171;font-size:12px">ไม่มีข้อมูล</div>’;
-}
-} catch(e){ log(‘rates-log’,’❌ ’+e.message,‘log-err’); }
-}
-
-// ── Raw JSON ──────────────────────────────────────────────────────
-async function loadRaw(){
-document.getElementById(‘raw-output’).textContent = ‘กำลังโหลด…’;
-try {
-var r = await fetch(wurl(’/bot/harvest/latest’),{headers:headers(),signal:AbortSignal.timeout(10000)});
-var d = await r.json();
-document.getElementById(‘raw-output’).textContent = JSON.stringify(d, null, 2);
-} catch(e){ document.getElementById(‘raw-output’).textContent = ’Error: ’+e.message; }
-}
-
-// ── Init ──────────────────────────────────────────────────────────
-document.getElementById(‘main-content’).style.display = ‘block’;
-document.getElementById(‘worker-url-display’).textContent = WORKER;
-document.getElementById(‘auth-badge’).textContent = ‘Ready’;
-document.getElementById(‘auth-badge’).style.cssText = ‘font-size:10px;padding:2px 8px;border-radius:10px;background:#052e16;border:1px solid #166534;color:#4ade80’;
-pingWorker();
 </script>
 
 </body>
