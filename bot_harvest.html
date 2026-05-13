@@ -159,3 +159,61 @@ async function testFX(currency) {
 
 </body>
 </html>
+
+<script>
+// เพิ่มปุ่มทดสอบ APIs ที่ยังไม่รู้ fields
+document.addEventListener('DOMContentLoaded', function() {
+  var sec = document.createElement('div');
+  sec.className = 'section';
+  sec.innerHTML = `
+    <strong>🔬 Scan Fields — APIs ที่ยังไม่รู้ structure</strong>
+    <div style="margin: 10px 0; display:flex; flex-wrap:wrap; gap:6px">
+      <button onclick="scanAPI('bibor_rate','GET','https://gateway.api.bot.or.th/BIBOR/v2/bibor_rate/?start_period=2026-04-01&end_period=2026-05-13&bank=ALL','rate')">BIBOR per Bank</button>
+      <button onclick="scanAPI('ext_ffr','GET','https://gateway.api.bot.or.th/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=FFR','rate')">External Rate FFR</button>
+      <button onclick="scanAPI('ext_sofr','GET','https://gateway.api.bot.or.th/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=SOFR','rate')">External Rate SOFR</button>
+      <button onclick="scanAPI('thb_impl','GET','https://gateway.api.bot.or.th/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">THB Implied</button>
+      <button onclick="scanAPI('swap_on','GET','https://gateway.api.bot.or.th/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Swap Point 1W</button>
+      <button onclick="scanAPI('spot','GET','https://gateway.api.bot.or.th/Stat-SpotRate/v2/SPOTRATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">Spot Rate</button>
+      <button onclick="scanAPI('interbank_on','GET','https://gateway.api.bot.or.th/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=O%2FN','rate')">Interbank O/N</button>
+      <button onclick="scanAPI('interbank_1w','GET','https://gateway.api.bot.or.th/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Interbank 1W</button>
+      <button onclick="scanAPI('deposit_raw','GET','https://gateway.api.bot.or.th/DepositRate/v2/deposit_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">Deposit Rate (raw)</button>
+    </div>
+    <pre id="scan-out" style="min-height:80px">กดปุ่มเพื่อดู fields จาก API จริง</pre>
+
+`;
+document.querySelector(’.container’).appendChild(sec);
+});
+
+async function scanAPI(id, method, url, keyType) {
+var out = document.getElementById(‘scan-out’);
+out.textContent = ’กำลังดึง: ’ + url + ‘\n…’;
+// ส่งผ่าน worker proxy เพื่อหลีกเลี่ยง CORS
+var probeUrl = W + ‘/bot/probe?path=’ + encodeURIComponent(url.replace(‘https://gateway.api.bot.or.th/’, ‘’));
+try {
+var r = await fetch(probeUrl, { headers: h(), signal: AbortSignal.timeout(20000) });
+var text = await r.text();
+try {
+var d = JSON.parse(text);
+// หา data_detail
+var detail = d?.response?.result?.data?.data_detail;
+if (!detail) detail = d?.result?.data?.data_detail;
+if (detail) {
+var arr = Array.isArray(detail) ? detail : Object.values(detail);
+if (arr.length > 0) {
+out.textContent = ‘✅ Fields ที่พบ:\n’ + JSON.stringify(Object.keys(arr[0]), null, 2)
++ ‘\n\nSample row:\n’ + JSON.stringify(arr[0], null, 2)
++ ’\n\nTotal rows: ’ + arr.length;
+} else {
+out.textContent = ‘⚠️ data_detail ว่างเปล่า\n\n’ + JSON.stringify(d, null, 2).slice(0, 500);
+}
+} else {
+out.textContent = ‘⚠️ ไม่พบ data_detail\n\n’ + JSON.stringify(d, null, 2).slice(0, 800);
+}
+} catch(e) {
+out.textContent = ’Parse error: ’ + e.message + ‘\n\n’ + text.slice(0, 500);
+}
+} catch(e) {
+out.textContent = ’❌ ’ + e.message;
+}
+}
+</script>
