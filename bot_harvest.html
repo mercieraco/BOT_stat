@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="th">
 <head>
 <meta charset="UTF-8">
@@ -156,7 +155,6 @@ async function testFX(currency) {
   }
 }
 </script>
-
 </body>
 </html>
 
@@ -179,41 +177,40 @@ document.addEventListener('DOMContentLoaded', function() {
       <button onclick="scanAPI('deposit_raw','GET','https://gateway.api.bot.or.th/DepositRate/v2/deposit_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">Deposit Rate (raw)</button>
     </div>
     <pre id="scan-out" style="min-height:80px">กดปุ่มเพื่อดู fields จาก API จริง</pre>
-
-`;
-document.querySelector(’.container’).appendChild(sec);
+  `;
+  document.querySelector('.container').appendChild(sec);
 });
 
 async function scanAPI(id, method, url, keyType) {
-var out = document.getElementById(‘scan-out’);
-out.textContent = ’กำลังดึง: ’ + url + ‘\n…’;
-// ส่งผ่าน worker proxy เพื่อหลีกเลี่ยง CORS
-var probeUrl = W + ‘/bot/probe?path=’ + encodeURIComponent(url.replace(‘https://gateway.api.bot.or.th/’, ‘’));
-try {
-var r = await fetch(probeUrl, { headers: h(), signal: AbortSignal.timeout(20000) });
-var text = await r.text();
-try {
-var d = JSON.parse(text);
-// หา data_detail
-var detail = d?.response?.result?.data?.data_detail;
-if (!detail) detail = d?.result?.data?.data_detail;
-if (detail) {
-var arr = Array.isArray(detail) ? detail : Object.values(detail);
-if (arr.length > 0) {
-out.textContent = ‘✅ Fields ที่พบ:\n’ + JSON.stringify(Object.keys(arr[0]), null, 2)
-+ ‘\n\nSample row:\n’ + JSON.stringify(arr[0], null, 2)
-+ ’\n\nTotal rows: ’ + arr.length;
-} else {
-out.textContent = ‘⚠️ data_detail ว่างเปล่า\n\n’ + JSON.stringify(d, null, 2).slice(0, 500);
-}
-} else {
-out.textContent = ‘⚠️ ไม่พบ data_detail\n\n’ + JSON.stringify(d, null, 2).slice(0, 800);
-}
-} catch(e) {
-out.textContent = ’Parse error: ’ + e.message + ‘\n\n’ + text.slice(0, 500);
-}
-} catch(e) {
-out.textContent = ’❌ ’ + e.message;
-}
+  var out = document.getElementById('scan-out');
+  out.textContent = 'กำลังดึง: ' + url + '\n...';
+  // ส่งผ่าน worker proxy เพื่อหลีกเลี่ยง CORS
+  var probeUrl = W + '/bot/probe?path=' + encodeURIComponent(url.replace('https://gateway.api.bot.or.th/', ''));
+  try {
+    var r = await fetch(probeUrl, { headers: h(), signal: AbortSignal.timeout(20000) });
+    var text = await r.text();
+    try {
+      var d = JSON.parse(text);
+      // หา data_detail
+      var detail = d?.response?.result?.data?.data_detail;
+      if (!detail) detail = d?.result?.data?.data_detail;
+      if (detail) {
+        var arr = Array.isArray(detail) ? detail : Object.values(detail);
+        if (arr.length > 0) {
+          out.textContent = '✅ Fields ที่พบ:\n' + JSON.stringify(Object.keys(arr[0]), null, 2)
+            + '\n\nSample row:\n' + JSON.stringify(arr[0], null, 2)
+            + '\n\nTotal rows: ' + arr.length;
+        } else {
+          out.textContent = '⚠️ data_detail ว่างเปล่า\n\n' + JSON.stringify(d, null, 2).slice(0, 500);
+        }
+      } else {
+        out.textContent = '⚠️ ไม่พบ data_detail\n\n' + JSON.stringify(d, null, 2).slice(0, 800);
+      }
+    } catch(e) {
+      out.textContent = 'Parse error: ' + e.message + '\n\n' + text.slice(0, 500);
+    }
+  } catch(e) {
+    out.textContent = '❌ ' + e.message;
+  }
 }
 </script>
