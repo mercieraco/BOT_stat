@@ -266,15 +266,18 @@ function wurl(p){ return WORKER + p; }
 function tok(){ return TOKEN; }
 function headers(){ return { 'Authorization': 'Bearer ' + tok(), 'Content-Type': 'application/json' }; }
 
-function log(id, msg, cls){
-  var el = document.getElementById(id);
-  if(!el) return;
-  el.style.display = 'block';
+function addLog(el, msg, cls){
   var line = document.createElement('div');
   line.className = cls || '';
   line.textContent = '[' + new Date().toLocaleTimeString('th-TH') + '] ' + msg;
   el.appendChild(line);
   el.scrollTop = el.scrollHeight;
+}
+function log(id, msg, cls){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = 'block';
+  addLog(el, msg, cls);
 }
 
 function switchTab(name){
@@ -348,33 +351,48 @@ async function loadLatest(){
 
 async function runHarvest(){
   var runLog = document.getElementById('run-log');
+  var status = document.getElementById('run-status');
   runLog.innerHTML = '';
-  document.getElementById('run-status').textContent = 'กำลัง harvest...';
-  log('run-log','เริ่ม harvest 6 APIs...','log-info');
+  runLog.style.display = 'block';
+  status.textContent = '⏳ กำลัง harvest...';
+  status.style.color = '#fbbf24';
+  addLog(runLog, 'POST ' + wurl('/bot/harvest/run'), 'log-info');
+  addLog(runLog, 'Token: ' + TOKEN.slice(0,8) + '...', 'log-info');
   try {
-    var r = await fetch(wurl('/bot/harvest/run'),{method:'POST',headers:headers(),signal:AbortSignal.timeout(60000)});
+    var r = await fetch(wurl('/bot/harvest/run'), {
+      method: 'POST',
+      headers: headers(),
+      signal: AbortSignal.timeout(60000)
+    });
+    addLog(runLog, 'HTTP ' + r.status + ' ' + (r.ok ? '✅' : '❌'), r.ok ? 'log-ok' : 'log-err');
     var d = await r.json();
     if(d.ok){
-      log('run-log','✅ สำเร็จ '+d.success_count+'/'+d.total_apis+' APIs','log-ok');
-      d.log.forEach(function(item){
+      addLog(runLog, '✅ สำเร็จ ' + d.success_count + '/' + d.total_apis + ' APIs', 'log-ok');
+      (d.log || []).forEach(function(item){
         if(item.ok){
           var detail = '';
-          if(item.rate != null) detail = ' = '+item.rate+'%';
-          else if(item.value != null) detail = ' = '+item.value;
-          else if(item.mlr) detail = ' MLR='+item.mlr+'% MRR='+item.mrr+'% ('+item.period+')';
-          else if(item.mid) detail = ' mid='+item.mid+' ('+item.period+')';
-          else if(item['O/N']) detail = ' O/N='+item['O/N']+'% 1M='+item['1M']+'% ('+item.period+')';
-          log('run-log','  ✅ '+item.api+detail,'log-ok');
+          if(item.rate != null) detail = ' = ' + item.rate + '%';
+          else if(item.mlr) detail = ' MLR=' + item.mlr + '% MRR=' + item.mrr + '%';
+          else if(item.mid) detail = ' mid=' + item.mid;
+          else if(item['O/N']) detail = ' O/N=' + item['O/N'] + '%';
+          addLog(runLog, '  ✅ ' + item.api + detail, 'log-ok');
         } else {
-          log('run-log','  ⚠️ '+item.api+': '+(item.error||item.note||'HTTP '+item.http),'log-warn');
+          addLog(runLog, '  ⚠️ ' + item.api + ': ' + (item.error || item.note || 'HTTP ' + item.http), 'log-warn');
         }
       });
       renderSnapshot(d.snapshot);
-      document.getElementById('run-status').textContent = '';
+      status.textContent = '✅ Done';
+      status.style.color = '#4ade80';
     } else {
-      log('run-log','❌ '+(d.error||JSON.stringify(d)),'log-err');
+      addLog(runLog, '❌ ' + (d.error || JSON.stringify(d)), 'log-err');
+      status.textContent = '❌ Error';
+      status.style.color = '#f87171';
     }
-  } catch(e){ log('run-log','❌ '+e.message,'log-err'); }
+  } catch(e){
+    addLog(runLog, '❌ ' + e.message, 'log-err');
+    status.textContent = '❌ ' + e.message;
+    status.style.color = '#f87171';
+  }
 }
 
 // ── Test FX ──────────────────────────────────────────────────────
