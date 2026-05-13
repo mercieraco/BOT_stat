@@ -81,26 +81,15 @@ pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:8px">
-    <span id="auth-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#64748b">Not connected</span>
-    <button class="btn btn-slate" style="font-size:11px;padding:4px 10px" onclick="logout()">Logout</button>
+    <span id="auth-badge" style="font-size:10px;padding:2px 8px;border-radius:10px;background:#1e293b;border:1px solid #334155;color:#64748b">Ready</span>
   </div>
 </div>
 
 <div class="container">
 
-<!-- Login -->
-
-<div id="login-card" class="card" style="max-width:400px;margin:40px auto">
-  <div class="card-title">🔐 Login</div>
-  <div style="margin-bottom:8px"><input class="inp" id="inp-user" placeholder="Username" type="text" autocomplete="username"></div>
-  <div style="margin-bottom:10px"><input class="inp" id="inp-pass" placeholder="Password" type="password" autocomplete="current-password"></div>
-  <button class="btn btn-blue" style="width:100%" onclick="doLogin()">Login</button>
-  <div id="login-err" style="color:#f87171;font-size:11px;margin-top:8px;display:none"></div>
-</div>
-
 <!-- Main -->
 
-<div id="main-content" style="display:none">
+<div id="main-content">
 
   <!-- Worker status -->
 
@@ -271,7 +260,7 @@ pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:
 
 <script>
 var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
-var TOKEN  = localStorage.getItem('bh_token')  || '';
+var TOKEN  = '09b9d0a2-4091-4173-873c-3c46860a5fe1';
 
 function wurl(p){ return WORKER + p; }
 function tok(){ return TOKEN; }
@@ -299,41 +288,6 @@ function switchTab(name){
   document.getElementById('panel-'+name).classList.add('active');
 }
 
-// ── Auth ─────────────────────────────────────────────────────────
-async function doLogin(){
-  var user   = document.getElementById('inp-user').value.trim();
-  var pass   = document.getElementById('inp-pass').value.trim();
-  if(!user||!pass){ alert('กรอก Username และ Password ด้วยครับ'); return; }
-  try {
-    var r = await fetch(WORKER+'/auth/login',{method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({username:user,password:pass})});
-    var d = await r.json();
-    if(!r.ok||!d.token){
-      document.getElementById('login-err').style.display='block';
-      document.getElementById('login-err').textContent = d.error||'Login ไม่สำเร็จ';
-      return;
-    }
-    TOKEN = d.token;
-    localStorage.setItem('bh_token', TOKEN);
-    showMain();
-  } catch(e){
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('login-err').textContent = 'Error: '+e.message;
-  }
-}
-function showMain(){
-  document.getElementById('login-card').style.display='none';
-  document.getElementById('main-content').style.display='block';
-  document.getElementById('worker-url-display').textContent = WORKER;
-  document.getElementById('auth-badge').textContent = 'Connected';
-  document.getElementById('auth-badge').style.cssText = 'font-size:10px;padding:2px 8px;border-radius:10px;background:#052e16;border:1px solid #166534;color:#4ade80';
-}
-function logout(){
-  localStorage.removeItem('bh_token');
-  TOKEN = '';
-  location.reload();
-}
 async function pingWorker(){
   var el = document.getElementById('worker-badge');
   el.textContent = 'pinging...'; el.className = 'badge badge-na';
@@ -549,7 +503,11 @@ document.getElementById(‘raw-output’).textContent = JSON.stringify(d, null, 
 }
 
 // ── Init ──────────────────────────────────────────────────────────
-if(TOKEN){ showMain(); pingWorker(); }
+document.getElementById(‘main-content’).style.display = ‘block’;
+document.getElementById(‘worker-url-display’).textContent = WORKER;
+document.getElementById(‘auth-badge’).textContent = ‘Ready’;
+document.getElementById(‘auth-badge’).style.cssText = ‘font-size:10px;padding:2px 8px;border-radius:10px;background:#052e16;border:1px solid #166534;color:#4ade80’;
+pingWorker();
 </script>
 
 </body>
