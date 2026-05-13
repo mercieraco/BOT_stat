@@ -10,11 +10,15 @@ h2 { color: #93c5fd; margin: 0 0 16px; }
 button { background: #1e40af; color: #fff; border: none; border-radius: 6px; padding: 10px 20px; font-size: 14px; cursor: pointer; margin: 4px; }
 button:active { background: #1d4ed8; }
 button.gray { background: #334155; }
+button.sm { padding: 6px 12px; font-size: 12px; background: #334155; }
+button.sm:active { background: #475569; }
 pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px; white-space: pre-wrap; word-break: break-all; font-size: 12px; color: #94a3b8; min-height: 60px; margin-top: 10px; }
 .ok { color: #4ade80; }
 .err { color: #f87171; }
 .section { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
+.section h3 { color: #93c5fd; font-size: 13px; margin: 0 0 10px; }
 #status { font-size: 13px; color: #fbbf24; margin: 8px 0; min-height: 20px; }
+.wrap { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -28,8 +32,8 @@ pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; paddin
 </div>
 
 <div class="section">
-  <strong>Harvest ข้อมูล</strong>
-  <div style="margin: 10px 0">
+  <h3>Harvest ข้อมูล</h3>
+  <div class="wrap">
     <button onclick="runHarvest()">▶ Run Harvest</button>
     <button class="gray" onclick="getLatest()">↻ Load Latest</button>
   </div>
@@ -37,8 +41,8 @@ pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; paddin
 </div>
 
 <div class="section">
-  <strong>ทดสอบ APIs แยก</strong>
-  <div style="margin: 10px 0">
+  <h3>ทดสอบ APIs แยก</h3>
+  <div class="wrap">
     <button onclick="testRates()">🏦 Test Rates</button>
     <button onclick="testFX('USD')">💵 Test USD</button>
     <button onclick="testFX('EUR')">💶 Test EUR</button>
@@ -46,171 +50,138 @@ pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; paddin
   <pre id="out2">กดปุ่มด้านบนเพื่อทดสอบ</pre>
 </div>
 
+<div class="section">
+  <h3>🔬 Scan Fields — หา field names จาก API จริง</h3>
+  <div class="wrap">
+    <button class="sm" onclick="scan('Spot Rate','/Stat-SpotRate/v2/SPOTRATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">Spot Rate</button>
+    <button class="sm" onclick="scan('Ext FFR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=FFR','rate')">External FFR</button>
+    <button class="sm" onclick="scan('Ext SOFR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=SOFR','rate')">External SOFR</button>
+    <button class="sm" onclick="scan('Ext LIBOR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=LIBOR_3M_USD','rate')">External LIBOR</button>
+    <button class="sm" onclick="scan('THB Impl ON','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=ON','rate')">THB Implied O/N</button>
+    <button class="sm" onclick="scan('THB Impl 1W','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=1W','rate')">THB Implied 1W</button>
+    <button class="sm" onclick="scan('THB Impl 1M','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=1M','rate')">THB Implied 1M</button>
+    <button class="sm" onclick="scan('Swap 1W','/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Swap 1W</button>
+    <button class="sm" onclick="scan('Swap 1M','/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1M','rate')">Swap 1M</button>
+    <button class="sm" onclick="scan('Interbank ON','/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=O%2FN','rate')">Interbank O/N</button>
+    <button class="sm" onclick="scan('Interbank 1W','/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Interbank 1W</button>
+    <button class="sm" onclick="scan('BIBOR per Bank','/BIBOR/v2/bibor_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">BIBOR per Bank</button>
+    <button class="sm" onclick="scan('Deposit raw','/DepositRate/v2/deposit_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">Deposit Raw</button>
+    <button class="sm" onclick="scan('Avg Exchange JPY','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=JPY','fx')">FX JPY</button>
+    <button class="sm" onclick="scan('Avg Exchange CNY','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=CNY','fx')">FX CNY</button>
+    <button class="sm" onclick="scan('Avg Exchange GBP','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=GBP','fx')">FX GBP</button>
+  </div>
+  <pre id="out3">กดปุ่มเพื่อดู field names และ sample data จาก API จริง</pre>
+</div>
+
 <script>
 var W = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
 var T = '09b9d0a2-4091-4173-873c-3c46860a5fe1';
-
 document.getElementById('wurl').textContent = W;
 
-function h() {
-  return { 'Authorization': 'Bearer ' + T, 'Content-Type': 'application/json' };
-}
-
+function h() { return { 'Authorization': 'Bearer ' + T, 'Content-Type': 'application/json' }; }
 function show(id, text, isErr) {
   var el = document.getElementById(id);
   el.textContent = text;
   el.className = isErr ? 'err' : '';
 }
-
-function status(msg) {
-  document.getElementById('status').textContent = msg;
-}
+function status(msg) { document.getElementById('status').textContent = msg; }
 
 async function ping() {
   status('กำลัง ping...');
   try {
     var t = Date.now();
     var r = await fetch(W + '/bot/status', { headers: h(), signal: AbortSignal.timeout(8000) });
-    var d = await r.json();
-    status('HTTP ' + r.status + ' — ' + (Date.now()-t) + 'ms');
-    show('out1', JSON.stringify(d, null, 2));
-  } catch(e) {
-    status('❌ ' + e.message);
-    show('out1', e.message, true);
-  }
+    status('HTTP ' + r.status + ' — ' + (Date.now()-t) + 'ms ' + (r.ok?'✅':'❌'));
+  } catch(e) { status('❌ ' + e.message); }
 }
 
 async function runHarvest() {
   status('⏳ กำลัง harvest...');
   show('out1', 'กำลังส่ง POST /bot/harvest/run ...');
   try {
-    var r = await fetch(W + '/bot/harvest/run', {
-      method: 'POST',
-      headers: h(),
-      signal: AbortSignal.timeout(60000)
-    });
+    var r = await fetch(W + '/bot/harvest/run', { method:'POST', headers:h(), signal:AbortSignal.timeout(60000) });
     var text = await r.text();
-    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
-    try {
-      show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
-    } catch(e) {
-      show('out1', text, !r.ok);
-    }
-  } catch(e) {
-    status('❌ ' + e.message);
-    show('out1', 'Error: ' + e.message, true);
-  }
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌'));
+    try { show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok); }
+    catch(e) { show('out1', text, !r.ok); }
+  } catch(e) { status('❌ ' + e.message); show('out1', 'Error: '+e.message, true); }
 }
 
 async function getLatest() {
   status('⏳ กำลังโหลด...');
   try {
-    var r = await fetch(W + '/bot/harvest/latest', { headers: h(), signal: AbortSignal.timeout(10000) });
+    var r = await fetch(W + '/bot/harvest/latest', { headers:h(), signal:AbortSignal.timeout(10000) });
     var text = await r.text();
-    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
-    try {
-      show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
-    } catch(e) {
-      show('out1', text, !r.ok);
-    }
-  } catch(e) {
-    status('❌ ' + e.message);
-    show('out1', 'Error: ' + e.message, true);
-  }
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌'));
+    try { show('out1', JSON.stringify(JSON.parse(text), null, 2), !r.ok); }
+    catch(e) { show('out1', text, !r.ok); }
+  } catch(e) { status('❌ ' + e.message); show('out1', 'Error: '+e.message, true); }
 }
 
 async function testRates() {
-  status('⏳ กำลังทดสอบ Rates...');
-  show('out2', 'กำลังส่ง GET /bot/harvest/test/rates ...');
+  status('⏳ กำลังทดสอบ...');
+  show('out2', 'กำลังส่ง /bot/harvest/test/rates ...');
   try {
-    var r = await fetch(W + '/bot/harvest/test/rates', { headers: h(), signal: AbortSignal.timeout(30000) });
+    var r = await fetch(W + '/bot/harvest/test/rates', { headers:h(), signal:AbortSignal.timeout(30000) });
     var text = await r.text();
-    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
-    try {
-      show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
-    } catch(e) {
-      show('out2', text, !r.ok);
-    }
-  } catch(e) {
-    status('❌ ' + e.message);
-    show('out2', 'Error: ' + e.message, true);
-  }
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌'));
+    try { show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok); }
+    catch(e) { show('out2', text, !r.ok); }
+  } catch(e) { status('❌ ' + e.message); show('out2', 'Error: '+e.message, true); }
 }
 
 async function testFX(currency) {
   status('⏳ กำลังทดสอบ FX ' + currency + '...');
-  show('out2', 'กำลังส่ง GET /bot/harvest/test/fx?currency=' + currency + ' ...');
+  show('out2', 'กำลังส่ง /bot/harvest/test/fx?currency=' + currency + ' ...');
   try {
-    var r = await fetch(W + '/bot/harvest/test/fx?currency=' + currency, { headers: h(), signal: AbortSignal.timeout(20000) });
+    var r = await fetch(W + '/bot/harvest/test/fx?currency=' + currency, { headers:h(), signal:AbortSignal.timeout(20000) });
     var text = await r.text();
-    status('HTTP ' + r.status + (r.ok ? ' ✅' : ' ❌'));
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌'));
+    try { show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok); }
+    catch(e) { show('out2', text, !r.ok); }
+  } catch(e) { status('❌ ' + e.message); show('out2', 'Error: '+e.message, true); }
+}
+
+async function scan(name, path, keyType) {
+  status('⏳ Scanning: ' + name + '...');
+  show('out3', 'กำลังดึง: ' + path + '\n...');
+  // ใช้ /bot/probe ที่มีอยู่แล้วใน worker
+  var probeUrl = W + '/bot/probe?path=' + encodeURIComponent(path);
+  try {
+    var r = await fetch(probeUrl, { headers:h(), signal:AbortSignal.timeout(20000) });
+    var text = await r.text();
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌') + ' — ' + name);
     try {
-      show('out2', JSON.stringify(JSON.parse(text), null, 2), !r.ok);
+      var d = JSON.parse(text);
+      var resp = d.response || d;
+      // หา data_detail ในทุก path ที่เป็นไปได้
+      var detail = resp?.result?.data?.data_detail
+                || resp?.result?.data
+                || resp?.result;
+      if (detail) {
+        var arr = Array.isArray(detail) ? detail : Object.values(detail);
+        arr = arr.filter(function(x){ return typeof x === 'object' && x !== null; });
+        if (arr.length > 0) {
+          var out = '✅ API: ' + name + '\n';
+          out += 'Total rows: ' + arr.length + '\n\n';
+          out += 'Fields: ' + JSON.stringify(Object.keys(arr[0])) + '\n\n';
+          out += 'Sample row 1:\n' + JSON.stringify(arr[0], null, 2);
+          if (arr.length > 1) out += '\n\nSample row 2:\n' + JSON.stringify(arr[1], null, 2);
+          show('out3', out);
+        } else {
+          show('out3', '⚠️ data_detail ว่าง\n\nFull response:\n' + JSON.stringify(resp, null, 2).slice(0, 1000));
+        }
+      } else {
+        show('out3', '⚠️ ไม่พบ data_detail\n\nFull response:\n' + JSON.stringify(resp, null, 2).slice(0, 1000));
+      }
     } catch(e) {
-      show('out2', text, !r.ok);
+      show('out3', 'Parse error: ' + e.message + '\n\n' + text.slice(0, 800));
     }
   } catch(e) {
     status('❌ ' + e.message);
-    show('out2', 'Error: ' + e.message, true);
+    show('out3', '❌ ' + e.message, true);
   }
 }
 </script>
 </body>
 </html>
-
-<script>
-// เพิ่มปุ่มทดสอบ APIs ที่ยังไม่รู้ fields
-document.addEventListener('DOMContentLoaded', function() {
-  var sec = document.createElement('div');
-  sec.className = 'section';
-  sec.innerHTML = `
-    <strong>🔬 Scan Fields — APIs ที่ยังไม่รู้ structure</strong>
-    <div style="margin: 10px 0; display:flex; flex-wrap:wrap; gap:6px">
-      <button onclick="scanAPI('bibor_rate','GET','https://gateway.api.bot.or.th/BIBOR/v2/bibor_rate/?start_period=2026-04-01&end_period=2026-05-13&bank=ALL','rate')">BIBOR per Bank</button>
-      <button onclick="scanAPI('ext_ffr','GET','https://gateway.api.bot.or.th/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=FFR','rate')">External Rate FFR</button>
-      <button onclick="scanAPI('ext_sofr','GET','https://gateway.api.bot.or.th/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=SOFR','rate')">External Rate SOFR</button>
-      <button onclick="scanAPI('thb_impl','GET','https://gateway.api.bot.or.th/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">THB Implied</button>
-      <button onclick="scanAPI('swap_on','GET','https://gateway.api.bot.or.th/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Swap Point 1W</button>
-      <button onclick="scanAPI('spot','GET','https://gateway.api.bot.or.th/Stat-SpotRate/v2/SPOTRATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">Spot Rate</button>
-      <button onclick="scanAPI('interbank_on','GET','https://gateway.api.bot.or.th/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=O%2FN','rate')">Interbank O/N</button>
-      <button onclick="scanAPI('interbank_1w','GET','https://gateway.api.bot.or.th/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Interbank 1W</button>
-      <button onclick="scanAPI('deposit_raw','GET','https://gateway.api.bot.or.th/DepositRate/v2/deposit_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">Deposit Rate (raw)</button>
-    </div>
-    <pre id="scan-out" style="min-height:80px">กดปุ่มเพื่อดู fields จาก API จริง</pre>
-  `;
-  document.querySelector('.container').appendChild(sec);
-});
-
-async function scanAPI(id, method, url, keyType) {
-  var out = document.getElementById('scan-out');
-  out.textContent = 'กำลังดึง: ' + url + '\n...';
-  // ส่งผ่าน worker proxy เพื่อหลีกเลี่ยง CORS
-  var probeUrl = W + '/bot/probe?path=' + encodeURIComponent(url.replace('https://gateway.api.bot.or.th/', ''));
-  try {
-    var r = await fetch(probeUrl, { headers: h(), signal: AbortSignal.timeout(20000) });
-    var text = await r.text();
-    try {
-      var d = JSON.parse(text);
-      // หา data_detail
-      var detail = d?.response?.result?.data?.data_detail;
-      if (!detail) detail = d?.result?.data?.data_detail;
-      if (detail) {
-        var arr = Array.isArray(detail) ? detail : Object.values(detail);
-        if (arr.length > 0) {
-          out.textContent = '✅ Fields ที่พบ:\n' + JSON.stringify(Object.keys(arr[0]), null, 2)
-            + '\n\nSample row:\n' + JSON.stringify(arr[0], null, 2)
-            + '\n\nTotal rows: ' + arr.length;
-        } else {
-          out.textContent = '⚠️ data_detail ว่างเปล่า\n\n' + JSON.stringify(d, null, 2).slice(0, 500);
-        }
-      } else {
-        out.textContent = '⚠️ ไม่พบ data_detail\n\n' + JSON.stringify(d, null, 2).slice(0, 800);
-      }
-    } catch(e) {
-      out.textContent = 'Parse error: ' + e.message + '\n\n' + text.slice(0, 500);
-    }
-  } catch(e) {
-    out.textContent = '❌ ' + e.message;
-  }
-}
-</script>
