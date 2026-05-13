@@ -53,22 +53,22 @@ pre { background: #1e293b; border: 1px solid #334155; border-radius: 6px; paddin
 <div class="section">
   <h3>🔬 Scan Fields — หา field names จาก API จริง</h3>
   <div class="wrap">
-    <button class="sm" onclick="scan('Spot Rate','/Stat-SpotRate/v2/SPOTRATE/?start_period=2026-04-01&end_period=2026-05-13','rate')">Spot Rate</button>
-    <button class="sm" onclick="scan('Ext FFR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=FFR','rate')">External FFR</button>
-    <button class="sm" onclick="scan('Ext SOFR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=SOFR','rate')">External SOFR</button>
-    <button class="sm" onclick="scan('Ext LIBOR','/Stat-ExternalInterestRate/v2/EXT_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=LIBOR_3M_USD','rate')">External LIBOR</button>
-    <button class="sm" onclick="scan('THB Impl ON','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=ON','rate')">THB Implied O/N</button>
-    <button class="sm" onclick="scan('THB Impl 1W','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=1W','rate')">THB Implied 1W</button>
-    <button class="sm" onclick="scan('THB Impl 1M','/Stat-ThaiBahtImpliedInterestRate/v2/THB_IMPL_INT_RATE/?start_period=2026-04-01&end_period=2026-05-13&rate_type=1M','rate')">THB Implied 1M</button>
-    <button class="sm" onclick="scan('Swap 1W','/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Swap 1W</button>
-    <button class="sm" onclick="scan('Swap 1M','/Stat-SwapPoint/v2/SWAPPOINT/?start_period=2026-04-01&end_period=2026-05-13&term_type=1M','rate')">Swap 1M</button>
-    <button class="sm" onclick="scan('Interbank ON','/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=O%2FN','rate')">Interbank O/N</button>
-    <button class="sm" onclick="scan('Interbank 1W','/Stat-InterbankTransactionRate/v2/INTRBNK_TXN_RATE/?start_period=2026-04-01&end_period=2026-05-13&term_type=1W','rate')">Interbank 1W</button>
-    <button class="sm" onclick="scan('BIBOR per Bank','/BIBOR/v2/bibor_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">BIBOR per Bank</button>
-    <button class="sm" onclick="scan('Deposit raw','/DepositRate/v2/deposit_rate/?start_period=2026-04-01&end_period=2026-05-13','rate')">Deposit Raw</button>
-    <button class="sm" onclick="scan('Avg Exchange JPY','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=JPY','fx')">FX JPY</button>
-    <button class="sm" onclick="scan('Avg Exchange CNY','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=CNY','fx')">FX CNY</button>
-    <button class="sm" onclick="scan('Avg Exchange GBP','/Stat-ExchangeRate/v2/DAILY_AVG_EXG_RATE/?start_period=2026-05-01&end_period=2026-05-13&currency=GBP','fx')">FX GBP</button>
+    <button class="sm" onclick="scan('spot')">Spot Rate</button>
+    <button class="sm" onclick="scan('ext_ffr')">External FFR</button>
+    <button class="sm" onclick="scan('ext_sofr')">External SOFR</button>
+    <button class="sm" onclick="scan('ext_libor')">External LIBOR</button>
+    <button class="sm" onclick="scan('thb_on')">THB Implied O/N</button>
+    <button class="sm" onclick="scan('thb_1w')">THB Implied 1W</button>
+    <button class="sm" onclick="scan('thb_1m')">THB Implied 1M</button>
+    <button class="sm" onclick="scan('swap_1w')">Swap 1W</button>
+    <button class="sm" onclick="scan('swap_1m')">Swap 1M</button>
+    <button class="sm" onclick="scan('ib_on')">Interbank O/N</button>
+    <button class="sm" onclick="scan('ib_1w')">Interbank 1W</button>
+    <button class="sm" onclick="scan('bibor_bank')">BIBOR per Bank</button>
+    <button class="sm" onclick="scan('deposit_raw')">Deposit Raw</button>
+    <button class="sm" onclick="scan('ext_all')">Ext All</button>
+    <button class="sm" onclick="scan('thb_all')">THB Impl All</button>
+    <button class="sm" onclick="scan('swap_all')">Swap All</button>
   </div>
   <pre id="out3">กดปุ่มเพื่อดู field names และ sample data จาก API จริง</pre>
 </div>
@@ -142,38 +142,25 @@ async function testFX(currency) {
   } catch(e) { status('❌ ' + e.message); show('out2', 'Error: '+e.message, true); }
 }
 
-async function scan(name, path, keyType) {
-  status('⏳ Scanning: ' + name + '...');
-  show('out3', 'กำลังดึง: ' + path + '\n...');
-  // ใช้ /bot/probe ที่มีอยู่แล้วใน worker
-  var probeUrl = W + '/bot/probe?path=' + encodeURIComponent(path);
+async function scan(apiKey) {
+  status('⏳ Scanning: ' + apiKey + '...');
+  show('out3', 'กำลังดึง api=' + apiKey + '...');
   try {
-    var r = await fetch(probeUrl, { headers:h(), signal:AbortSignal.timeout(20000) });
+    var r = await fetch(W + '/bot/harvest/test/scan?api=' + apiKey, { headers:h(), signal:AbortSignal.timeout(25000) });
     var text = await r.text();
-    status('HTTP ' + r.status + (r.ok?' ✅':' ❌') + ' — ' + name);
+    status('HTTP ' + r.status + (r.ok?' ✅':' ❌') + ' — ' + apiKey);
     try {
       var d = JSON.parse(text);
-      var resp = d.response || d;
-      // หา data_detail ในทุก path ที่เป็นไปได้
-      var detail = resp?.result?.data?.data_detail
-                || resp?.result?.data
-                || resp?.result;
-      if (detail) {
-        var arr = Array.isArray(detail) ? detail : Object.values(detail);
-        arr = arr.filter(function(x){ return typeof x === 'object' && x !== null; });
-        if (arr.length > 0) {
-          var out = '✅ API: ' + name + '\n';
-          out += 'Total rows: ' + arr.length + '\n\n';
-          out += 'Fields: ' + JSON.stringify(Object.keys(arr[0])) + '\n\n';
-          out += 'Sample row 1:\n' + JSON.stringify(arr[0], null, 2);
-          if (arr.length > 1) out += '\n\nSample row 2:\n' + JSON.stringify(arr[1], null, 2);
-          show('out3', out);
-        } else {
-          show('out3', '⚠️ data_detail ว่าง\n\nFull response:\n' + JSON.stringify(resp, null, 2).slice(0, 1000));
-        }
+      var out = '✅ API: ' + apiKey + '\n';
+      out += 'HTTP: ' + d.http_status + ' | rows: ' + d.total_rows + '\n\n';
+      out += 'Fields: ' + JSON.stringify(d.fields) + '\n\n';
+      if (d.sample && d.sample.length > 0) {
+        out += 'Sample row 1:\n' + JSON.stringify(d.sample[0], null, 2);
+        if (d.sample.length > 1) out += '\n\nSample row 2:\n' + JSON.stringify(d.sample[1], null, 2);
       } else {
-        show('out3', '⚠️ ไม่พบ data_detail\n\nFull response:\n' + JSON.stringify(resp, null, 2).slice(0, 1000));
+        out += 'No sample data\n\nFull response:\n' + JSON.stringify(d, null, 2);
       }
+      show('out3', out, !r.ok);
     } catch(e) {
       show('out3', 'Parse error: ' + e.message + '\n\n' + text.slice(0, 800));
     }
