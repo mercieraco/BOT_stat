@@ -94,10 +94,6 @@ pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:
   <div class="card-title">🔐 Login</div>
   <div style="margin-bottom:8px"><input class="inp" id="inp-user" placeholder="Username" type="text" autocomplete="username"></div>
   <div style="margin-bottom:10px"><input class="inp" id="inp-pass" placeholder="Password" type="password" autocomplete="current-password"></div>
-  <div style="margin-bottom:12px">
-    <div style="font-size:11px;color:#64748b;margin-bottom:4px">Worker URL</div>
-    <input class="inp" id="inp-worker" value="https://iaa-ingest.9vk92zm5z2.workers.dev">
-  </div>
   <button class="btn btn-blue" style="width:100%" onclick="doLogin()">Login</button>
   <div id="login-err" style="color:#f87171;font-size:11px;margin-top:8px;display:none"></div>
 </div>
@@ -274,7 +270,7 @@ pre{background:#0a0f1a;padding:10px;border-radius:6px;font-size:11px;overflow-x:
 </div><!-- /container -->
 
 <script>
-var WORKER = localStorage.getItem('bh_worker') || 'https://iaa-ingest.9vk92zm5z2.workers.dev';
+var WORKER = 'https://iaa-ingest.9vk92zm5z2.workers.dev';
 var TOKEN  = localStorage.getItem('bh_token')  || '';
 
 function wurl(p){ return WORKER + p; }
@@ -307,9 +303,7 @@ function switchTab(name){
 async function doLogin(){
   var user   = document.getElementById('inp-user').value.trim();
   var pass   = document.getElementById('inp-pass').value.trim();
-  var worker = document.getElementById('inp-worker').value.trim();
-  if(!user||!pass||!worker){ alert('กรอกข้อมูลให้ครบ'); return; }
-  WORKER = worker;
+  if(!user||!pass){ alert('กรอก Username และ Password ด้วยครับ'); return; }
   try {
     var r = await fetch(WORKER+'/auth/login',{method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -322,7 +316,6 @@ async function doLogin(){
     }
     TOKEN = d.token;
     localStorage.setItem('bh_token', TOKEN);
-    localStorage.setItem('bh_worker', WORKER);
     showMain();
   } catch(e){
     document.getElementById('login-err').style.display='block';
@@ -332,7 +325,7 @@ async function doLogin(){
 function showMain(){
   document.getElementById('login-card').style.display='none';
   document.getElementById('main-content').style.display='block';
-  document.getElementById('worker-url-display').textContent = WORKER.replace('https://','');
+  document.getElementById('worker-url-display').textContent = WORKER;
   document.getElementById('auth-badge').textContent = 'Connected';
   document.getElementById('auth-badge').style.cssText = 'font-size:10px;padding:2px 8px;border-radius:10px;background:#052e16;border:1px solid #166534;color:#4ade80';
 }
